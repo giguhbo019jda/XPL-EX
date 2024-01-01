@@ -20,8 +20,6 @@ The overarching aim is to limit the information apps can access or gather about 
 
 Additionally, there are emerging techniques like "keystroke dynamics" used to identify individuals based on their typing patterns. While not widely adopted or entirely accurate, they are still utilized. It's important to note that nearly every app, especially those from major social media platforms like TikTok, Facebook, and Instagram, records data on your phone.
 
-I am ObbedCode, extending my warm regards to everyone. I hope you appreciate this contribution. My goal is simply to give to the community, with no expectation of payment. Love all, and remember to protect your privacy!
-
 
 XPL-EX (Simple)
 ------------
@@ -64,6 +62,9 @@ https://t.me/xplexex
 
 ### Telegram
 https://t.me/obbedcode
+
+### Telegram Discussion Chat
+https://t.me/XPLEXCHAT
 
 ### Discord , Nulled (ObbedCode)<br><br>
 
