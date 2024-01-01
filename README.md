@@ -35,6 +35,7 @@ In App
 <img src="https://github.com/0bbedCode/XPL-EX/assets/114315756/d32115bd-2c6b-4a57-93bb-b7f8d523448c" width="311" height="640">
 <img src="https://github.com/0bbedCode/XPL-EX/assets/114315756/a160a7c1-b4ce-4c89-8989-ce96fca7a474" width="311" height="640">
 <img src="https://github.com/0bbedCode/XPL-EX/assets/114315756/d51e9c78-6efb-48f2-876a-ef5c69e48fd6" width="311" height="640">
+<img src="https://github.com/0bbedCode/XPL-EX/assets/114315756/25b82519-309f-4b0e-9d12-87091ec699d6" width="311" height="640">
 
 
 To Come
