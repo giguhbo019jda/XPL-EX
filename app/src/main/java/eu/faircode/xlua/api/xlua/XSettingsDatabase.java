@@ -16,9 +16,7 @@ import eu.faircode.xlua.database.DatabaseHelperEx;
 import eu.faircode.xlua.database.DatabaseQuerySnake;
 import eu.faircode.xlua.api.objects.xlua.packets.SettingPacket;
 
-import eu.faircode.xlua.api.objects.xlua.app.xApp;
-import eu.faircode.xlua.api.objects.xlua.hook.xHook;
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
+import eu.faircode.xlua.api.objects.xlua.setting.XSetting;
 import eu.faircode.xlua.api.objects.xlua.setting.xCategory;
 
 public class XSettingsDatabase {
@@ -33,11 +31,11 @@ public class XSettingsDatabase {
                 packet.getValue() != null ?
                         DatabaseHelperEx.insertItem(
                                 db,
-                                xSetting.Table.name,
+                                XSetting.Table.name,
                                 packet) :
                         DatabaseHelperEx.deleteItem(
                                 DatabaseQuerySnake
-                                    .create(db, xSetting.Table.name)
+                                    .create(db, XSetting.Table.name)
                                     .whereColumn("user", packet.getUser())
                                     .whereColumn("name", packet.getName()));
 
@@ -50,8 +48,8 @@ public class XSettingsDatabase {
         boolean result =
                 DatabaseHelperEx.insertItem(
                         db,
-                        xSetting.Table.name,
-                        xSetting.create(user, category, name, value));
+                        XSetting.Table.name,
+                        XSetting.create(user, category, name, value));
         if (!result && kill) {
             try {
                 XAppProvider.forceStop(context, category, user);
@@ -63,14 +61,14 @@ public class XSettingsDatabase {
         return result;
     }
 
-    public static boolean putSetting(Context context, xSetting setting, boolean kill, XDataBase db) throws Throwable {
+    public static boolean putSetting(Context context, XSetting setting, boolean kill, XDataBase db) throws Throwable {
         Log.i(TAG, "[putSetting] " + setting);
 
         boolean result =
                 setting.getValue() != null ?
-                        DatabaseHelperEx.insertItem(db, xSetting.Table.name, setting) :
+                        DatabaseHelperEx.insertItem(db, XSetting.Table.name, setting) :
                         DatabaseHelperEx.deleteItem(DatabaseQuerySnake
-                                .create(db, xSetting.Table.name)
+                                .create(db, XSetting.Table.name)
                                 .whereColumn("user", setting.getUser())
                                 .whereColumn("name", setting.getName()));
 
@@ -80,18 +78,18 @@ public class XSettingsDatabase {
         return result;
     }
 
-    public static boolean putSettings(Context context, XDataBase db, List<xSetting> settings) {
+    public static boolean putSettings(Context context, XDataBase db, List<XSetting> settings) {
         return DatabaseHelperEx.insertItems(
                 db,
-                xSetting.Table.name,
+                XSetting.Table.name,
                 settings,
                 prepareDatabaseTable(context, db));
     }
 
-    public static boolean putSetting(Context context, XDataBase db, xSetting setting) {
+    public static boolean putSetting(Context context, XDataBase db, XSetting setting) {
         return DatabaseHelperEx.insertItem(
                 db,
-                xSetting.Table.name,
+                XSetting.Table.name,
                 setting,
                 prepareDatabaseTable(context, db));
     }
@@ -101,33 +99,33 @@ public class XSettingsDatabase {
         return DatabaseHelperEx.prepareTableIfMissingOrInvalidCount(
                 context,
                 db,
-                xSetting.Table.name,
-                xSetting.Table.columns,
-                xSetting.class);
+                XSetting.Table.name,
+                XSetting.Table.columns,
+                XSetting.class);
     }
 
-    public static Collection<xSetting> getSettingsFromName(XDataBase db, String settingsName) {
+    public static Collection<XSetting> getSettingsFromName(XDataBase db, String settingsName) {
         return DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .whereColumn("name", settingsName)
-                .queryAs(xSetting.class, true);
+                .queryAs(XSetting.class, true);
     }
 
-    public static Collection<xSetting> getSettings(XDataBase db, int userId, String categoryName) { return getSettings(db, new xCategory(userId, categoryName)); }
-    public static Collection<xSetting> getSettings(XDataBase db, xCategory category) {
+    public static Collection<XSetting> getSettings(XDataBase db, int userId, String categoryName) { return getSettings(db, new xCategory(userId, categoryName)); }
+    public static Collection<XSetting> getSettings(XDataBase db, xCategory category) {
         return DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .whereColumns("user", "category")
                 .whereColumnValues(Integer.toString(category.getUserId()), category.getName())
-                .queryAs(xSetting.class, true);
+                .queryAs(XSetting.class, true);
     }
 
-    public static Collection<xSetting> getSettingsByName(XDataBase db, int userId, String settingName) {
+    public static Collection<XSetting> getSettingsByName(XDataBase db, int userId, String settingName) {
         return DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .whereColumns("user", "name")
                 .whereColumnValues(Integer.toString(userId), settingName)
-                .queryAs(xSetting.class, true);
+                .queryAs(XSetting.class, true);
     }
 
     public static boolean getSettingBoolean(XDataBase db, String category, String settingName) { return getSettingBoolean(db, XUtil.getUserId(Process.myUid()), category, settingName); }
@@ -135,14 +133,14 @@ public class XSettingsDatabase {
         return Boolean.parseBoolean(getSettingValue(db, userId, category, settingName));
     }
 
-    public static String getSettingValue(XDataBase db, xSetting setting) { return getSettingValue(db, setting.getUser(), setting.getCategory(), setting.getName()); }
+    public static String getSettingValue(XDataBase db, XSetting setting) { return getSettingValue(db, setting.getUser(), setting.getCategory(), setting.getName()); }
     public static String getSettingValue(XDataBase db, int userId, String category, String settingName) {
         String v = DatabaseQuerySnake.
-                create(db, xSetting.Table.name)
+                create(db, XSetting.Table.name)
                 .whereColumns("user", "category", "name")
                 .whereColumnValues(Integer.toString(userId), category, settingName)
                 .onlyReturnColumn("value")
-                .queryGetFirstAs(xSetting.class, true)
+                .queryGetFirstAs(XSetting.class, true)
                 .getValue();
 
         if(v == null) {
@@ -163,25 +161,25 @@ public class XSettingsDatabase {
         return v;
     }
 
-    public static xSetting getSetting(XDataBase db, xCategory category, String settingName) { return getSetting(db, category.getUserId(), category.getName(), settingName);  }
-    public static xSetting getSetting(XDataBase db, int userId, String category, String settingName) {
+    public static XSetting getSetting(XDataBase db, xCategory category, String settingName) { return getSetting(db, category.getUserId(), category.getName(), settingName);  }
+    public static XSetting getSetting(XDataBase db, int userId, String category, String settingName) {
         return DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .whereColumns("user", "category", "name")
                 .whereColumnValues(Integer.toString(userId), category, settingName)
-                .queryGetFirstAs(xSetting.class, true);
+                .queryGetFirstAs(XSetting.class, true);
     }
 
     public static Collection<String> getCategoriesFromUID(XDataBase db, int userId) {
         return DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .whereColumn("user", Integer.toString(userId))
                 .queryAsStringList("category", true);
     }
 
     public static Collection<xCategory> getCategories(XDataBase db) {
         return DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .onlyReturnColumns("user", "category")
                 .queryAll(xCategory.class, true);
     }

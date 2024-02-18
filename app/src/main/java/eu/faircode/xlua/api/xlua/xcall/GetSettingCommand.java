@@ -12,10 +12,6 @@ import eu.faircode.xlua.api.xlua.XSettingsDatabase;
 import eu.faircode.xlua.api.objects.xlua.packets.SettingPacket;
 import eu.faircode.xlua.utilities.BundleUtil;
 
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
-import eu.faircode.xlua.api.objects.xlua.setting.xSettingConversions;
-
-
 
 public class GetSettingCommand extends CallCommandHandler {
     public static GetSettingCommand create() { return new GetSettingCommand(); };

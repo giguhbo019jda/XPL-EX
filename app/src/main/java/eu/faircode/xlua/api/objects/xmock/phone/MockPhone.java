@@ -1,31 +1,5 @@
 package eu.faircode.xlua.api.objects.xmock.phone;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import eu.faircode.xlua.XDataBase;
-import eu.faircode.xlua.api.objects.IDBSerial;
-import eu.faircode.xlua.api.objects.IJsonSerial;
-import eu.faircode.xlua.api.objects.ISerial;
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
-import eu.faircode.xlua.api.xlua.XSettingsDatabase;
-import eu.faircode.xlua.utilities.BundleUtil;
-import eu.faircode.xlua.utilities.CollectionUtil;
-import eu.faircode.xlua.utilities.CursorUtil;
-
 /*public class MockPhone extends MockPhoneBase implements IJsonSerial, Parcelable {
 
     public MockPhone() { }

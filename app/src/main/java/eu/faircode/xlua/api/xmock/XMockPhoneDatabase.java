@@ -130,6 +130,18 @@ public class XMockPhoneDatabase {
                 MockPhone.COUNT);
     }*/
 
+    public static boolean putMockConfig(Context context, MockPhoneConfig config, XDataBase db) {
+        if(config == null || StringUtil.isValidString(config.getName()))
+            return false;
+
+        return DatabaseHelperEx.insertItem(
+                db,
+                MockPhoneConfig.Table.name,
+                config,
+                prepareDatabaseTable(context, db));
+    }
+
+
     public static Collection<MockPhoneConfig> getMockConfigs(Context context, XDataBase db) {
         Log.i("XLua.XMockPhoneDatabase", "Getting Mock Configs");
         return DatabaseHelperEx.initDatabase(

@@ -10,8 +10,7 @@ import eu.faircode.xlua.XDataBase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.objects.ISettingsConfig;
 import eu.faircode.xlua.api.objects.xlua.packets.SettingPacket;
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
-import eu.faircode.xlua.api.xlua.XSettingsDatabase;
+import eu.faircode.xlua.api.objects.xlua.setting.XSetting;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class XMockPhoneProvider {
@@ -41,8 +40,8 @@ public class XMockPhoneProvider {
                 if(!StringUtil.isValidString(v))
                     continue;
 
-                xSetting setting = new SettingPacket(userId, packageName, n, v);
-                if(!db.insert(xSetting.Table.name, setting.createContentValues())) {
+                XSetting setting = new SettingPacket(userId, packageName, n, v);
+                if(!db.insert(XSetting.Table.name, setting.createContentValues())) {
                     Log.e(TAG, "Failed to insert setting: name=" + n + " value=" + v);
                     failed++;
                 }else {

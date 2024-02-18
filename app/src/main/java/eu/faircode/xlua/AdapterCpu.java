@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.api.XMockCallApi;
 import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
+import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
     private static final String TAG = "XLua.ADCpu";
@@ -75,10 +76,7 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
 
             switch (view.getId()) {
                 case R.id.itemViewCpu:
-                    if(!expanded.containsKey(name))
-                        expanded.put(name, false);
-
-                    expanded.put(name, !expanded.get(name));
+                    ViewUtil.internalUpdateExpanded(expanded, name);
                     updateExpanded();
                     break;
             }
@@ -109,11 +107,9 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
         void updateExpanded() {
             MockCpu map = maps.get(getAdapterPosition());
             String name = map.getName();
-            boolean isExpanded = expanded.containsKey(name) && expanded.get(name);
-            ivExpanderCpu.setImageLevel(isExpanded ? 1 : 0);
-            tvCpuMapContents.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+            boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
+            ViewUtil.setViewsVisibility(ivExpanderCpu, isExpanded, tvCpuMapContents);
         }
-
     }
 
     AdapterCpu() { setHasStableIds(true); }

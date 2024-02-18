@@ -8,7 +8,7 @@ import java.util.List;
 
 import eu.faircode.xlua.XDataBase;
 import eu.faircode.xlua.XGlobalCore;
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
+import eu.faircode.xlua.api.objects.xlua.setting.XSetting;
 
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.objects.XAssignmentDataHelper;
@@ -81,7 +81,7 @@ public class XAppDatabase {
                         .whereColumn("user", userid)
                         .whereColumn("category", packageName);
 
-                if(!db.delete(xSetting.Table.name, setSnake.getSelectionArgs(), setSnake.getSelectionCompareValues()))
+                if(!db.delete(XSetting.Table.name, setSnake.getSelectionArgs(), setSnake.getSelectionCompareValues()))
                     return false;
             }
 
@@ -102,7 +102,7 @@ public class XAppDatabase {
 
         if(userid == 0) {
             db.beginTransaction(true);
-            result = db.delete(Assignment.Table.name) && db.delete(xSetting.Table.name);
+            result = db.delete(Assignment.Table.name) && db.delete(XSetting.Table.name);
             db.endTransaction(true, true);
         }else {
             int start = XUtil.getUserUid(userid, 0);
@@ -116,7 +116,7 @@ public class XAppDatabase {
 
             result = result && DatabaseHelperEx.deleteItem(
                     DatabaseQuerySnake
-                            .create(db, xSetting.Table.name)
+                            .create(db, XSetting.Table.name)
                             .whereColumn("user", userid));
         }
 

@@ -7,6 +7,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,13 +21,13 @@ import eu.faircode.xlua.api.objects.ISerial;
 import eu.faircode.xlua.api.objects.xlua.packets.SettingPacket;
 import eu.faircode.xlua.utilities.CursorUtil;
 
-public class xSetting extends xSettingBase implements ISerial, IDBSerial, IJsonSerial, Parcelable {
-    public static xSetting create(Integer user, String category, String name, String value) { return new SettingPacket(user, category, name, value); }
+public class XSetting extends xSettingBase implements ISerial, IDBSerial, IJsonSerial, Parcelable {
+    public static XSetting create(Integer user, String category, String name, String value) { return new SettingPacket(user, category, name, value); }
 
-    public xSetting() { }
-    public xSetting(Parcel in) { fromParcel(in); }
-    public xSetting(Integer user, String category, String name) { super(user, category, name, null); }
-    public xSetting(Integer user, String category, String name, String value) { super(user, category, name, value); }
+    public XSetting() { }
+    public XSetting(Parcel in) { fromParcel(in); }
+    public XSetting(Integer user, String category, String name) { super(user, category, name, null); }
+    public XSetting(Integer user, String category, String name, String value) { super(user, category, name, value); }
 
     @Override
     public Bundle toBundle() {
@@ -103,15 +105,15 @@ public class xSetting extends xSettingBase implements ISerial, IDBSerial, IJsonS
         return cv;
     }
 
-    public static final Parcelable.Creator<xSetting> CREATOR = new Parcelable.Creator<xSetting>() {
+    public static final Parcelable.Creator<XSetting> CREATOR = new Parcelable.Creator<XSetting>() {
         @Override
-        public xSetting createFromParcel(Parcel source) {
-            return new xSetting(source);
+        public XSetting createFromParcel(Parcel source) {
+            return new XSetting(source);
         }
 
         @Override
-        public xSetting[] newArray(int size) {
-            return new xSetting[size];
+        public XSetting[] newArray(int size) {
+            return new XSetting[size];
         }
     };
 
@@ -123,6 +125,33 @@ public class xSetting extends xSettingBase implements ISerial, IDBSerial, IJsonS
 
     @Override
     public void fromJSONObject(JSONObject obj) throws JSONException { }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if(name != null) {
+            sb.append("name=");
+            sb.append(name);
+        }
+
+        if(value != null) {
+            sb.append(" value=");
+            sb.append(value);
+        }
+
+        if(category != null) {
+            sb.append(" category=");
+            sb.append(category);
+        }
+
+        if(user != null) {
+            sb.append(" user=");
+            sb.append(user);
+        }
+
+        return sb.toString();
+    }
 
     public static class Table {
         public static final String name = "setting";

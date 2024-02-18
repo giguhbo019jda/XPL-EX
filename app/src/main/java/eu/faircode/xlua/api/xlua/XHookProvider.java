@@ -34,20 +34,6 @@ public class XHookProvider {
         if(DebugUtil.isDebug())
             Log.i(TAG, "collection=" + value);
 
-        /*if(value == null) { //Should not happen , theme & collection are init default values when if null
-            result.add("Privacy");
-            result.add("PrivacyEx");
-
-            SettingPacket packet = new SettingPacket();
-            packet.setUser(userId);
-            packet.setCategory("global");
-            packet.setName("collection");
-            packet.setValue("Privacy,PrivacyEx");
-
-            XSettingsDatabase.putSetting(db, packet);
-            return result;
-        }*/
-
         if(value.contains(",")) Collections.addAll(result, value.split(","));
         else result.add(value);
 

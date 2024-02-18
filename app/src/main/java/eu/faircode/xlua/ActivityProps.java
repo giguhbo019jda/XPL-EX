@@ -61,12 +61,14 @@ public class ActivityProps extends ActivityBase {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentProps = new FragmentPropsEx();
 
-        Log.i(TAG, "Created Fragment, now replacing...");
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "Created Fragment, now replacing...");
 
         fragmentTransaction.replace(R.id.content_frame_props, fragmentProps);
         fragmentTransaction.commit();
 
-        Log.i(TAG, "Finished Creating Fragment/Activity");
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "Finished Creating Fragment/Activity");
     }
 
     @Override

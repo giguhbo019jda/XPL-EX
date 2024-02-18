@@ -20,15 +20,7 @@ public class XMockDatabaseHelp {
             XMockCpuProvider.initCache(context, db);
         if(db.tableEntries(MockProp.Table.name) < 1)
             XMockPropDatabase.getMockProps(context, db);
-
         if(db.tableEntries(MockPhoneConfig.Table.name) < 1)
             XMockPhoneDatabase.getMockConfigs(context, db);
-        //replicate , below for above
-        /*(if(db.tableEntries(MockPhone.Table.name) < 1)
-            XMockPhoneDatabase.preparePhonesDatabaseTable(context, db);
-        if(db.tableEntries(MockCarrier.Table.name) < 1)
-            XMockPhoneDatabase.prepareCarriersDatabaseTable(context, db);
-        if(db.tableEntries(MockUniqueId.Table.name) < 1)
-            XMockPhoneDatabase.prepareUniqueIDsDatabaseTable(context, db);*/
     }
 }

@@ -78,7 +78,60 @@ public class BundleUtil {
 
     public static boolean readResultStatus(Bundle bundle) {
         if(bundle == null) return false;
-        return bundle.getBoolean("result", false);
+        //FIXC THIS
+
+        if(!bundle.containsKey("result"))
+            return false;
+
+        String res = bundle.getString("result");
+        if(res == null || res.isEmpty())
+            return false;
+
+        if(res.equals("-1"))
+            return false;
+
+        if(res.equals("0"))
+            return true;
+
+        if(res.equalsIgnoreCase("false"))
+            return false;
+
+        if(res.equalsIgnoreCase("true"))
+            return true;
+
+        return false;
+    }
+
+    public static String readResultStatusMessage(Bundle bundle) {
+        if(bundle == null) return "Action Executed but returned NULL (assume it went well :P )";
+        StringBuilder sb = new StringBuilder();
+
+        String res = null;
+        if(bundle.containsKey("result"))
+            res = bundle.getString("result");
+
+        if(res == null || res.isEmpty()) {
+            sb.append("Action Executed but returned NULL (assume it went well :P )");
+        }else {
+            if(res.equals("-1"))
+                sb.append("Action Failed to execute! (-1)");
+            else if(res.equals("0"))
+                sb.append("Action Executed Successfully! (0)");
+            else if(res.equalsIgnoreCase("false"))
+                sb.append("Action Failed to execute!");
+            else if(res.equalsIgnoreCase("true"))
+                sb.append("Action Executed Successfully!");
+        }
+
+        if(bundle.containsKey("message")) {
+            String bMessage = bundle.getString("message");
+            if(bMessage != null && !bMessage.isEmpty()) {
+                sb.append(" Message: ");
+                sb.append(bMessage);
+            }
+        }
+
+        return sb.toString();
     }
 
     public static String readString(Bundle bundle, String keyName) { return readString(bundle, keyName, null); }
@@ -91,6 +144,9 @@ public class BundleUtil {
     public static int readInt(Bundle bundle, String keyName) { return readInt(bundle, keyName, -5); }
     public static int readInt(Bundle bundle, String keyName, int defaultValue) {
         if(bundle == null) return defaultValue;
+        if(!bundle.containsKey(keyName))
+            return defaultValue;
+
         return bundle.getInt(keyName, defaultValue);
     }
 

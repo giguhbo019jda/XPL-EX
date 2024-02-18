@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import eu.faircode.xlua.api.objects.xmock.ConfigSetting;
@@ -107,10 +108,25 @@ public class MockConfigConversions {
         return ps;
     }
 
+    public static Map<String, String> listToHashMapSettings(List<ConfigSetting> settings, boolean worryAboutEnabledState) {
+        Map<String, String> map = new HashMap<>();
+        if(worryAboutEnabledState) {
+            for (ConfigSetting setting : settings)
+                if (setting.isEnabled())
+                    map.put(setting.getName(), setting.getValue());
+        }
+        else {
+            for(ConfigSetting setting : settings)
+                map.put(setting.getName(), setting.getValue());
+        }
+
+        return map;
+    }
+
     public static Collection<ConfigSetting> hashMapToListSettings(Map<String, String> settingsMap) {
         Collection<ConfigSetting> settings = new ArrayList<>();
         for(Map.Entry<String, String> r : settingsMap.entrySet()) {
-            ConfigSetting setting = new ConfigSetting(r.getKey(), r.getValue());
+            ConfigSetting setting = new ConfigSetting(r.getKey(), r.getValue(), true);
             settings.add(setting);
         }
 

@@ -1,5 +1,6 @@
 package eu.faircode.xlua;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +30,8 @@ import java.util.concurrent.Executors;
 import eu.faircode.xlua.api.XMockCallApi;
 import eu.faircode.xlua.api.objects.xmock.prop.MockProp;
 import eu.faircode.xlua.api.xmock.xcall.PutMockPropsCommand;
+import eu.faircode.xlua.utilities.BundleUtil;
+import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
     private static final String TAG = "XLua.ADProp";
@@ -104,13 +107,6 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
                         Log.i(TAG, "Set Text of:" + prop .getName() + " => " + prop.getDefaultValue());
                         prop.setValue(prop.getDefaultValue());
                         wire();
-                        /*executor.submit(new Runnable() {
-                            @Override
-                            public void run() {
-                                XMockProxyApi.callPutMockProp(view.getContext(), prop);
-                                XMockProvider.updateCache(props);////Might be no point given the different context
-                            }
-                        });*/
                     }
                     break;
             }
@@ -123,13 +119,9 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
             final int id = cButton.getId();
             Log.i(TAG, "Item Checked=" + id + "==" + prop.getName());
 
-            //notifyDataSetChanged();
-
             switch (id) {
                 case R.id.cbMockTheProp:
                     prop.setEnabled(isChecked);
-                    //notifyDataSetChanged();
-                    //notifyDataSetChanged(); put ?
                     executor.submit(new Runnable() {
                         @Override
                         public void run() {
@@ -139,23 +131,11 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
                                             prop.getName(),
                                             null,
                                             prop.isEnabled()));
-                            //PutMockPropCommand.invokeUpdate(cButton.getContext(), prop.getName(), prop.isEnabled());
-                            //XMockProxyApi.callPutMockProp(cButton.getContext(), prop);
-                            //XMockProvider.updateCache(props);////Might be no point given the different context
-                            //No need to update our cache since when we modify the elements on this context
-                            //it is ref based it will effect the element in the list
-                            //Tho this will be OUR Cache in the MAIN APP not System Context or Hooked App Context
 
-                            //So TBH hmm we should not store cache in the app ? instead it constantly grabs when NEEDED
-
-                            //So when the put is called, we have in our context a updated view so yes, our base does not need to carry cache as its cached here
-                            //Our System app where it comes from will not BUT if not grabbed from Cache no issue then
                         }
                     });
                     break;
             }
-
-            //case R.id.cbEnableMock
         }
 
         @Override
@@ -167,37 +147,27 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
         }
 
         @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            // No implementation needed for this example
-        }
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
         @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            // No implementation needed for this example
-        }
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
         void updateExpanded() {
             MockProp prop = props.get(getAdapterPosition());
             String name = prop.getName();
-
-            boolean isExpanded = expanded.containsKey(name) && expanded.get(name);
-            ivExpanderProps.setImageLevel(isExpanded ? 1 : 0);
-
-            tiPropMockValue.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-            ivValueResetDefault.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+            boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
+            ViewUtil.setViewsVisibility(ivExpanderProps, isExpanded, tiPropMockValue, ivValueResetDefault);
         }
     }
 
     AdapterProp() { setHasStableIds(true); }
-    AdapterProp(Context context) {
-        setHasStableIds(true);
-    }
 
-    void set(List<MockProp> props_vals) {
+    void set(List<MockProp> propValues) {
         props.clear();
-        Log.i(TAG, "Set has Init=" + props.size());
-        props.addAll(props_vals);
-        Log.i(TAG, "Internal Count=" + props.size());
+        props.addAll(propValues);
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "Internal Count=" + props.size());
+
         notifyDataSetChanged();
     }
 
@@ -208,54 +178,20 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
                 @Override
                 public void run() {
                     synchronized (lock) {
-                        //Snackbar.make(, view.getContext().getString("Hiiiiiiiiii"), Snackbar.LENGTH_LONG).show();
-                        //final Bundle ret = XMockProxyApi.callPutMockProps(context, props_modified);
-                        //XMockProvider.updateCache(props);//Might be no point given the different context
-                        //No need to update our cache since when we modify the elements on this context
-                        //it is ref based it will effect the element in the list
-
-                        //Test
-                        //if(XLua.apps.isEmpty()) {
-                        //    Log.i(TAG, "XLUA APPS IS NULL");
-                        //}else {
-                        //    XMonitorApp fir = XLua.apps.get(0);
-                        //    Log.i(TAG, "GPU CLASSES COUNT= " + fir.gpuClassess.size());
-                        //}
-
                         final Bundle ret = PutMockPropsCommand.invoke(context, props_modified);
                         props_modified.clear();
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @SuppressLint("NotifyDataSetChanged")
                             @Override
                             public void run() {
-                                if(ret == null) {
-                                    Toast.makeText(context, "Should be saved ! ? eh it returned Nulled", Toast.LENGTH_SHORT).show();
-                                    //Snackbar.make(this, context.getString("Hiiiiiiiiii"), Snackbar.LENGTH_LONG).show();
-                                    //Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), getString(R.string.msg_no_service), Snackbar.LENGTH_INDEFINITE);
-
-                                    //Haha this Invokes :P least its not denying it working keke
-                                    return;
-                                }
-
-                                final int xv = ret.getInt("result");
-                                Log.i(TAG, "Return from Modified=" + xv);
-                                switch (xv) {
-                                    case -1:
-                                        Toast.makeText(context, "Fail to Save :(", Toast.LENGTH_SHORT).show();
-                                        break;
-                                    case 0:
-                                        Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show();
-                                        break;
-                                }
-
+                                String messageResult = BundleUtil.readResultStatusMessage(ret);
+                                Toast.makeText(context, messageResult, Toast.LENGTH_SHORT).show();
                                 notifyDataSetChanged();
                             }
                         });
                     }
-
-                    //props_modified.clear();
                 }
             });
-            //notifyDataSetChanged();
         }else {
             Toast.makeText(context, "Nothing Needs to be Saved !", Toast.LENGTH_SHORT).show();
         }

@@ -1,6 +1,7 @@
 package eu.faircode.xlua;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,14 +18,23 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import eu.faircode.xlua.api.objects.xlua.packets.SettingPacket;
 import eu.faircode.xlua.api.objects.xmock.ConfigSetting;
 import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
+import eu.faircode.xlua.api.objects.xmock.phone.MockConfigConversions;
+import eu.faircode.xlua.api.objects.xmock.phone.MockPhoneConfig;
+import eu.faircode.xlua.api.xlua.xcall.PutSettingCommand;
+import eu.faircode.xlua.utilities.BundleUtil;
+import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder> {
     private static final String TAG = "XLua.AdapterConfig";
+
+    private MockPhoneConfig config = null;
 
     private List<ConfigSetting> settings = new ArrayList<>();
     private Object lock = new Object();
@@ -76,10 +86,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
 
             switch (id) {
                 case R.id.itemViewConfig:
-                    if(!expanded.containsKey(name))
-                        expanded.put(name, false);
-
-                    expanded.put(name, Boolean.FALSE.equals(expanded.get(name)));
+                    ViewUtil.internalUpdateExpanded(expanded, name);
                     updateExpanded();
                     break;
             }
@@ -89,7 +96,6 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
         public void onCheckedChanged(final CompoundButton cButton, boolean isChecked) {
             if(DebugUtil.isDebug())
                 Log.i(TAG, "onCheckedChanged");
-
         }
 
         void updateExpanded() {
@@ -100,22 +106,52 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             String name = setting.getName();
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
 
-            ivExpanderSettings.setImageLevel(isExpanded ? 1 : 0);
-            tiSettingsValue.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+            ViewUtil.setViewsVisibility(ivExpanderSettings, isExpanded, tiSettingsValue);
         }
     }
 
     AdapterConfig() { setHasStableIds(true); }
 
-    @SuppressLint("NotifyDataSetChanged")
-    void set(List<ConfigSetting> settings) {
-        this.settings.clear();
-        this.settings.addAll(settings);
+    void applyConfig(Context context, String packageName) {
+        Log.i(TAG, "APPLYING:" + settings.size());
+        for (ConfigSetting setting : settings) {
+            Log.i(TAG, "Enum item setting");
+            Log.i(TAG, "setting [" + setting + "]");
+            if(setting.isEnabled()) {
+                Log.i(TAG, "Is Enabled ");
+                SettingPacket packet = new SettingPacket();
+                packet.setName(setting.getName());
+                packet.setValue(setting.getValue());
+                packet.setUser(0);
+                packet.setCategory("settings");
 
+                Log.i(TAG, "Applying [" + packet + "]");
+
+                int r = BundleUtil.readInt(PutSettingCommand.invoke(context, packet), "result");
+                Log.i(TAG, "Result for apply =" + r);
+            }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    void set(MockPhoneConfig config) {
+        this.config = config;
+        this.settings.clear();
+        this.settings.addAll(MockConfigConversions.hashMapToListSettings(config.getSettings()));
         if(DebugUtil.isDebug())
-            Log.i(TAG, "Config Settings internal size=" + this.settings.size());
+            Log.i(TAG, "SELECTED SETTINGS COUNT=" + settings.size());
 
         notifyDataSetChanged();
+    }
+
+    public String getConfigName() { return config.getName(); }
+    public List<ConfigSetting> getEnabledSettings() {
+        List<ConfigSetting> settingsEnabled = new ArrayList<>();
+        for(ConfigSetting setting : settings)
+            if(setting.isEnabled())
+                settingsEnabled.add(setting);
+
+        return settingsEnabled;
     }
 
     @Override
@@ -131,7 +167,9 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Log.i(TAG, "Adapter Item Creating Internal");
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "Adapter Item Creating Internal");
+
         holder.unWire();
         ConfigSetting cSetting = settings.get(position);
         holder.tvSettingName.setText(cSetting.getName());
@@ -139,6 +177,8 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
         holder.cbSettingEnabled.setChecked(true);
         holder.updateExpanded();
         holder.wire();
-        Log.i(TAG, "Adapter Item Created Internal");
+
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "Adapter Item Created Internal");
     }
 }

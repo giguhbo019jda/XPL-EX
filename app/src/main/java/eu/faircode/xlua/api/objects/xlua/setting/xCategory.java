@@ -5,22 +5,21 @@ import android.database.Cursor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import eu.faircode.xlua.api.objects.IDBSerial;
 
 public class xCategory extends xCategoryBase implements IDBSerial {
-    protected Collection<xSetting> settings = new ArrayList<>();
+    protected Collection<XSetting> settings = new ArrayList<>();
 
     public xCategory() { }
     public xCategory(Integer userId, String name) { super(userId, name); }
 
-    public Collection<xSetting> getSettings(String name) {
-        Collection<xSetting> sets = new ArrayList<>();
+    public Collection<XSetting> getSettings(String name) {
+        Collection<XSetting> sets = new ArrayList<>();
         if(settings == null || settings.isEmpty())
             return sets;
 
-        for(xSetting s : settings) {
+        for(XSetting s : settings) {
             if(s.getName().equals(name)) {
                 sets.add(s);
             }
@@ -29,14 +28,14 @@ public class xCategory extends xCategoryBase implements IDBSerial {
         return sets;
     }
 
-    public xCategory addSetting(xSetting setting) {
+    public xCategory addSetting(XSetting setting) {
         if(setting != null)
             settings.add(setting);
 
         return this;
     }
 
-    public xCategory setSettings(Collection<xSetting> settings) {
+    public xCategory setSettings(Collection<XSetting> settings) {
         if(settings != null) this.settings = settings;
         return this;
     }

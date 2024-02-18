@@ -36,6 +36,25 @@ public class ConfigSetting {
     @NonNull
     @Override
     public String toString() {
-        return name + "::" + value;
+        StringBuilder sb = new StringBuilder();
+
+        if(name != null) {
+            sb.append(" name=");
+            sb.append(name);
+        }
+
+        if(value != null) {
+            sb.append(" value=");
+            sb.append(value);
+        }
+
+        if(enabled == null) {
+            sb.append(" enabled=false");
+        }else {
+            sb.append(" enabled=");
+            sb.append(Boolean.toString(enabled));
+        }
+
+        return sb.toString();
     }
 }

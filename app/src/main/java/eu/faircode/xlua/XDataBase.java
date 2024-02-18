@@ -36,6 +36,8 @@ public class XDataBase {
         if(!dbname.endsWith(".db"))
             dbname += ".db";
 
+        DatabasePathUtil.log("Creating the Database=" + dbname, false);
+
         name = dbname;
         path = !DatabasePathUtil.ensureDirectoryChange(context) ?
                 DatabasePathUtil.getOriginalDataLocationString(context) :

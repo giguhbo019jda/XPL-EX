@@ -34,6 +34,7 @@ import eu.faircode.xlua.api.xmock.XMockPropDatabase;
 import eu.faircode.xlua.database.DatabaseQuerySnake;
 import eu.faircode.xlua.api.xlua.XHookProvider;
 import eu.faircode.xlua.database.XLuaUpdater;
+import eu.faircode.xlua.utilities.DatabasePathUtil;
 
 public class XGlobalCore {
     private static final String TAG = "XLua.XGlobalCore";
@@ -67,85 +68,38 @@ public class XGlobalCore {
         }
     }
 
-    private static int att = 0;
-
-    public static void reInitDatabase(Context context) {
-        synchronized (mockLock) {
-            if(xMock_db != null) {
-                if(!xMock_db.getPath().contains("xplex")) {
-                    Log.w(TAG, "DOES NOT CONTAIN XPLEX");
-                    //xLua_db.writeUnlock();
-                    //xLua_db.readUnlock();
-                    xMock_db.close();
-                    xMock_db = null;
-                    //att++;
-                }
-            }
-        }
-
-        synchronized (hookLock) {
-            if(xLua_db != null) {
-                if(!xLua_db.getPath().contains("xplex")) {
-                    Log.w(TAG, "DOES NOT CONTAIN XPLEX");
-                    xLua_db.close();
-                    xLua_db = null;
-                    hooks.clear();
-                    //att++;
-                }
-            }
-        }
-
-        checkDatabases(context, true);
-    }
     public static void checkDatabases(Context context) {
-        checkDatabases(context, false);
-    }
-
-    public static void checkDatabases(Context context, boolean newDir) {
-        //XSecurity.TestFunctions();
-        if(DebugUtil.isDebug()) Log.i(TAG, "Checking Databases!");
         try {
             synchronized (mockLock) {
                 if(xMock_db == null) {
-                    Log.i(TAG, "XMock Database is null, initializing... path=");
                     xMock_db = new XDataBase(DB_NAME_MOCK, context, true);
                     XMockDatabaseHelp.initDatabase(context, xMock_db);
-                }else if(DebugUtil.isDebug()) {
-                    Log.i(TAG , "XMock Database is db=" + xMock_db);
-                }
+                }else if(DebugUtil.isDebug())
+                    DatabasePathUtil.log("XMock Database is db=" + xMock_db, false);
             }
 
-            //add to String to xDatabase
             synchronized (hookLock) {
                 if(xLua_db == null) {
-                    Log.i(TAG, "XLua Database is null, initializing... path=");
                     xLua_db = new XDataBase(DB_NAME_LUA, context, true);
-                    try {
-                        XLuaUpdater.checkForUpdate(xLua_db);
-                    }catch (Exception e) {
-                        Log.e(TAG, "Failed to check for update: " + e);
-                        XposedBridge.log("Failed to check for update: " + e);
-                    }
+                    XLuaUpdater.checkForUpdate(xLua_db);
                 }else if(DebugUtil.isDebug())
-                    Log.i(TAG , "XLua Database is not null... db=" + xLua_db);
-
+                    DatabasePathUtil.log("XLua Database is db=" + xMock_db, false);
 
                 if (hooks == null || hooks.isEmpty()) {
                     if(!xLua_db.isOpen(true))
                         return;
-                    XposedBridge.log("XLua Hook Cache is null, initializing...");
-                    Log.i(TAG, "XLua Hook Cache is null, initializing...");
+
                     loadHooks(context);
                 }else if(DebugUtil.isDebug())
-                    Log.i(TAG , "XLua Hook Cache size=" + hooks.size());
+                    DatabasePathUtil.log("XLua Hook Cache size=" + hooks.size(), false);
             }
         }catch (Throwable e) {
-            Log.e(TAG, "Failed to check Databases\n" + e + "\n" + Log.getStackTraceString(e));
+            DatabasePathUtil.log("Failed to check Databases\n" + e + "\n" + Log.getStackTraceString(e), true);
         }
     }
 
     private static void loadHooks(Context context) throws Throwable {
-        Log.i(TAG, "<loadHooks>");
+        DatabasePathUtil.log("<loadHooks> loading hooks, null cache", false);
         hooks = new HashMap<>();
         builtIn = new HashMap<>();
 
@@ -158,18 +112,13 @@ public class XGlobalCore {
             hooks.put(builtin.getId(), builtin);
         }
 
-        Log.i(TAG, "loaded hook size=" + hooks.size());
 
+        DatabasePathUtil.log("loaded hook size=" + hooks.size(), false);
         DatabaseQuerySnake snake = DatabaseQuerySnake.create(xLua_db, xHook.Table.name);
-
         Cursor c = null;
         try {
-            c = snake.query();
             xLua_db.readLock();
-            //if(!xLua_db.beginTransaction()) {
-            //    Log.e(TAG, "Failed to init hooks, beginTransaction failed");
-            //    return;
-            //}
+            c = snake.query();
 
             int colDefinition = c.getColumnIndex("definition");
             while (c.moveToNext()) {
@@ -177,22 +126,18 @@ public class XGlobalCore {
                 xHook hook = new xHook();
                 hook.fromJSONObject(new JSONObject(definition));
                 hook.resolveClassName(context);
-                Log.i(TAG, " loading hook=" + hook.getId());
+                //Log.i(TAG, " loading hook=" + hook.getId());
                 hooks.put(hook.getId(), hook);
             }
-
-            //xLua_db.setTransactionSuccessful();
         }catch (Exception e) {
-            Log.e(TAG, "Failed to init hooks, e=" + e + "\n" + Log.getStackTraceString(e));
+            DatabasePathUtil.log("Failed to init hooks, e=" + e + "\n" + Log.getStackTraceString(e), true);
         }finally {
-            //xLua_db.endTransaction();
             xLua_db.readUnlock();
             snake.clean(c);
         }
 
-        Log.i(TAG, "Loaded hook definitions hooks=" + hooks.size() + " builtins=" + builtIn.size());
+        DatabasePathUtil.log("Loaded hook definitions hooks=" + hooks.size() + " builtIns=" + builtIn.size(), false);
     }
-
 
     public static Collection<xHook> getHooks(XDataBase db, boolean all) {
         Log.i(TAG, "Getting Hooks all=" + all + " internal size list =" + hooks.size());
@@ -304,7 +249,6 @@ public class XGlobalCore {
         synchronized (hookLock) {
             if (hook == null) {
                 if (hooks.containsKey(extraId) && hooks.get(extraId).isBuiltin()) {
-                    //throw new IllegalArgumentException("builtin");
                     Log.e(TAG, "Hook id Is built in, id=" + extraId + " , Not allowed to modify built in hooks!");
                     return false;
                 }

@@ -5,9 +5,9 @@ import android.os.Parcel;
 
 import androidx.annotation.NonNull;
 
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
+import eu.faircode.xlua.api.objects.xlua.setting.XSetting;
 
-public class SettingPacket extends xSetting {
+public class SettingPacket extends XSetting {
     protected Boolean kill;
 
     public SettingPacket() { }

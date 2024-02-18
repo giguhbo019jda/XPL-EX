@@ -11,8 +11,7 @@ import eu.faircode.xlua.api.objects.QueryCommandHandler;
 import eu.faircode.xlua.api.objects.QueryPacket;
 import eu.faircode.xlua.database.DatabaseQuerySnake;
 
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
-import eu.faircode.xlua.api.objects.xlua.setting.xSettingConversions;
+import eu.faircode.xlua.api.objects.xlua.setting.XSetting;
 
 
 public class GetSettingsCommand extends QueryCommandHandler {
@@ -37,7 +36,7 @@ public class GetSettingsCommand extends QueryCommandHandler {
         int userid = XUtil.getUserId(uid);
 
         DatabaseQuerySnake snake = DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .whereColumn("user", Integer.toString(userid))
                 .whereColumn("category", packageName)
                 .onlyReturnColumns("name", "value");

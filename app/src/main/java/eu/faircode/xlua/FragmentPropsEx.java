@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -39,9 +40,10 @@ public class FragmentPropsEx extends Fragment {
     private ProgressBar pbProps;
     private SwipeRefreshLayout swipeRefresh;
     private AdapterProp rvPropsAdapter;
-
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.i(TAG, "FragmentPropsEx.onCreateView Enter");
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "FragmentPropsEx.onCreateView Enter");
+
         final View main = inflater.inflate(R.layout.propsview, container, false);
 
         pbProps =  main.findViewById(R.id.pbProps);
@@ -71,12 +73,16 @@ public class FragmentPropsEx extends Fragment {
         rvPropsAdapter = new AdapterProp();
         rvProps.setAdapter(rvPropsAdapter);
 
-        Log.i(TAG, "FragmentPropsEx.onCreateView Leave");
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "FragmentPropsEx.onCreateView Leave");
+
         return main;
     }
 
     public void saveModifiedProperties(Context context) {
-        Log.i(TAG, "Save / Updating properties");
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "Save / Updating properties");
+
         rvPropsAdapter.updateFromModified(context);
     }
 

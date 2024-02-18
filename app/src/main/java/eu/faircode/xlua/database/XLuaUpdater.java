@@ -3,6 +3,7 @@ package eu.faircode.xlua.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -11,60 +12,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.robv.android.xposed.XposedBridge;
+import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.XDataBase;
 import eu.faircode.xlua.XposedUtil;
 import eu.faircode.xlua.api.objects.xlua.hook.xHook;
+import eu.faircode.xlua.utilities.DatabasePathUtil;
 
 public class XLuaUpdater {
     private static final String  TAG = "XLua.XLuaUpdater";
 
     public static void checkForUpdate(XDataBase db) throws Throwable {
         if(db == null || !db.isOpen(true)) {
-            Log.e(TAG, "Failed to open Database!");
-            XposedBridge.log("Failed to checkFor Update for Database");
+            DatabasePathUtil.log("Failed to checkFor Update for Database", false);
             return;
         }
 
-        // Build database file
-       /* File dbFile;
-        if (XposedUtil.isVirtualXposed())
-            dbFile = new File(context.getFilesDir(), "xlua.db");
-        else {
-            dbFile = new File(
-                    Environment.getDataDirectory() + File.separator +
-                            "system" + File.separator +
-                            "xlua" + File.separator +
-                            "xlua.db");
-            dbFile.getParentFile().mkdirs();
-        }
-
-        // Open database
-        SQLiteDatabase _db = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
-        Log.i(TAG, "Database file=" + dbFile);
-
-        if (!XposedUtil.isVirtualXposed()) {
-            // Set database file permissions
-            // Owner: rwx (system)
-            // Group: rwx (system)
-            // World: ---
-            XUtil.setPermissions(dbFile.getParentFile().getAbsolutePath(), 0770, Process.SYSTEM_UID, Process.SYSTEM_UID);
-            File[] files = dbFile.getParentFile().listFiles();
-            if (files != null)
-                for (File file : files)
-                    XUtil.setPermissions(file.getAbsolutePath(), 0770, Process.SYSTEM_UID, Process.SYSTEM_UID);
-        }
-
-        dbLock.writeLock().lock();*/
         SQLiteDatabase _db = db.getDatabase();
-        //db.writeLock();
-
-        //int v = _db.getVersion();
-        //Log.i(TAG, "DB VERSION=" + v);
-
+        db.writeLock();
         try {
-            // Upgrade database if needed
             if (_db.needUpgrade(1)) {
-                Log.i(TAG, "Database upgrade version 1");
+                DatabasePathUtil.log("Database upgrade version 1", false);
                 _db.beginTransaction();
                 try {
                     _db.execSQL("CREATE TABLE assignment (package TEXT NOT NULL, uid INTEGER NOT NULL, hook TEXT NOT NULL, installed INTEGER, used INTEGER, restricted INTEGER, exception TEXT)");
@@ -81,7 +48,7 @@ public class XLuaUpdater {
             }
 
             if (_db.needUpgrade(2)) {
-                Log.i(TAG, "Database upgrade version 2");
+                DatabasePathUtil.log("Database upgrade version 2", false);
                 _db.beginTransaction();
                 try {
                     _db.execSQL("CREATE TABLE hook (id TEXT NOT NULL, definition TEXT NOT NULL)");
@@ -95,7 +62,7 @@ public class XLuaUpdater {
             }
 
             if (_db.needUpgrade(3)) {
-                Log.i(TAG, "Database upgrade version 3");
+                DatabasePathUtil.log("Database upgrade version 3", false);
                 _db.beginTransaction();
                 try {
                     _db.execSQL("ALTER TABLE assignment ADD COLUMN old TEXT");
@@ -110,7 +77,7 @@ public class XLuaUpdater {
             }
 
             if (_db.needUpgrade(4)) {
-                Log.i(TAG, "Database upgrade version 4");
+                DatabasePathUtil.log("Database upgrade version 4", false);
                 _db.beginTransaction();
                 try {
                     Map<String, xHook> tmp = new HashMap<>();
@@ -130,7 +97,8 @@ public class XLuaUpdater {
                         if (cursor != null)
                             cursor.close();
                     }
-                    Log.i(TAG, "Converting definitions=" + tmp.size());
+
+                    DatabasePathUtil.log("Converting definitions=" + tmp.size(), false);
 
                     _db.execSQL("DROP INDEX idx_hook");
                     _db.execSQL("DELETE FROM hook");
@@ -154,7 +122,7 @@ public class XLuaUpdater {
             }
 
             if (_db.needUpgrade(5)) {
-                Log.i(TAG, "Database upgrade version 5");
+                DatabasePathUtil.log("Database upgrade version 5", false);
                 _db.beginTransaction();
                 try {
                     _db.execSQL("CREATE TABLE `group` (package TEXT NOT NULL, uid INTEGER NOT NULL, name TEXT NOT NULL, used INTEGER)");
@@ -167,11 +135,13 @@ public class XLuaUpdater {
                 }
             }
 
-            Log.i(TAG, "Renaming Hooks");
+            if(DebugUtil.isDebug())
+                DatabasePathUtil.log("Renaming XLUA Hooks", false);
 
             //deleteHook(_db, "Privacy.ContentResolver/query1");
             //deleteHook(_db, "Privacy.ContentResolver/query16");
             //deleteHook(_db, "Privacy.ContentResolver/query26");
+
             renameHook(_db, "TelephonyManager/getDeviceId", "TelephonyManager.getDeviceId");
             renameHook(_db, "TelephonyManager/getDeviceId/slot", "TelephonyManager.getDeviceId/slot");
             renameHook(_db, "TelephonyManager/getGroupIdLevel1", "TelephonyManager.getGroupIdLevel1");
@@ -189,24 +159,22 @@ public class XLuaUpdater {
             renameHook(_db, "SystemProperties.get", "SystemProperties.get/serial");
             renameHook(_db, "SystemProperties.get/default", "SystemProperties.get.default/serial");
 
-            Log.i(TAG, "Database version=" + _db.getVersion());
+
+            if(DebugUtil.isDebug())
+                DatabasePathUtil.log("Database version=" + _db.getVersion(), false);
 
             // Reset usage data
             ContentValues cv = new ContentValues();
             cv.put("installed", -1);
             cv.putNull("exception");
             long rows = _db.update("assignment", cv, null, null);
-            Log.i(TAG, "Reset assigned hook data count=" + rows);
+            if(DebugUtil.isDebug())
+                DatabasePathUtil.log("Reset assigned hook data count=" + rows, false);
 
-            //return _db;
         } catch (Throwable ex) {
-            Log.i(TAG, "DB EXCEPTION FUCK=" + ex + "\n" + Log.getStackTraceString(ex));
-            //_db.close();
-            throw ex;
+            DatabasePathUtil.log("DB EXCEPTION=" + ex + "\n" + Log.getStackTraceString(ex), true);
         } finally {
-            //dbLock.writeLock().unlock();
-
-            //db.writeUnlock(); first lock is the bug
+            db.writeUnlock();// first lock is the bug
         }
     }
 
@@ -215,9 +183,9 @@ public class XLuaUpdater {
             ContentValues cv = new ContentValues();
             cv.put("hook", newId);
             long rows = _db.update("assignment", cv, "hook = ?", new String[]{oldId});
-            Log.i(TAG, "Renamed hook " + oldId + " into " + newId + " rows=" + rows);
+            DatabasePathUtil.log("Renamed hook " + oldId + " into " + newId + " rows=" + rows, false);
         } catch (Throwable ex) {
-            Log.i(TAG, "Renamed hook " + oldId + " into " + newId + " ex=" + ex.getMessage());
+            DatabasePathUtil.log("Renamed hook " + oldId + " into " + newId + " ex=" + ex.getMessage(), true);
         }
     }
 }

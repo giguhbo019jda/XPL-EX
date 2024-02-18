@@ -19,14 +19,12 @@ import java.util.Map;
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.XDataBase;
 import eu.faircode.xlua.XGlobalCore;
-import eu.faircode.xlua.api.objects.xlua.setting.xSetting;
-import eu.faircode.xlua.api.objects.xlua.setting.xSettingConversions;
+import eu.faircode.xlua.api.objects.xlua.setting.XSetting;
 
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.XposedUtil;
 import eu.faircode.xlua.api.objects.xlua.hook.Assignment;
 import eu.faircode.xlua.api.objects.xlua.hook.AssignmentWriter;
-import eu.faircode.xlua.api.objects.xlua.packets.HookPacket;
 import eu.faircode.xlua.database.DatabaseQuerySnake;
 import eu.faircode.xlua.api.objects.xlua.app.xApp;
 import eu.faircode.xlua.api.objects.xlua.hook.xHook;
@@ -112,7 +110,7 @@ public class XAppProvider {
     private static void initAppForceToStop(Map<String, xApp> apps, XDataBase db, int userid) {
         //direct insert here
         DatabaseQuerySnake snake = DatabaseQuerySnake
-                .create(db, xSetting.Table.name)
+                .create(db, XSetting.Table.name)
                 .whereColumn("user", Integer.toString(userid))
                 .whereColumn("name", "'forcestop'")
                 .onlyReturnColumns("category", "value");

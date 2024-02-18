@@ -36,8 +36,8 @@ public class XCommandService {
 
     private final Map<String, String> appKeys = new HashMap<>();
 
-    private final ExecutorService hookThreads = Executors.newFixedThreadPool(5);//Executors.newSingleThreadExecutor();
-    private final ExecutorService mockThreads = Executors.newFixedThreadPool(5);//Executors.newSingleThreadExecutor();
+    private final ExecutorService hookThreads = Executors.newFixedThreadPool(100);//Executors.newSingleThreadExecutor();
+    private final ExecutorService mockThreads = Executors.newFixedThreadPool(100);//Executors.newSingleThreadExecutor();
 
     public XCommandService() {
         //Key is slightly a cool hack
