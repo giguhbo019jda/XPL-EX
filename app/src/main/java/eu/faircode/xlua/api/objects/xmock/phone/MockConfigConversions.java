@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +21,8 @@ import eu.faircode.xlua.utilities.CursorUtil;
 public class MockConfigConversions {
     private static final String TAG = "XLua.MockPhoneConversions";
 
-    public static Map<String, String> convertJsonToMap(String jsonData) {
-        Map<String, String> settings = new HashMap<>();
+    public static LinkedHashMap<String, String> convertJsonToMap(String jsonData) {
+        LinkedHashMap<String, String> settings = new LinkedHashMap<>();
         try {
             JSONArray jArray = new JSONArray(jsonData);
             for(int i = 0; i < jArray.length(); i++) {
@@ -42,7 +43,7 @@ public class MockConfigConversions {
         }
     }
 
-    public static JSONArray convertMapToJson(Map<String, String> settings) {
+    public static JSONArray convertMapToJson(LinkedHashMap<String, String> settings) {
         JSONArray jArray = new JSONArray();
 
         for(Map.Entry<String, String> r : settings.entrySet()) {
@@ -57,7 +58,7 @@ public class MockConfigConversions {
         return jArray;
     }
 
-    public static void writeSettingsToBundle(Bundle b, Map<String, String> settings) {
+    public static void writeSettingsToBundle(Bundle b, LinkedHashMap<String, String> settings) {
         String[] names = new String[settings.size()];
         String[] values = new String[settings.size()];
 
@@ -72,8 +73,8 @@ public class MockConfigConversions {
         b.putStringArray("values", values);
     }
 
-    public static Map<String, String> readSettingsFromBundle(Bundle b) {
-        Map<String, String> settings = new HashMap<>();
+    public static LinkedHashMap<String, String> readSettingsFromBundle(Bundle b) {
+        LinkedHashMap<String, String> settings = new LinkedHashMap<>();
         String[] names = b.getStringArray("names");
         String[] values = b.getStringArray("values");
         if(names == null || values == null)
@@ -108,8 +109,8 @@ public class MockConfigConversions {
         return ps;
     }
 
-    public static Map<String, String> listToHashMapSettings(List<ConfigSetting> settings, boolean worryAboutEnabledState) {
-        Map<String, String> map = new HashMap<>();
+    public static LinkedHashMap<String, String> listToHashMapSettings(List<ConfigSetting> settings, boolean worryAboutEnabledState) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
         if(worryAboutEnabledState) {
             for (ConfigSetting setting : settings)
                 if (setting.isEnabled())
@@ -123,7 +124,7 @@ public class MockConfigConversions {
         return map;
     }
 
-    public static Collection<ConfigSetting> hashMapToListSettings(Map<String, String> settingsMap) {
+    public static Collection<ConfigSetting> hashMapToListSettings(LinkedHashMap<String, String> settingsMap) {
         Collection<ConfigSetting> settings = new ArrayList<>();
         for(Map.Entry<String, String> r : settingsMap.entrySet()) {
             ConfigSetting setting = new ConfigSetting(r.getKey(), r.getValue(), true);

@@ -32,6 +32,7 @@ import eu.faircode.xlua.api.xlua.xquery.GetSettingsCommand;
 import eu.faircode.xlua.api.xmock.xcall.GetMockCpusCommand;
 import eu.faircode.xlua.api.xmock.xcall.GetMockPropCommand;
 import eu.faircode.xlua.api.xmock.xcall.GetMockPropsCommand;
+import eu.faircode.xlua.api.xmock.xcall.PutMockConfigCommand;
 import eu.faircode.xlua.api.xmock.xcall.PutMockCpuCommand;
 import eu.faircode.xlua.api.xmock.xcall.PutMockPropCommand;
 import eu.faircode.xlua.api.xmock.xcall.PutMockPropsCommand;
@@ -142,6 +143,8 @@ public class XSettingBridgeStatic {
         hs.put("getMockProps", GetMockPropsCommand.create());
         hs.put("putMockProp", PutMockPropCommand.create());
         hs.put("putMockProps", PutMockPropsCommand.create());
+
+        hs.put("putMockConfig", PutMockConfigCommand.create());
         return hs;
     }
 }

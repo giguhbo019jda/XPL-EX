@@ -1,8 +1,24 @@
 package eu.faircode.xlua.randomizers;
 
+import androidx.annotation.NonNull;
+
 import eu.faircode.xlua.utilities.RandomStringGenerator;
 
 public class RandomAndroidID implements IRandomizer {
+
+
+    @Override
+    public String getSettingName() { return "value.android_id"; }
+
+    @Override
+    public String getName() {
+        return "Android ID";
+    }
+
+    @Override
+    public String getID() {
+        return "%android_id%";
+    }
 
     @Override
     public String generateString() {
@@ -11,4 +27,8 @@ public class RandomAndroidID implements IRandomizer {
 
     @Override
     public int generateInteger() { return 0; }
+
+    @NonNull
+    @Override
+    public String toString() { return getName(); }
 }

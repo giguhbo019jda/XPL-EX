@@ -6,9 +6,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,16 +22,16 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.api.objects.xlua.packets.SettingPacket;
 import eu.faircode.xlua.api.objects.xmock.ConfigSetting;
-import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
 import eu.faircode.xlua.api.objects.xmock.phone.MockConfigConversions;
 import eu.faircode.xlua.api.objects.xmock.phone.MockPhoneConfig;
 import eu.faircode.xlua.api.xlua.xcall.PutSettingCommand;
+import eu.faircode.xlua.randomizers.IRandomizer;
+import eu.faircode.xlua.randomizers.RandomizersGlobal;
 import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
@@ -51,6 +55,14 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
         final TextInputEditText tiSettingsValue;
         final ImageView ivExpanderSettings;
 
+
+        //private AdapterConfig rvConfigAdapter;
+
+        final Button btRandomButton;
+        final Spinner spRandomSelector;
+        //final List<IRandomizer> randomizers;
+        private ArrayAdapter<IRandomizer> spRandomizer;
+
         private HashMap<String, Boolean> expanded = new HashMap<>();
 
         ViewHolder(View itemView) {
@@ -63,15 +75,60 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             cbSettingEnabled = itemView.findViewById(R.id.cbEnableConfigSetting);
             tiSettingsValue = itemView.findViewById(R.id.tiConfigSettingsValue);
 
-            Log.i(TAG, "Created the Adapter Item");
+            //randomizers = RandomizersGlobal.getRandomizers();
+            spRandomSelector = itemView.findViewById(R.id.spConfigRandomSelection);
+            btRandomButton = itemView.findViewById(R.id.btConfigRandomize);
+
+
+            //
+            //
+            //Start of Drop Down
+            spRandomizer = new ArrayAdapter<>(itemView.getContext(), android.R.layout.simple_spinner_item);
+            spRandomizer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            if(DebugUtil.isDebug())
+                Log.i(TAG, "Created the Empty Array for Configs Fragment Config");
+
+            spRandomSelector.setTag(null);
+            spRandomSelector.setAdapter(spRandomizer);
+            spRandomSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { updateSelection(); }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+                    updateSelection();
+                }
+
+                private void updateSelection() {
+                    IRandomizer selected = (IRandomizer) spRandomSelector.getSelectedItem();
+                    String name = selected.getName();
+                    if(DebugUtil.isDebug())
+                        Log.i(TAG, "RANDOMIZER SELECTED=" + name);
+
+                    if (name == null ? spRandomSelector.getTag() != null : !name.equals(spRandomSelector.getTag()))
+                        spRandomSelector.setTag(name);
+                }
+            });
+
+            spRandomizer.clear();
+            spRandomizer.addAll(RandomizersGlobal.getRandomizers());
+            //spRandomizer.notifyDataSetChanged(); // Ensure this is here
+
+            if(DebugUtil.isDebug())
+                Log.i(TAG, "Created the Adapter Item");
         }
 
         private void unWire() {
             itemView.setOnClickListener(null);
+            cbSettingEnabled.setOnCheckedChangeListener(null);
+            btRandomButton.setOnClickListener(null);
         }
 
         private void wire() {
             itemView.setOnClickListener(this);
+            cbSettingEnabled.setOnCheckedChangeListener(this);
+            btRandomButton.setOnClickListener(this);
         }
 
         @SuppressLint("NonConstantResourceId")
@@ -89,13 +146,36 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
                     ViewUtil.internalUpdateExpanded(expanded, name);
                     updateExpanded();
                     break;
+                case R.id.btConfigRandomize:
+                    Log.i(TAG, "Randomizer Button Selected");
+                    IRandomizer randomizer = (IRandomizer) spRandomSelector.getSelectedItem();
+                    Log.i(TAG, "Selected Randomizer=" + randomizer.getSettingName());
+                    String randomValue = randomizer.generateString();
+                    Log.i(TAG, "Randomized Value=" + randomValue);
+
+                    tiSettingsValue.setText(randomizer.generateString());
+                    setting.setValue(randomValue);
+                    break;
             }
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         public void onCheckedChanged(final CompoundButton cButton, boolean isChecked) {
             if(DebugUtil.isDebug())
                 Log.i(TAG, "onCheckedChanged");
+
+            final ConfigSetting setting = settings.get(getAdapterPosition());
+            final int id = cButton.getId();
+            if(DebugUtil.isDebug())
+                Log.i(TAG, "Item checked=" + id + " == " + setting);
+
+            switch (id) {
+                case R.id.cbEnableConfigSetting:
+                    setting.setEnabled(isChecked);
+                    notifyDataSetChanged();
+                    break;
+            }
         }
 
         void updateExpanded() {
@@ -106,29 +186,35 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             String name = setting.getName();
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
 
-            ViewUtil.setViewsVisibility(ivExpanderSettings, isExpanded, tiSettingsValue);
+            ViewUtil.setViewsVisibility(ivExpanderSettings, isExpanded, tiSettingsValue, spRandomSelector, btRandomButton);
         }
     }
 
     AdapterConfig() { setHasStableIds(true); }
 
     void applyConfig(Context context, String packageName) {
-        Log.i(TAG, "APPLYING:" + settings.size());
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "APPLYING:" + settings.size());
+
         for (ConfigSetting setting : settings) {
-            Log.i(TAG, "Enum item setting");
-            Log.i(TAG, "setting [" + setting + "]");
+            if(DebugUtil.isDebug()) {
+                Log.i(TAG, "Enum item setting");
+                Log.i(TAG, "setting [" + setting + "]");
+            }
+
             if(setting.isEnabled()) {
-                Log.i(TAG, "Is Enabled ");
                 SettingPacket packet = new SettingPacket();
                 packet.setName(setting.getName());
                 packet.setValue(setting.getValue());
                 packet.setUser(0);
                 packet.setCategory("settings");
 
-                Log.i(TAG, "Applying [" + packet + "]");
+                if(DebugUtil.isDebug())
+                    Log.i(TAG, "Applying [" + packet + "]");
 
                 int r = BundleUtil.readInt(PutSettingCommand.invoke(context, packet), "result");
-                Log.i(TAG, "Result for apply =" + r);
+                if(DebugUtil.isDebug())
+                    Log.i(TAG, "Result for apply =" + r);
             }
         }
     }
@@ -172,9 +258,23 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
 
         holder.unWire();
         ConfigSetting cSetting = settings.get(position);
-        holder.tvSettingName.setText(cSetting.getName());
+        String settingName = cSetting.getName();
+
+        holder.tvSettingName.setText(settingName);
         holder.tiSettingsValue.setText(cSetting.getValue());
-        holder.cbSettingEnabled.setChecked(true);
+        holder.cbSettingEnabled.setChecked(cSetting.isEnabled());
+
+        //holder.spRandomizer.set
+        //spRandomSelector.setSelection(defaultIndex);
+
+        for(int i = 0; i < holder.spRandomizer.getCount(); i++) {
+            IRandomizer randomizer = holder.spRandomizer.getItem(i);
+            if(randomizer.getSettingName().equalsIgnoreCase(settingName)) {
+                holder.spRandomSelector.setSelection(i);
+                break;
+            }
+        }
+
         holder.updateExpanded();
         holder.wire();
 

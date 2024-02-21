@@ -83,6 +83,7 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
             tiPropMockValue.addTextChangedListener(this);
         }
 
+        @SuppressLint("NonConstantResourceId")
         @Override
         public void onClick(final View view) {
             Log.i(TAG, "onClick");
@@ -97,7 +98,7 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
                     if(!expanded.containsKey(name))
                         expanded.put(name, false);
 
-                    expanded.put(name, !expanded.get(name));
+                    expanded.put(name, Boolean.FALSE.equals(expanded.get(name)));
                     updateExpanded();
                     break;
                 case R.id.ivSetDefaultValue:

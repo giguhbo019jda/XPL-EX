@@ -1,8 +1,26 @@
 package eu.faircode.xlua.randomizers;
 
+import androidx.annotation.NonNull;
+
 import eu.faircode.xlua.utilities.RandomStringGenerator;
 
 public class RandomDRM implements IRandomizer {
+
+    @Override
+    public String getSettingName() {
+        return "drm.id";
+    }
+
+    @Override
+    public String getName() {
+        return "DRM ID";
+    }
+
+    @Override
+    public String getID() {
+        return "%drm_id%";
+    }
+
     @Override
     public String generateString() {
         //64
@@ -11,4 +29,8 @@ public class RandomDRM implements IRandomizer {
 
     @Override
     public int generateInteger() { return 0; }
+
+    @NonNull
+    @Override
+    public String toString() { return getName(); }
 }

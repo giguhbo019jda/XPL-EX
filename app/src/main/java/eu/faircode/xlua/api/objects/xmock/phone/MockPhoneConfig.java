@@ -10,11 +10,17 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import eu.faircode.xlua.api.objects.IJsonSerial;
 import eu.faircode.xlua.api.objects.ISerial;
+import eu.faircode.xlua.api.objects.xmock.ConfigSetting;
 import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.CursorUtil;
 
@@ -24,7 +30,7 @@ public class MockPhoneConfig extends MockPhoneConfigBase implements IJsonSerial,
     public MockPhoneConfig() { }
     public MockPhoneConfig(Parcel p) { fromParcel(p); }
     public MockPhoneConfig(Bundle b) { fromBundle(b); }
-    public MockPhoneConfig(String name, Map<String, String> settings) {
+    public MockPhoneConfig(String name, LinkedHashMap<String, String> settings) {
         setName(name);
         setSettings(settings);
     }
@@ -98,6 +104,25 @@ public class MockPhoneConfig extends MockPhoneConfigBase implements IJsonSerial,
         dest.writeString(name);
         dest.writeString(MockSettingsConversions.createSettingsString(settings));
         //dest.writeString(MockConfigConversions.convertMapToJson(settings).toString());
+    }
+
+    public LinkedHashMap<String, String> orderSettings(boolean setInternal) {
+        List<ConfigSetting> settings = new ArrayList<>(MockConfigConversions.hashMapToListSettings(getSettings()));
+        Collections.sort(settings, new Comparator<ConfigSetting>() {
+            @Override
+            public int compare(ConfigSetting o1, ConfigSetting o2) {
+
+
+
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+
+        LinkedHashMap<String, String> newMap = MockConfigConversions.listToHashMapSettings(settings, false);
+        if(setInternal)
+            setSettings(newMap);
+
+        return newMap;
     }
 
     public static final Parcelable.Creator<MockPhoneConfig> CREATOR = new Parcelable.Creator<MockPhoneConfig>() {

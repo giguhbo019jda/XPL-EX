@@ -21,7 +21,7 @@
         android:id="@+id/tiConfigSettingsValue"
         android:layout_width="376dp"
         android:layout_height="79dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,4 +52,21 @@
         android:textAppearance="@android:style/TextAppearance.Medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btConfigRandomize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Randomize"
+        app:layout_constraintEnd_toEndOf="@+id/tiConfigSettingsValue"
+        app:layout_constraintTop_toBottomOf="@+id/tiConfigSettingsValue" />
+
+    <Spinner
+        android:id="@+id/spConfigRandomSelection"
+        android:layout_width="263dp"
+        android:layout_height="32dp"
+        app:layout_constraintEnd_toStartOf="@+id/btConfigRandomize"
+        app:layout_constraintStart_toStartOf="@+id/tiConfigSettingsValue"
+        app:layout_constraintTop_toTopOf="@+id/btConfigRandomize" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

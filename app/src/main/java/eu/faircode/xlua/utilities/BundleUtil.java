@@ -107,8 +107,10 @@ public class BundleUtil {
         StringBuilder sb = new StringBuilder();
 
         String res = null;
-        if(bundle.containsKey("result"))
-            res = bundle.getString("result");
+        if(bundle.containsKey("result")) {
+            res = String.valueOf(bundle.get("result"));
+        }
+
 
         if(res == null || res.isEmpty()) {
             sb.append("Action Executed but returned NULL (assume it went well :P )");

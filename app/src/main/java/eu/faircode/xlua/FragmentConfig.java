@@ -73,7 +73,6 @@ public class FragmentConfig extends Fragment {
     private Button btSave;
     private Button btImport;
 
-
     private static final int PICK_FILE_REQUEST_CODE = 1; // This is a request code you define to identify your request
     private static final int PICK_FOLDER_RESULT_CODE = 2;
 
@@ -99,6 +98,7 @@ public class FragmentConfig extends Fragment {
                 final MockPhoneConfig config = new MockPhoneConfig();
                 config.setName(name);
                 config.setSettings(MockConfigConversions.listToHashMapSettings(settings, false));
+                config.orderSettings(true);
 
                 executor.submit(new Runnable() {
                     @Override
@@ -126,6 +126,7 @@ public class FragmentConfig extends Fragment {
                     Log.i(TAG, "Applying Settings from config=" + rvConfigAdapter.getConfigName());
 
                 rvConfigAdapter.applyConfig(getContext(), null);
+                Toast.makeText(getContext(), "Finished Applying Settings!", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -223,7 +224,7 @@ public class FragmentConfig extends Fragment {
         rvConfigAdapter = new AdapterConfig();
         rvSettings.setAdapter(rvConfigAdapter);
 
-        List<MockPhoneConfig> configs = new ArrayList<>(XMockQueryApi.getConfigs(getContext(), true));
+        List<MockPhoneConfig> configs = new ArrayList<>(XMockQueryApi.getConfigs(getContext(), true, true));
         pushConfigs(configs);
 
         if(DebugUtil.isDebug())
@@ -241,10 +242,6 @@ public class FragmentConfig extends Fragment {
         spConfigs.clear();
         spConfigs.addAll(configs);
         spConfigs.notifyDataSetChanged(); // Ensure this is here
-    }
-
-    public void saveConfig(Context context) {
-
     }
 
     @SuppressLint("WrongConstant")

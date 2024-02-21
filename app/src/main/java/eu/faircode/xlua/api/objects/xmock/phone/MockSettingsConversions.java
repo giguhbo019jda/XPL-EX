@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,11 +18,11 @@ public class MockSettingsConversions {
     //Converions helper universal but for JSON
     private static final String TAG = "XLua.MockSettingsConversions";
 
-    public static Map<String, String> readSettingsFromString(String data) {
+    public static LinkedHashMap<String, String> readSettingsFromString(String data) {
         if(data == null || data.isEmpty())
-            return new HashMap<>();
+            return new LinkedHashMap<>();
 
-        Map<String , String> settingsMap = new HashMap<>();
+        LinkedHashMap<String , String> settingsMap = new LinkedHashMap<>();
         try {
             JSONObject obj = new JSONObject(data);
             //return MockSettingsConversions.readSettingsFromJSON(obj); this will read settings field
@@ -39,7 +40,7 @@ public class MockSettingsConversions {
         return settingsMap;
     }
 
-    public static String createSettingsString(Map<String, String> settings) {
+    public static String createSettingsString(LinkedHashMap<String, String> settings) {
         JSONObject obj = createSettingsObject(settings);
         if(obj == null) {
             return "{}";
@@ -48,8 +49,8 @@ public class MockSettingsConversions {
         }
     }
 
-    public static Map<String, String> readSettingsFromJSON(JSONObject obj) throws JSONException {
-        Map<String, String> settingsMap = new HashMap<>();
+    public static LinkedHashMap<String, String> readSettingsFromJSON(JSONObject obj) throws JSONException {
+        LinkedHashMap<String, String> settingsMap = new LinkedHashMap<>();
 
         JSONObject settings = obj.getJSONObject("settings");
         Iterator<String> keys = settings.keys();
@@ -63,7 +64,7 @@ public class MockSettingsConversions {
         return settingsMap;
     }
 
-    public static JSONObject createSettingsObject(Map<String, String> settings) {
+    public static JSONObject createSettingsObject(LinkedHashMap<String, String> settings) {
         try {
             JSONObject settingsObj = new JSONObject();
             for(Map.Entry<String, String> r : settings.entrySet())
@@ -76,7 +77,7 @@ public class MockSettingsConversions {
         }
     }
 
-    public static void writeSettingsToJSON(JSONObject rootObject, Map<String, String> settings) {
+    public static void writeSettingsToJSON(JSONObject rootObject, LinkedHashMap<String, String> settings) {
         try {
             JSONObject settingsObj = new JSONObject();
             for(Map.Entry<String, String> r : settings.entrySet())

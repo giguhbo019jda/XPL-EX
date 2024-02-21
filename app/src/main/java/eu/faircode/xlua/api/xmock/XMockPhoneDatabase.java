@@ -131,8 +131,10 @@ public class XMockPhoneDatabase {
     }*/
 
     public static boolean putMockConfig(Context context, MockPhoneConfig config, XDataBase db) {
-        if(config == null || StringUtil.isValidString(config.getName()))
+        if(config == null || !StringUtil.isValidString(config.getName()))
             return false;
+
+        Log.i("XLua.XMockPhoneDatabase", "Config was valid: " + config);
 
         return DatabaseHelperEx.insertItem(
                 db,

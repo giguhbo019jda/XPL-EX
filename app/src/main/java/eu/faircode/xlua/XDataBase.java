@@ -52,15 +52,17 @@ public class XDataBase {
 
     public boolean open() {
         try {
-            if(dbFile == null)
+            if(dbFile == null) {
+                Log.e(TAG, "Failed to open, DB_FILE is null...");
                 return  false;
+            }
 
             if(db == null) {
                 db = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
-                Log.i(TAG, "Database file=" + dbFile);
+                Log.i(TAG, "Database file=" + dbFile  + " open=" + db.isOpen());
             }
 
-            return  true;
+            return db.isOpen();
         }catch (Exception e) {
             Log.e(TAG, "Failed to open DB: " + e.getMessage());
             return false;
@@ -331,12 +333,17 @@ public class XDataBase {
 
     public static boolean isReady(XDataBase database) {
         if(database == null) {
-            Log.e(TAG, "[mock.db] null Database entry...");
+            Log.e(TAG, "null Database entry cannot check if [isReady] if Database object is null...");
             return false;
         }
 
-        if (!database.exists() || !database.isOpen(true)) {
-            Log.e(TAG, "[mock.db] failed to init...");
+        if(!database.exists()) {
+            Log.e(TAG, "[" + database.getName() + "] Does not exist [" + database.dbFile.getAbsolutePath() + "]");
+            return false;
+        }
+
+        if (!database.isOpen(true)) {
+            Log.e(TAG, "[" + database.getName() + "] failed to open...");
             return false;
         }
 

@@ -1,15 +1,25 @@
 package eu.faircode.xlua.randomizers;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 public class RandomizersGlobal {
-    public static Dictionary<String, IRandomizer> randomizers = new Hashtable<>();
+    public static Map<String, IRandomizer> randomizers = new Hashtable<>();
 
     public static String getRandomStringValue(String settingName) {
         IRandomizer ran = randomizers.get(settingName);
         if(ran == null) return null;
         return ran.generateString();
+    }
+
+    public static List<IRandomizer> getRandomizers() {
+        if(randomizers.isEmpty())
+            initRandomizers();
+
+        return new ArrayList<>(randomizers.values());
     }
 
     public static void initRandomizers() {
