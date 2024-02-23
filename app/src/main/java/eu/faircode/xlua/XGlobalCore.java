@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.util.Log;
 
@@ -19,20 +18,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import eu.faircode.xlua.api.XCommandService;
 import eu.faircode.xlua.api.objects.xlua.hook.xHook;
-import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
-import eu.faircode.xlua.api.objects.xmock.prop.MockProp;
-import eu.faircode.xlua.api.xmock.XMockCpuDatabase;
-import eu.faircode.xlua.api.xmock.XMockCpuProvider;
-import eu.faircode.xlua.api.xmock.XMockDatabaseHelp;
-import eu.faircode.xlua.api.xmock.XMockPropDatabase;
 import eu.faircode.xlua.database.DatabaseQuerySnake;
 import eu.faircode.xlua.api.xlua.XHookProvider;
+import eu.faircode.xlua.database.MockUpdater;
 import eu.faircode.xlua.database.XLuaUpdater;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
 
@@ -51,6 +41,8 @@ public class XGlobalCore {
 
     private static XDataBase xLua_db = null;
     private static XDataBase xMock_db = null;
+
+    private static boolean mock_init = false;
 
     final static String cChannelName = "xlua";
 
@@ -73,9 +65,12 @@ public class XGlobalCore {
             synchronized (mockLock) {
                 if(xMock_db == null) {
                     xMock_db = new XDataBase(DB_NAME_MOCK, context, true);
-                    XMockDatabaseHelp.initDatabase(context, xMock_db);
+                    MockUpdater.reset();
+                    mock_init = false;
                 }else if(DebugUtil.isDebug())
                     DatabasePathUtil.log("XMock Database is db=" + xMock_db, false);
+                if(!mock_init)
+                    mock_init = MockUpdater.initDatabase(context, xMock_db);
             }
 
             synchronized (hookLock) {

@@ -11,7 +11,7 @@ import eu.faircode.xlua.database.DatabaseHelperEx;
 import eu.faircode.xlua.database.DatabaseQuerySnake;
 
 public class XMockPropDatabase {
-    private static final int COUNT = 66;
+    private static final int COUNT = 69;
     private static final String JSON = "props.json";
 
     public static MockProp getMockProp(XDataBase db, String name) {
@@ -83,5 +83,17 @@ public class XMockPropDatabase {
                 true,
                 MockProp.class,
                 COUNT);
+    }
+
+    public static boolean forceDatabaseCheck(Context context, XDataBase db) {
+        return DatabaseHelperEx.prepareTableIfMissingOrInvalidCount(
+                context,
+                db,
+                MockProp.Table.name,
+                MockProp.Table.columns,
+                JSON,
+                true,
+                MockProp.class,
+                DatabaseHelperEx.DB_FORCE_CHECK);
     }
 }

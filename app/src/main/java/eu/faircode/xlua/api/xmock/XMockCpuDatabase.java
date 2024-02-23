@@ -10,6 +10,7 @@ import java.util.List;
 
 import eu.faircode.xlua.XDataBase;
 import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
+import eu.faircode.xlua.api.objects.xmock.prop.MockProp;
 import eu.faircode.xlua.database.DatabaseHelperEx;
 import eu.faircode.xlua.database.DatabaseQuerySnake;
 
@@ -111,6 +112,18 @@ public class XMockCpuDatabase {
                 true,
                 MockCpu.class,
                 COUNT);
+    }
+
+    public static boolean forceDatabaseCheck(Context context, XDataBase db) {
+        return DatabaseHelperEx.prepareTableIfMissingOrInvalidCount(
+                context,
+                db,
+                MockCpu.Table.name,
+                MockCpu.Table.columns,
+                JSON,
+                true,
+                MockCpu.class,
+                DatabaseHelperEx.DB_FORCE_CHECK);
     }
 
     private static void avoidContents(DatabaseQuerySnake snake) {

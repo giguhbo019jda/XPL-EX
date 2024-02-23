@@ -4,31 +4,28 @@ import androidx.annotation.NonNull;
 
 import eu.faircode.xlua.utilities.RandomStringGenerator;
 
-public class RandomDRM implements IRandomizer {
+public class RandomSimSerial implements IRandomizer {
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("drm");
+        return setting.equalsIgnoreCase(getSettingName());
     }
 
     @Override
-    public String getSettingName() {
-        return "drm.id";
-    }
+    public String getSettingName() {  return "phone.simserial"; }
 
     @Override
     public String getName() {
-        return "DRM ID";
+        return "SIM Serial";
     }
 
     @Override
     public String getID() {
-        return "%drm_id%";
+        return "%sim_serial%";
     }
 
     @Override
     public String generateString() {
-        //64
-        return RandomStringGenerator.generateRandomAlphanumericString(64, RandomStringGenerator.LOWER_LETTERS);
+        return RandomStringGenerator.generateRandomNumberString(20);
     }
 
     @Override
@@ -36,5 +33,7 @@ public class RandomDRM implements IRandomizer {
 
     @NonNull
     @Override
-    public String toString() { return getName(); }
+    public String toString() {
+        return getName();
+    }
 }

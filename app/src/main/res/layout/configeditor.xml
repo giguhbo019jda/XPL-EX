@@ -6,13 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".ActivityConfig">
 
+    <!-- Above is Match to Parent, below is 0dp and bottom to bottom of parent -->
+    <!-- Also check if 411dp needs to be hardcoded -->
+    <!-- android:paddingBottom="?attr/actionBarSize" -->
+    <!-- https://stackoverflow.com/questions/32742724/recyclerview-is-cutting-off-the-last-item -->
+    <!-- For this view or future bind buttons for rotated view  -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvConfigSettings"
-        android:layout_width="411dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/swGlobalApps"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="16dp" />
 
     <Button
         android:id="@+id/btImportConfig"
@@ -72,5 +80,16 @@
         android:text="Global Apps"
         app:layout_constraintStart_toStartOf="@+id/btExportConfig"
         app:layout_constraintTop_toBottomOf="@+id/btExportConfig" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/flConfigOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_add" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

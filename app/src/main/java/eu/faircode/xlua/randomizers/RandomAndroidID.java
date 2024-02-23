@@ -5,7 +5,10 @@ import androidx.annotation.NonNull;
 import eu.faircode.xlua.utilities.RandomStringGenerator;
 
 public class RandomAndroidID implements IRandomizer {
-
+    @Override
+    public boolean isSetting(String setting) {
+        return setting.equalsIgnoreCase(getSettingName());
+    }
 
     @Override
     public String getSettingName() { return "value.android_id"; }

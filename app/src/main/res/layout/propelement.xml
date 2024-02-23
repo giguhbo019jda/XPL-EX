@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/itemViewProperties"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/ivExpanderProps2"
+        android:layout_width="30dp"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:layout_marginTop="15dp"
+        android:alpha="0.5"
+        android:clickable="false"
+        android:focusable="false"
+        android:src="?attr/expander"
+        card_view:layout_constraintBottom_toTopOf="@+id/tvDefaultPropValue"
+        card_view:layout_constraintStart_toStartOf="parent"
+        card_view:layout_constraintTop_toTopOf="@+id/tvPropnameLabel" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

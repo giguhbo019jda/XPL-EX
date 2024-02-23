@@ -5,6 +5,10 @@ import androidx.annotation.NonNull;
 import eu.faircode.xlua.utilities.RandomStringGenerator;
 
 public class RandomIMEI implements IRandomizer {
+    @Override
+    public boolean isSetting(String setting) {
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("imei");
+    }
 
     @Override
     public String getSettingName() {  return "value.imei"; }

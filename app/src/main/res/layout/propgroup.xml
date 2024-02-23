@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvGroup"
+        tools:layout_editor_absoluteX="0dp"
+        android:layout_width="411dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/tiPropMockValue2" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/tiPropMockValue2"
+        android:layout_width="406dp"
+        android:layout_height="88dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/ivSetDefaultValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPropnameLabel3" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/cbMockTheProp2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        app:layout_constraintBottom_toBottomOf="@+id/ivExpanderProps3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/ivExpanderProps3" />
+
+    <TextView
+        android:id="@+id/tvPropnameLabel3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="false"
+        android:ellipsize="end"
+        android:focusable="false"
+        android:lines="1"
+        android:text="anroid.model"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        app:layout_constraintEnd_toStartOf="@+id/cbMockTheProp"
+        app:layout_constraintStart_toEndOf="@+id/ivExpanderProps3"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivExpanderProps3"
+        android:layout_width="30dp"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:layout_marginTop="15dp"
+        android:alpha="0.5"
+        android:clickable="false"
+        android:focusable="false"
+        android:src="?attr/expander"
+        app:layout_constraintBottom_toTopOf="@+id/tvDefaultPropValue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvPropnameLabel" />
+</androidx.constraintlayout.widget.ConstraintLayout>

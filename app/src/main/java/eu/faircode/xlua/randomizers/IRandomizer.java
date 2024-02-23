@@ -1,7 +1,8 @@
 package eu.faircode.xlua.randomizers;
 
 public interface IRandomizer {
-    public String getSettingName();
+    boolean isSetting(String settingName);
+    String getSettingName();
     String getName();
     String getID();
     String generateString();

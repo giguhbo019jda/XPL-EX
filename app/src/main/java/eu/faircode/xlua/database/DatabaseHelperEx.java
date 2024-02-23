@@ -30,6 +30,9 @@ public class DatabaseHelperEx {
     private static final String ERROR_UPDATE = "Failed to Update Item";
     private static final String ERROR_DELETE = "Failed to Delete Database Table Item";
 
+
+    public static final int DB_FORCE_CHECK = -8;
+
     public static boolean deleteItem(
             DatabaseQuerySnake query) {
 
@@ -309,21 +312,46 @@ public class DatabaseHelperEx {
             return false;
         }
 
-        if(jsonName == null || itemCheckCount < 1) {
-            if(db.hasTable(tableName)) {
-                info(tableName, db, TAG_prepareTable, "Table does not Require Default Values & Exist !");
-                return false;
-            }
-
+        if(!db.hasTable(tableName)) {
+            warning(tableName, db, TAG_prepareTable, "Table is missing: " + tableName);
             if(!db.createTable(columns, tableName)) {
                 error(tableName, db, TAG_prepareTable, ERROR_TABLE);
                 return false;
             }
+        }
 
+        if(jsonName == null || (itemCheckCount < 1 && itemCheckCount != DB_FORCE_CHECK)) {
+            //Check if Table Exist if the given data to check if NULL or below (1) assuming not (-8)
             return db.hasTable(tableName);
         }
 
-        if(itemCheckCount > 1 && db.tableEntries(tableName) < itemCheckCount ||  !db.hasTable(tableName)) {
+        if(itemCheckCount == DB_FORCE_CHECK) {
+            info(tableName, db, TAG_prepareTable, "Forcing Table Check");
+            Collection<T> items = initDatabase(
+                    context,
+                    db,
+                    tableName,
+                    columns,
+                    jsonName,
+                    stopOnFirstJson, typeClass, itemCheckCount);
+
+            if(!CollectionUtil.isValid(items)) {
+                error(tableName, db, TAG_prepareTable, "Failed to grab Database Items");
+                return false;
+            }
+
+            int jCount = JsonHelper.findJsonElementsFromAssets(
+                    XUtil.getApk(context),
+                    jsonName,
+                    stopOnFirstJson,
+                    typeClass).size();
+            //ensure only required items from the force is being returned
+            //It now is updated the init function to check for FORCE flag and handle it properly
+            info(tableName, db, TAG_prepareTable, "json count=" + jCount + " returned count=" + items.size());
+            return jCount == items.size();
+        }
+
+        if(db.tableEntries(tableName) < itemCheckCount) {
             warning(tableName, db, TAG_prepareTable, "Table is Empty or NULL Fixing to=" + itemCheckCount);
             Collection<T> items = initDatabase(
                     context,
@@ -336,14 +364,7 @@ public class DatabaseHelperEx {
                 error(tableName, db, TAG_prepareTable, "Failed to grab Database Items");
                 return false;
             }
-        }
 
-        if(!db.hasTable(tableName)) {
-            error(tableName, db, TAG_prepareTable, ERROR_TABLE);
-            return false;
-        }
-
-        if(itemCheckCount > 1) {
             int itemCount = db.tableEntries(tableName);
             if(itemCount < itemCheckCount) {
                 error(tableName, db, TAG_prepareTable, "Size is off, table size=" + itemCount + " hardcoded size=" + itemCheckCount);
@@ -411,7 +432,38 @@ public class DatabaseHelperEx {
             }else {
                 items = getFromDatabase(db, tableName, typeClass);
                 info(tableName, db, TAG_initDatabase, "itemCheckCount=" + itemCheckCount + " size=" + items.size());
-                if(itemCheckCount > 0 && items.size() < itemCheckCount) {
+                if(itemCheckCount == DB_FORCE_CHECK) {
+                    info(tableName, db, TAG_initDatabase, "Forcing Database Check on Generic Items");
+                    Collection<T> genericItems = new ArrayList<>();
+
+                    for(T item : JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), jsonName,
+                            stopOnFirstJson,
+                            typeClass
+                    )) {
+                        boolean found = false;
+                        for(T dItem : items) {
+                            if(dItem.equals(item)) {
+                                found = true;
+                                genericItems.add(dItem);
+                                break;
+                            }
+                        }
+
+                        if(!found) {
+                            warning(tableName, db, TAG_initDatabase, "Missing Table Item=" + item);
+                            if(!db.insert(tableName, item.createContentValues())) {
+                                error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
+                                continue;
+                            }
+
+                            genericItems.add(item);
+                        }
+                    }
+
+                    db.setTransactionSuccessful();
+                    return genericItems;
+                }
+                else if(itemCheckCount > 0 && items.size() < itemCheckCount) {
                     error(tableName, db, TAG_initDatabase, "Size is off, table size=" + items.size() + " hardcoded size=" + itemCheckCount);
 
                     Collection<T> newItems = new ArrayList<>();

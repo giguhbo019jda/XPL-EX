@@ -5,6 +5,10 @@ import androidx.annotation.NonNull;
 import eu.faircode.xlua.utilities.RandomStringGenerator;
 
 public class RandomGSF implements IRandomizer {
+    @Override
+    public boolean isSetting(String setting) {
+        return setting.equalsIgnoreCase(getSettingName());
+    }
 
     @Override
     public String getSettingName() { return "gsf.id"; }

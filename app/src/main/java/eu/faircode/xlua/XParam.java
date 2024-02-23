@@ -44,6 +44,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import de.robv.android.xposed.XC_MethodHook;
 import eu.faircode.xlua.api.XMockCallApi;
+import eu.faircode.xlua.interceptors.ShellIntercept;
 import eu.faircode.xlua.utilities.MemoryUtilEx;
 import eu.faircode.xlua.utilities.MockCpuUtil;
 import eu.faircode.xlua.display.MotionRangeUtil;
@@ -168,6 +169,41 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public List<String> filterFileStringList(List<String> files) { return FileUtil.filterList(files); }
+
+
+    //
+    //Shell Intercept
+    //
+
+    @SuppressWarnings("unused")
+    public String interceptCommand(String command) { return ShellIntercept.interceptOne(command, getApplicationContext()); }
+
+    @SuppressWarnings("unused")
+    public String interceptCommandArray(String[] commands) { return ShellIntercept.interceptTwo(commands, getApplicationContext()); }
+
+    @SuppressWarnings("unused")
+    public String interceptCommandList(List<String> commands) { return ShellIntercept.interceptThree(commands, getApplicationContext()); }
+
+    @SuppressWarnings("unused")
+    public Process execEcho(String command) { return ShellIntercept.echo(command); }
+
+    //
+    //End of Shell Intercept
+    //
+
+    //
+    //String Utils
+    //
+
+    @SuppressWarnings("unused")
+    public String joinArray(String[] array) { return StringUtil.joinDelimiter(" ", array); }
+
+    @SuppressWarnings("unused")
+    public String joinList(List<String> list) { return StringUtil.joinDelimiter(" ", list); }
+
+    //
+    //End of String Utils
+    //
 
     //
     //Start of Memory/CPU Functions

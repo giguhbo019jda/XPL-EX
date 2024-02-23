@@ -3,6 +3,7 @@ package eu.faircode.xlua;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.system.Os;
 import android.util.Log;
 
 import java.lang.reflect.Method;

@@ -31,7 +31,7 @@ import eu.faircode.xlua.api.objects.xmock.phone.MockConfigConversions;
 import eu.faircode.xlua.api.objects.xmock.phone.MockPhoneConfig;
 import eu.faircode.xlua.api.xlua.xcall.PutSettingCommand;
 import eu.faircode.xlua.randomizers.IRandomizer;
-import eu.faircode.xlua.randomizers.RandomizersGlobal;
+import eu.faircode.xlua.randomizers.GlobalRandoms;
 import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
@@ -112,7 +112,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             });
 
             spRandomizer.clear();
-            spRandomizer.addAll(RandomizersGlobal.getRandomizers());
+            spRandomizer.addAll(GlobalRandoms.getRandomizers());
             //spRandomizer.notifyDataSetChanged(); // Ensure this is here
 
             if(DebugUtil.isDebug())
@@ -264,12 +264,9 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
         holder.tiSettingsValue.setText(cSetting.getValue());
         holder.cbSettingEnabled.setChecked(cSetting.isEnabled());
 
-        //holder.spRandomizer.set
-        //spRandomSelector.setSelection(defaultIndex);
-
         for(int i = 0; i < holder.spRandomizer.getCount(); i++) {
             IRandomizer randomizer = holder.spRandomizer.getItem(i);
-            if(randomizer.getSettingName().equalsIgnoreCase(settingName)) {
+            if(randomizer != null && randomizer.isSetting(settingName)) {
                 holder.spRandomSelector.setSelection(i);
                 break;
             }

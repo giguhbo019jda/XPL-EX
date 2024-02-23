@@ -9,7 +9,7 @@ import eu.faircode.xlua.api.objects.xmock.phone.MockPhoneConfig;
 import eu.faircode.xlua.api.objects.xmock.prop.MockProp;
 
 public class XMockDatabaseHelp {
-    private static final String TAG = "XLua.XMockDatabaseHelp";
+    /*private static final String TAG = "XLua.XMockDatabaseHelp";
 
     public static void initDatabase(Context context, XDataBase db) {
         if(db == null || !db.isOpen(true))
@@ -22,5 +22,5 @@ public class XMockDatabaseHelp {
             XMockPropDatabase.getMockProps(context, db);
         if(db.tableEntries(MockPhoneConfig.Table.name) < 1)
             XMockPhoneDatabase.getMockConfigs(context, db);
-    }
+    }*/
 }

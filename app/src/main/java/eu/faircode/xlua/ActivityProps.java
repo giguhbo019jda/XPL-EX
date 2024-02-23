@@ -48,7 +48,7 @@ public class ActivityProps extends ActivityBase {
     private FragmentPropsEx fragmentProps;
     private Menu menu;
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    //private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

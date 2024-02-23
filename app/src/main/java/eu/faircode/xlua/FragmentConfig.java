@@ -28,6 +28,7 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
@@ -73,18 +74,35 @@ public class FragmentConfig extends Fragment {
     private Button btSave;
     private Button btImport;
 
+    private FloatingActionButton flConfigActions;
+
     private static final int PICK_FILE_REQUEST_CODE = 1; // This is a request code you define to identify your request
     private static final int PICK_FOLDER_RESULT_CODE = 2;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public View onCreateView(
-            @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            final @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         if(DebugUtil.isDebug())
             Log.i(TAG, "FragmentConfig.onCreateView Enter");
 
         final View main = inflater.inflate(R.layout.configeditor, container, false);
+
+        flConfigActions = main.findViewById(R.id.flConfigOptions);
+        flConfigActions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+                View configOpsView = inflater.inflate(R.layout.configops, (ViewGroup) main, false);
+
+                // Add the inflated view to the main view
+                ((ViewGroup) main).addView(configOpsView);
+                //Show the view "configops.xml" over the "main" view code here
+            }
+        });
 
         //Buttons
         btSave = main.findViewById(R.id.btSaveConfig);
