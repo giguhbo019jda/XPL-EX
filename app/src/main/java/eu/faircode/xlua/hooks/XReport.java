@@ -6,13 +6,15 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+
 import eu.faircode.xlua.XDataBase;
 import eu.faircode.xlua.XUtil;
-import eu.faircode.xlua.api.objects.IDBSerial;
-import eu.faircode.xlua.api.objects.xlua.hook.GroupDatabaseEntry;
-import eu.faircode.xlua.api.objects.xlua.hook.xHook;
-import eu.faircode.xlua.database.DatabaseQuerySnake;
-import eu.faircode.xlua.api.xlua.XSettingsDatabase;
+import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
+import eu.faircode.xlua.api.hook.group.XLuaGroup;
+import eu.faircode.xlua.api.hook.XLuaHook;
+import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
+import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 
 public class XReport implements IDBSerial {
     public String hookId;
@@ -49,7 +51,7 @@ public class XReport implements IDBSerial {
         data = b.getBundle("data");
     }
 
-    public GroupDatabaseEntry createGroupObject(xHook hook, long used) { return new GroupDatabaseEntry(packageName, uid, hook.getGroup(), used); }
+    public XLuaGroup createGroupObject(XLuaHook hook, long used) { return new XLuaGroup(packageName, uid, hook.getGroup(), used); }
 
     public int getRestricted() {
         if(restricted == null)
@@ -67,13 +69,13 @@ public class XReport implements IDBSerial {
 
     public boolean getNotify(XDataBase db) {
         if(notify == null)
-            notify = Boolean.parseBoolean(XSettingsDatabase.getSettingValue(db, getUserId(), packageName, "notify"));
+            notify = Boolean.parseBoolean(XLuaSettingsDatabase.getSettingValue(db, getUserId(), packageName, "notify"));
 
         return notify;
     }
 
-    public DatabaseQuerySnake generateQuery() {
-        return DatabaseQuerySnake.create()
+    public SqlQuerySnake generateQuery() {
+        return SqlQuerySnake.create()
                 .whereColumns("package", "uid", "hook")
                 .whereColumnValues(packageName, Integer.toString(uid), hookId);
     }
@@ -118,7 +120,14 @@ public class XReport implements IDBSerial {
     }
 
     @Override
-    public void fromCursor(Cursor cursor) {
+    public List<ContentValues> createContentValuesList() { return null; }
 
-    }
+    @Override
+    public void fromContentValuesList(List<ContentValues> contentValues) { }
+
+    @Override
+    public void fromContentValues(ContentValues contentValue) { }
+
+    @Override
+    public void fromCursor(Cursor cursor) { }
 }

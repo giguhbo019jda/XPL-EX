@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.api.XMockCallApi;
-import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
-import eu.faircode.xlua.api.objects.xmock.prop.MockProp;
+import eu.faircode.xlua.api.xmock.XMockCall;
+import eu.faircode.xlua.api.cpu.XMockCpu;
 import eu.faircode.xlua.utilities.MemoryUtil;
 import eu.faircode.xlua.utilities.MockUtils;
 import eu.faircode.xlua.utilities.StringUtil;
@@ -54,18 +53,15 @@ public class ShellIntercept {
             if(DebugUtil.isDebug())
                 Log.i(TAG, "cleaned prop after=" + propValue);
 
-            if(!StringUtil.isValidString(propValue))
+            if(!StringUtil.isValidString(propValue) || MockUtils.isPropVxpOrLua(propValue))
                 return null;
-
-            if(MockUtils.isPropVxpOrLua(propValue)) {
-                Log.i(TAG, "Skipping Property avoid Stack Overflow / Recursion");
-                return null;
-            }
 
             if(DebugUtil.isDebug())
                 Log.i(TAG, "Checking Property=" + propValue);
 
-            fakeValue = MockUtils.filterProperty(propValue, XMockCallApi.getMockProps(context));
+            //XMockCall.getPropertyValue(getApplicationContext(), property, getPackageName(), 0);
+            //fakeValue = MockUtils.filterProperty(propValue, XMockCall.getMockProps(context));
+            fakeValue = XMockCall.getPropertyValue(context, propValue);// work on this
             if(fakeValue.equalsIgnoreCase(MockUtils.NOT_BLACKLISTED))
                 return null;
         }
@@ -78,7 +74,7 @@ public class ShellIntercept {
             //note this can be used to detect odd environment
         }
         else if(lowered.contains(cpuFile)) {
-            MockCpu mockCpu = XMockCallApi.getSelectedMockCpu(context);
+            XMockCpu mockCpu = XMockCall.getSelectedMockCpu(context);
             fakeValue = mockCpu.getContents();
         }
         else if(lowered.contains(memFile)) {

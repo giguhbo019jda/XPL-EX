@@ -19,11 +19,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.faircode.xlua.api.objects.xlua.hook.xHook;
-import eu.faircode.xlua.database.DatabaseQuerySnake;
-import eu.faircode.xlua.api.xlua.XHookProvider;
-import eu.faircode.xlua.database.MockUpdater;
-import eu.faircode.xlua.database.XLuaUpdater;
+import eu.faircode.xlua.api.hook.XLuaHook;
+import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
+import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
+import eu.faircode.xlua.api.xmock.XMockUpdater;
+import eu.faircode.xlua.api.xlua.XLuaUpdater;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
 
 public class XGlobalCore {
@@ -31,8 +31,8 @@ public class XGlobalCore {
     private static final Object hookLock = new Object();
     private static final Object mockLock = new Object();
 
-    private static HashMap<String, xHook> hooks = new HashMap<>();
-    private static HashMap<String, xHook> builtIn = new HashMap<>();
+    private static HashMap<String, XLuaHook> hooks = new HashMap<>();
+    private static HashMap<String, XLuaHook> builtIn = new HashMap<>();
 
     //public static int version = -1;
 
@@ -65,12 +65,12 @@ public class XGlobalCore {
             synchronized (mockLock) {
                 if(xMock_db == null) {
                     xMock_db = new XDataBase(DB_NAME_MOCK, context, true);
-                    MockUpdater.reset();
+                    XMockUpdater.reset();
                     mock_init = false;
                 }else if(DebugUtil.isDebug())
                     DatabasePathUtil.log("XMock Database is db=" + xMock_db, false);
                 if(!mock_init)
-                    mock_init = MockUpdater.initDatabase(context, xMock_db);
+                    mock_init = XMockUpdater.initDatabase(context, xMock_db);
             }
 
             synchronized (hookLock) {
@@ -101,7 +101,7 @@ public class XGlobalCore {
         // Read built-in definition
         PackageManager pm = context.getPackageManager();
         ApplicationInfo ai = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
-        for (xHook builtin : xHook.readHooks(context, ai.publicSourceDir)) {
+        for (XLuaHook builtin : XLuaHook.readHooks(context, ai.publicSourceDir)) {
             builtin.resolveClassName(context);
             builtIn.put(builtin.getId(), builtin);
             hooks.put(builtin.getId(), builtin);
@@ -109,7 +109,7 @@ public class XGlobalCore {
 
 
         DatabasePathUtil.log("loaded hook size=" + hooks.size(), false);
-        DatabaseQuerySnake snake = DatabaseQuerySnake.create(xLua_db, xHook.Table.name);
+        SqlQuerySnake snake = SqlQuerySnake.create(xLua_db, XLuaHook.Table.name);
         Cursor c = null;
         try {
             xLua_db.readLock();
@@ -118,7 +118,7 @@ public class XGlobalCore {
             int colDefinition = c.getColumnIndex("definition");
             while (c.moveToNext()) {
                 String definition = c.getString(colDefinition);
-                xHook hook = new xHook();
+                XLuaHook hook = new XLuaHook();
                 hook.fromJSONObject(new JSONObject(definition));
                 hook.resolveClassName(context);
                 //Log.i(TAG, " loading hook=" + hook.getId());
@@ -134,20 +134,20 @@ public class XGlobalCore {
         DatabasePathUtil.log("Loaded hook definitions hooks=" + hooks.size() + " builtIns=" + builtIn.size(), false);
     }
 
-    public static Collection<xHook> getHooks(XDataBase db, boolean all) {
+    public static Collection<XLuaHook> getHooks(XDataBase db, boolean all) {
         Log.i(TAG, "Getting Hooks all=" + all + " internal size list =" + hooks.size());
-        List<String> collection = XHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
+        List<String> collection = XLuaHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
         Log.i(TAG, "collection size=" + collection.size());
-        List<xHook> hv = new ArrayList();
+        List<XLuaHook> hv = new ArrayList();
         synchronized (hookLock) {
-            for (xHook hook : hooks.values())
+            for (XLuaHook hook : hooks.values())
                 if (all || hook.isAvailable(null, collection))
                     hv.add(hook);
         }
 
-        Collections.sort(hv, new Comparator<xHook>() {
+        Collections.sort(hv, new Comparator<XLuaHook>() {
             @Override
-            public int compare(xHook h1, xHook h2) {
+            public int compare(XLuaHook h1, XLuaHook h2) {
                 return h1.getId().compareTo(h2.getId());
             }
         });
@@ -159,7 +159,7 @@ public class XGlobalCore {
 
     public static List<String> getGroups(XDataBase db) {
         List<String> groups = new ArrayList<>();
-        List<String> collections = XHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
+        List<String> collections = XLuaHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
 
         if(DebugUtil.isDebug()) {
             Log.i(TAG, "Returned Collections size=" + collections.size());
@@ -170,7 +170,7 @@ public class XGlobalCore {
         }
 
         synchronized (hookLock) {
-            for (xHook hook : hooks.values())
+            for (XLuaHook hook : hooks.values())
                 if (hook.isAvailable(null, collections) && !groups.contains(hook.getGroup()))
                     groups.add(hook.getGroup());
         }
@@ -190,14 +190,14 @@ public class XGlobalCore {
             boolean marshall) throws Throwable {
         synchronized (hookLock) {
             if (hooks.containsKey(hookId))  {
-                xHook hook = hooks.get(hookId);
+                XLuaHook hook = hooks.get(hookId);
                 if(hook == null)
                     return;
 
                 if (hook.isAvailable(packageName, collections)) {
                     if (marshall) {
                         Parcel parcel = Parcel.obtain();
-                        hook.writeToParcel(parcel, xHook.FLAG_WITH_LUA);
+                        hook.writeToParcel(parcel, XLuaHook.FLAG_WITH_LUA);
                         writeTo.newRow()
                                 .add(parcel.marshall())
                                 .add(used);
@@ -216,7 +216,7 @@ public class XGlobalCore {
     public static List<String> getHookIds(String pkg, List<String> collections) {
         List<String> hook_ids = new ArrayList<>();
         synchronized (hookLock) {
-            for (xHook hook : hooks.values())
+            for (XLuaHook hook : hooks.values())
                 if (hook.isAvailable(pkg, collections))
                     hook_ids.add(hook.getId());
         }
@@ -224,14 +224,14 @@ public class XGlobalCore {
         return hook_ids;
     }
 
-    public static xHook getHook(String hookId) {
+    public static XLuaHook getHook(String hookId) {
         synchronized (hookLock) { if (hooks.containsKey(hookId)) return hooks.get(hookId); return null; }
     }
 
-    public static xHook getHook(String hookId, String pkg, List<String> collections) {
+    public static XLuaHook getHook(String hookId, String pkg, List<String> collections) {
         synchronized (hookLock) {
             if (hooks.containsKey(hookId)) {
-                xHook hook = hooks.get(hookId);
+                XLuaHook hook = hooks.get(hookId);
                 if (hook != null && hook.isAvailable(pkg, collections))
                     return hook;
             }
@@ -240,7 +240,7 @@ public class XGlobalCore {
         }
     }
 
-    public static boolean updateHookCache(Context context, xHook hook, String extraId) {
+    public static boolean updateHookCache(Context context, XLuaHook hook, String extraId) {
         synchronized (hookLock) {
             if (hook == null) {
                 if (hooks.containsKey(extraId) && hooks.get(extraId).isBuiltin()) {
@@ -252,7 +252,7 @@ public class XGlobalCore {
                 hooks.remove(extraId);
                 if (builtIn.containsKey(extraId)) {
                     Log.i(TAG, "Restoring builtin id=" + extraId);
-                    xHook builtin = builtIn.get(extraId);
+                    XLuaHook builtin = builtIn.get(extraId);
                     // class name is already resolved
                     hooks.put(extraId, builtin);
                 } else

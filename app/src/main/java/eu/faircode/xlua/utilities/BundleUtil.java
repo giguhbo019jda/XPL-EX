@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import eu.faircode.xlua.api.objects.ISerial;
+import eu.faircode.xlua.api.standard.interfaces.ISerial;
 
 public class BundleUtil {
     public static Boolean readBoolean(Bundle b, String keyName) { return readBoolean(b, keyName, null); }

@@ -13,11 +13,9 @@ import java.io.File;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import de.robv.android.xposed.XposedBridge;
-import eu.faircode.xlua.database.DatabaseQuerySnake;
+import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.utilities.CursorUtil;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
-import eu.faircode.xlua.rootbox.XFileUtils;
 
 public class XDataBase {
     private static final String TAG = "XLua.Database.SqliteWrapper";
@@ -85,7 +83,7 @@ public class XDataBase {
         }
     }
 
-    public boolean update(String tableName, ContentValues values, DatabaseQuerySnake queryFilter) {
+    public boolean update(String tableName, ContentValues values, SqlQuerySnake queryFilter) {
         try {
             long rows = db.updateWithOnConflict(tableName, values, queryFilter.getSelectionArgs(), queryFilter.getSelectionCompareValues(), SQLiteDatabase.CONFLICT_REPLACE);
             //if(rows < 0) {

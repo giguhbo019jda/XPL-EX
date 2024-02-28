@@ -2,7 +2,6 @@ package eu.faircode.xlua;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,44 +19,25 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-import eu.faircode.xlua.api.XLuaCallApi;
-import eu.faircode.xlua.api.XMockCallApi;
-import eu.faircode.xlua.api.XMockQueryApi;
-import eu.faircode.xlua.api.objects.xmock.ConfigSetting;
-import eu.faircode.xlua.api.objects.xmock.phone.MockConfigConversions;
-import eu.faircode.xlua.api.objects.xmock.phone.MockPhoneConfig;
-import eu.faircode.xlua.api.objects.xmock.phone.MockSettingsConversions;
-import eu.faircode.xlua.api.xmock.xcall.PutMockConfigCommand;
-import eu.faircode.xlua.api.xmock.xcall.PutMockPropsCommand;
+import eu.faircode.xlua.api.xmock.XMockQuery;
+import eu.faircode.xlua.api.config.XMockConfigSetting;
+import eu.faircode.xlua.api.config.XMockConfigConversions;
+import eu.faircode.xlua.api.config.XMockConfig;
+import eu.faircode.xlua.api.xmock.call.PutMockConfigCommand;
 import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.FileDialogUtil;
 
@@ -66,7 +46,7 @@ public class FragmentConfig extends Fragment {
 
     private AdapterConfig rvConfigAdapter;
     private Spinner spConfigSelection;
-    private ArrayAdapter<MockPhoneConfig> spConfigs;
+    private ArrayAdapter<XMockConfig> spConfigs;
 
     private Button btApply;
     private Button btExport;
@@ -111,11 +91,11 @@ public class FragmentConfig extends Fragment {
             public void onClick(View v) {
 
                 String name = rvConfigAdapter.getConfigName();
-                List<ConfigSetting> settings = rvConfigAdapter.getEnabledSettings();
+                List<XMockConfigSetting> settings = rvConfigAdapter.getEnabledSettings();
 
-                final MockPhoneConfig config = new MockPhoneConfig();
+                final XMockConfig config = new XMockConfig();
                 config.setName(name);
-                config.setSettings(MockConfigConversions.listToHashMapSettings(settings, false));
+                config.setSettings(XMockConfigConversions.listToHashMapSettings(settings, false));
                 config.orderSettings(true);
 
                 executor.submit(new Runnable() {
@@ -188,7 +168,7 @@ public class FragmentConfig extends Fragment {
             Log.i(TAG, "Creating the Drop Down for Configs Fragment Config");
 
         //Start of Drop Down
-        spConfigs = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        spConfigs = new ArrayAdapter<>(Objects.requireNonNull(getContext()), android.R.layout.simple_spinner_item);
         spConfigs.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         if(DebugUtil.isDebug())
@@ -207,7 +187,7 @@ public class FragmentConfig extends Fragment {
             }
 
             private void updateSelection() {
-                MockPhoneConfig selected = (MockPhoneConfig) spConfigSelection.getSelectedItem();
+                XMockConfig selected = (XMockConfig) spConfigSelection.getSelectedItem();
                 String configName = (selected == null ? null : selected.getName());
                 if(DebugUtil.isDebug())
                     Log.i(TAG, "CONFIG SELECTED=" + configName);
@@ -242,7 +222,7 @@ public class FragmentConfig extends Fragment {
         rvConfigAdapter = new AdapterConfig();
         rvSettings.setAdapter(rvConfigAdapter);
 
-        List<MockPhoneConfig> configs = new ArrayList<>(XMockQueryApi.getConfigs(getContext(), true, true));
+        List<XMockConfig> configs = new ArrayList<>(XMockQuery.getConfigs(getContext(), true, true));
         pushConfigs(configs);
 
         if(DebugUtil.isDebug())
@@ -251,12 +231,15 @@ public class FragmentConfig extends Fragment {
         return main;
     }
 
-    public void pushConfig(MockPhoneConfig config) {
+    public void pushConfig(XMockConfig config) {
         spConfigs.add(config);
         spConfigs.notifyDataSetChanged();
     }
 
-    public void pushConfigs(List<MockPhoneConfig> configs) {
+    public void pushConfigs(List<XMockConfig> configs) {
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "[pushConfigs] configs size=" + configs.size());
+
         spConfigs.clear();
         spConfigs.addAll(configs);
         spConfigs.notifyDataSetChanged(); // Ensure this is here
@@ -278,13 +261,13 @@ public class FragmentConfig extends Fragment {
             case PICK_FILE_REQUEST_CODE:
                 String mimeType = Objects.requireNonNull(getContext()).getContentResolver().getType(selectedFileUri);
                 if ("application/json".equals(mimeType) || "text/plain".equals(mimeType)) {
-                    final MockPhoneConfig config = FileDialogUtil.readPhoneConfig(getContext(), selectedFileUri);
+                    final XMockConfig config = FileDialogUtil.readPhoneConfig(getContext(), selectedFileUri);
                     if(config == null)
                         Toast.makeText(getContext(), "Failed Read Config File: " + selectedFileUri.getPath(), Toast.LENGTH_SHORT).show();
                     else {
                         String configName = config.getName();
                         for(int i = 0; i < spConfigs.getCount(); i++) {
-                            MockPhoneConfig conf = spConfigs.getItem(i);
+                            XMockConfig conf = spConfigs.getItem(i);
                             if(configName.equals(conf.getName())) {
                                 configName += "-" + ThreadLocalRandom.current().nextInt(10000,999999999);
                                 config.setName(configName);

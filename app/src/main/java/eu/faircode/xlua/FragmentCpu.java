@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import eu.faircode.xlua.api.XLuaCallApi;
-import eu.faircode.xlua.api.XMockCallApi;
-import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
+import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.api.xmock.XMockCall;
+import eu.faircode.xlua.api.cpu.XMockCpu;
 
 
 public class FragmentCpu extends Fragment {
@@ -119,9 +119,9 @@ public class FragmentCpu extends Fragment {
                 if (!data.theme.equals(activity.getThemeName()))
                     activity.recreate();
 
-                Collections.sort(data.maps, new Comparator<MockCpu>() {
+                Collections.sort(data.maps, new Comparator<XMockCpu>() {
                     @Override
-                    public int compare(MockCpu o1, MockCpu o2) {
+                    public int compare(XMockCpu o1, XMockCpu o2) {
                         return o1.getName().compareToIgnoreCase(o2.getName());
                     }
                 });
@@ -154,7 +154,7 @@ public class FragmentCpu extends Fragment {
             CpuDataHolder data = new CpuDataHolder();
             try {
 
-                data.theme = XLuaCallApi.getTheme(getContext());
+                data.theme = XLuaCall.getTheme(getContext());
                 //data.theme = XSettingsDatabase.getSettingValue()
                 //data.theme = XProvider.getSetting(getContext(), "global", "theme");
                 //if (data.theme == null)
@@ -163,7 +163,7 @@ public class FragmentCpu extends Fragment {
                 data.maps.clear();
                 Log.i(TAG, "Getting Cpu Maps...");
                 //List<MockCpu> props = XMockProxyApi.queryGetMockCpuMaps(getContext());
-                Collection<MockCpu> maps = XMockCallApi.getCpuMaps(getContext());
+                Collection<XMockCpu> maps = XMockCall.getCpuMaps(getContext());
                 Log.i(TAG, "Props=" + maps.size());
                 data.maps.addAll(maps);
                 //make sure it syncs with cache if needed
@@ -180,7 +180,7 @@ public class FragmentCpu extends Fragment {
 
     private static class CpuDataHolder {
         String theme;
-        List<MockCpu> maps = new ArrayList<>();
+        List<XMockCpu> maps = new ArrayList<>();
         Throwable exception = null;
     }
 }

@@ -1,0 +1,98 @@
+[
+  { "name": "android.version", "value": "13" },
+  { "name": "android.brand", "value": "OnePlus" },
+  { "name": "android.device", "value": "OnePlus7ProNR" },
+  { "name": "android.model", "value": "GM1920" },
+  { "name": "android.build.tags",  "value": "release-keys" },
+  { "name": "android.build.type", "value": "user" },
+  { "name": "android.build.date.utc",  "value": "1696343919" },
+  { "name": "android.build.date",  "value": "Tue Oct 3 17:38:39 IDT 2023" },
+  { "name": "android.incremental", "value": "eng.ido.20231003.173955" },
+  { "name": "android.version.sdk", "value": "33" },
+  { "name": "android.version.min.sdk", "value": "23"},
+  { "name": "android.build.id", "value": "TQ3A.230805.001" },
+  { "name": "user.agent", "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_9_8; like Mac OS X) AppleWebKit/603.13 (KHTML, like Gecko)  Chrome/50.0.3404.328 Mobile Safari/533.1" },
+
+  { "name": "java.vendor", "value": "Oracle YourMom" },
+  { "name": "java.vendor.url", "value": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+  { "name": "java.vm.version","value": "1.0" },
+  { "name": "java.vm.name", "value": "Dalvik"},
+
+  { "name": "cpu.name",  "value": "Linux" },
+  { "name": "cpu.version", "value": "SMP PREEMPT Tue Oct 3 17:44:36 IDT 2023" },
+  { "name": "cpu.release", "value": "4.14.326" },
+  { "name": "cpu.nodename", "value": "localhost" },
+  { "name": "cpu.platform.name", "value": "msmnile" },
+  { "name": "cpu.base.band", "value": "mdm" },
+  { "name": "cpu.arch", "value": "aarch64" },
+
+  { "name": "cpu.abilist", "value": "arm64-v8a,armeabi-v7a,armeabi" },
+  { "name": "cpu.abilist32", "value": "armeabi-v7a,armeabi" },
+  { "name": "cpu.abilist64", "value": "arm64-v8a" },
+  { "name": "cpu.abi", "value": "arm64-v8a" },
+  { "name": "cpu.dalvik.vm.variant", "value": "cortex-a76" },
+
+  { "name": "gpu.opengls.version", "value": "19660" },
+
+  { "name": "android.build.description", "value": "yaap_guacamoles-user 13 TQ3A.230805.001" },
+  { "name": "android.build.display.id", "value": "TQ3A.230805.001 release-keys" },
+  { "name": "android.build.flavor", "value": "yaap_guacamoles-user" },
+  { "name": "android.build.host", "value": "ido-X3999A" },
+  { "name": "android.build.user", "value": "ido" },
+  { "name": "android.build.patch", "value": "2023-10-05" },
+  { "name": "android.build.codename", "value": "REL" },
+
+
+  { "name": "android.rom.codename", "value": "yaap_guacamoles" },
+  { "name": "android.rom.fingerprint", "value": "OnePlus/yaap_guacamoles/guacamoles:13/TQ3A.230805.001/ido10031738:user/release-keys" },
+  { "name": "android.rom.hide", "value": "" },
+  { "name": "android.rom.netflix", "value": "Q855-16947-1" },
+  { "name": "android.rom.adb.secure",  "value": "1" },
+  { "name": "android.rom.allow.mock",  "value": "0" },
+  { "name": "android.rom.secure", "value": "1" },
+  { "name": "android.rom.debuggable", "value": "0" },
+  { "name": "android.rom.enforce", "value": "enforce" },
+
+  { "name": "android.rom.flash.locked", "value": "1" },
+  { "name": "android.rom.verified.boot", "value": "green" },
+  { "name": "android.rom.root.image", "value":  "true"  },
+
+  { "name": "android.system.bootloader", "value": "unknown" },
+  { "name": "android.system.boot.mode", "value": "normal" },
+  { "name": "android.system.codename", "value": "guacamoles" },
+
+  { "name": "hardware.nfc.kind", "value": "I2C" },
+  { "name": "hardware.camera.app", "value": "com.oneplus.camera" },
+  { "name": "hardware.bluetooth.name", "value": "Android" },
+  { "name": "hardware.bluetooth.soc", "value": "cherokee" },
+  { "name": "hardware.fp.sensor", "value": "gdx" },
+  { "name": "hardware.fp.sensor.name", "value": "goodix" },
+  { "name": "hardware.fp.hide", "value": "" },
+
+  { "name": "hardware.boot.product.sku", "value":  "noese"  },
+  { "name": "hardware.boot.sku", "value":  "pn553"  },
+
+  { "name": "hardware.gsm.version", "value": "Qualcomm RIL 1.0" },
+  { "name": "hardware.gsm.band.version", "value": "017-SM8150_GENFUSION_PACK-1.299167.1.399259.3" },
+
+  { "name": "unique.serial.no", "value": "840er743" },
+
+  { "name": "network.dns", "value": "8.8.8.8" },
+
+
+  { "name": "zone.timezone.id", "value": "Atlantic/Reykjavik" },
+  { "name": "zone.language.iso", "value": "IS" },
+  { "name": "zone.country.iso", "value": "IS" },
+  { "name": "zone.language.tag", "value": "is-IS" },
+  { "name": "gsm.operator.id", "value": "274299" },
+  { "name": "gsm.operator.alpha.tag", "value": "00000000000" },
+  { "name": "gsm.operator.mcc", "value": "274" },
+  { "name": "gsm.operator.mnc", "value": "299" },
+  { "name": "gsm.operator.roaming", "value": "false" },
+
+  { "name": "gsm.phone.type", "value": "GSM" },
+  { "name": "gsm.sim.state", "value": "READY" },
+
+  { "name": "gsm.network.type", "value": "Unknown/Remote Sim" },
+  { "name": "gsm.network.carrier", "value": "Siminn" }
+]

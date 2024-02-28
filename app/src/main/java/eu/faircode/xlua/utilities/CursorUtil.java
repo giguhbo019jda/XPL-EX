@@ -10,12 +10,9 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import eu.faircode.xlua.api.objects.IDBSerial;
-import eu.faircode.xlua.api.objects.IJsonSerial;
-import eu.faircode.xlua.api.objects.ISerial;
+import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 
 public class CursorUtil {
     public static void closeCursor(Cursor c) {

@@ -57,8 +57,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import eu.faircode.xlua.api.xlua.XHookProvider;
-import eu.faircode.xlua.api.XLuaCallApi;
+import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
+import eu.faircode.xlua.api.xlua.XLuaCall;
 
 public class ActivityMain extends ActivityBase {
     private final static String TAG = "XLua.Main";
@@ -82,7 +82,7 @@ public class ActivityMain extends ActivityBase {
         super.onCreate(savedInstanceState);
 
         // Check if service is running
-        if (!XHookProvider.isAvailable(this)) {
+        if (!XLuaHookProvider.isAvailable(this)) {
             Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), getString(R.string.msg_no_service), Snackbar.LENGTH_INDEFINITE);
 
             final Intent intent = getPackageManager().getLaunchIntentForPackage("de.robv.android.xposed.installer");
@@ -145,10 +145,12 @@ public class ActivityMain extends ActivityBase {
         });
 
         // Initialize drawer
-        boolean notifyNew = XLuaCallApi.getSettingBoolean(this, "notify_new_apps"); //XProvider.getSettingBoolean(this, "global", "notify_new_apps");
-        boolean restrictNew = XLuaCallApi.getSettingBoolean(this, "restrict_new_apps"); //XProvider.getSettingBoolean(this, "global", "restrict_new_apps");
+        boolean notifyNew = XLuaCall.getSettingBoolean(this, "notify_new_apps"); //XProvider.getSettingBoolean(this, "global", "notify_new_apps");
+        boolean restrictNew = XLuaCall.getSettingBoolean(this, "restrict_new_apps"); //XProvider.getSettingBoolean(this, "global", "restrict_new_apps");
         //String theme = XProvider.getSetting(this,"global", "theme");
+
         boolean isDark = getThemeName().equals("dark");
+        boolean isVerbose = getDebugState();
 
         final ArrayAdapterDrawer drawerArray = new ArrayAdapterDrawer(ActivityMain.this, R.layout.draweritem);
 
@@ -156,7 +158,7 @@ public class ActivityMain extends ActivityBase {
             drawerArray.add(new DrawerItem(this, R.string.menu_notify_new, notifyNew, new DrawerItem.IListener() {
                 @Override
                 public void onClick(DrawerItem item) {
-                    XLuaCallApi.putSettingBoolean(ActivityMain.this, "notify_new_apps", item.isChecked());
+                    XLuaCall.putSettingBoolean(ActivityMain.this, "notify_new_apps", item.isChecked());
                     //XProvider.putSettingBoolean(ActivityMain.this, "global", "notify_new_apps", item.isChecked());
                     drawerArray.notifyDataSetChanged();
                 }
@@ -166,7 +168,7 @@ public class ActivityMain extends ActivityBase {
             drawerArray.add(new DrawerItem(this, R.string.menu_restrict_new, restrictNew, new DrawerItem.IListener() {
                 @Override
                 public void onClick(DrawerItem item) {
-                    XLuaCallApi.putSettingBoolean(ActivityMain.this, "restrict_new_apps", item.isChecked());
+                    XLuaCall.putSettingBoolean(ActivityMain.this, "restrict_new_apps", item.isChecked());
                     //XProvider.putSettingBoolean(ActivityMain.this, "global", "restrict_new_apps", item.isChecked());
                     drawerArray.notifyDataSetChanged();
                 }
@@ -257,11 +259,10 @@ public class ActivityMain extends ActivityBase {
             }
         }));
 
-
-        drawerArray.add(new DrawerItem(this, R.string.menu_debug_logs, isDark, new DrawerItem.IListener() {
+        drawerArray.add(new DrawerItem(this, R.string.menu_debug_logs, isVerbose, new DrawerItem.IListener() {
             @Override
             public void onClick(DrawerItem item) {
-                DebugUtil.setForceDebug(item.isChecked());
+                setDebugState(item.isCheckable());
                 drawerArray.notifyDataSetChanged();//do we need this ?
                 //Hmm do note this is local context to the NON ROOT Hook on Settings :P
                 //Context may differ ?
@@ -276,6 +277,21 @@ public class ActivityMain extends ActivityBase {
         drawerList.setAdapter(drawerArray);
 
         checkFirstRun();
+    }
+    //Clean all this fucking code up pls
+    public void setDebugState(boolean enabled) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        prefs.edit().putBoolean("verbosedebug", enabled).apply();
+    }
+
+    public boolean getDebugState() {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if(!prefs.contains("verbosedebug")) {
+            prefs.edit().putBoolean("verbosedebug", true).apply();
+            return true;
+        }
+
+        return prefs.getBoolean("verbosedebug", true);
     }
 
     @Override
@@ -292,7 +308,7 @@ public class ActivityMain extends ActivityBase {
         setIntent(intent);
 
         if (this.menu != null)
-            updateMenu(this.menu);//maybe we dont need out mnu
+            updateMenu(this.menu);
     }
 
     @Override
@@ -419,7 +435,7 @@ public class ActivityMain extends ActivityBase {
                 executor.submit(new Runnable() {
                     @Override
                     public void run() {
-                        XLuaCallApi.putSetting(ActivityMain.this, "show", set.name());
+                        XLuaCall.putSetting(ActivityMain.this, "show", set.name());
                     }
                 });
                 return true;
@@ -436,7 +452,7 @@ public class ActivityMain extends ActivityBase {
     private void menuHelp() {
         startActivity(new Intent(this, ActivityHelp.class));
     }
-    private void menuProps() { startActivity(new Intent(this, ActivityProps.class)); }
+    private void menuProps() { startActivity(new Intent(this, ActivityProperties.class)); }
     private void menuDBs() { startActivity(new Intent(this, ActivityDatabase.class)); }
     private void menuCPU() { startActivity(new Intent(this, ActivityCpu.class)); }
     private void menuConfig() { startActivity(new Intent(this, ActivityConfig.class)); }
@@ -459,6 +475,11 @@ public class ActivityMain extends ActivityBase {
     public void checkFirstRun() {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean firstRun = prefs.getBoolean("firstrun", true);
+        //use this to init debug
+        //
+        //boolean debug = prefs.getBoolean("verbosedebug", true);
+        //DebugUtil.setForceDebug(debug);
+
         if (firstRun && firstRunDialog == null) {
             final XUtil.DialogObserver observer = new XUtil.DialogObserver();
 

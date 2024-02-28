@@ -7,21 +7,19 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import de.robv.android.xposed.XC_MethodHook;
 import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.XDataBase;
 import eu.faircode.xlua.XGlobalCore;
 import eu.faircode.xlua.XSettingBridgeStatic;
-import eu.faircode.xlua.api.objects.CallCommandHandler;
-import eu.faircode.xlua.api.objects.CallPacket;
-import eu.faircode.xlua.api.objects.QueryCommandHandler;
-import eu.faircode.xlua.api.objects.QueryPacket;
-import eu.faircode.xlua.api.objects.TryCallWrapper;
-import eu.faircode.xlua.api.objects.TryQueryWrapper;
+import eu.faircode.xlua.api.standard.CallCommandHandler;
+import eu.faircode.xlua.api.standard.command.CallPacket;
+import eu.faircode.xlua.api.standard.QueryCommandHandler;
+import eu.faircode.xlua.api.standard.command.QueryPacket;
+import eu.faircode.xlua.api.standard.command.TryCallWrapper;
+import eu.faircode.xlua.api.standard.command.TryQueryWrapper;
 
 public class XCommandService {
     private static final String TAG = "XLua.XCommandService";

@@ -3,7 +3,6 @@ package eu.faircode.xlua;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.system.Os;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -11,33 +10,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
 import eu.faircode.xlua.api.XCommandService;
-import eu.faircode.xlua.api.objects.CallCommandHandler;
-import eu.faircode.xlua.api.objects.QueryCommandHandler;
-import eu.faircode.xlua.api.xlua.xcall.AssignHooksCommand;
-import eu.faircode.xlua.api.xlua.xcall.ClearAppCommand;
-import eu.faircode.xlua.api.xlua.xcall.ClearDataCommand;
-import eu.faircode.xlua.api.xlua.xcall.GetGroupsCommand;
-import eu.faircode.xlua.api.xlua.xcall.GetSettingCommand;
-import eu.faircode.xlua.api.xlua.xcall.GetVersionCommand;
-import eu.faircode.xlua.api.xlua.xcall.InitAppCommand;
-import eu.faircode.xlua.api.xlua.xcall.PutHookCommand;
-import eu.faircode.xlua.api.xlua.xcall.PutSettingCommand;
-import eu.faircode.xlua.api.xlua.xcall.ReportCommand;
-import eu.faircode.xlua.api.xlua.xquery.GetAppsCommand;
-import eu.faircode.xlua.api.xlua.xquery.GetAssignedHooksCommand;
-import eu.faircode.xlua.api.xlua.xquery.GetHooksCommand;
-import eu.faircode.xlua.api.xlua.xquery.GetLogCommand;
-import eu.faircode.xlua.api.xlua.xquery.GetSettingsCommand;
-import eu.faircode.xlua.api.xmock.xcall.GetMockCpusCommand;
-import eu.faircode.xlua.api.xmock.xcall.GetMockPropCommand;
-import eu.faircode.xlua.api.xmock.xcall.GetMockPropsCommand;
-import eu.faircode.xlua.api.xmock.xcall.PutMockConfigCommand;
-import eu.faircode.xlua.api.xmock.xcall.PutMockCpuCommand;
-import eu.faircode.xlua.api.xmock.xcall.PutMockPropCommand;
-import eu.faircode.xlua.api.xmock.xcall.PutMockPropsCommand;
-import eu.faircode.xlua.api.xmock.xquery.GetMockConfigsCommand;
+import eu.faircode.xlua.api.standard.CallCommandHandler;
+import eu.faircode.xlua.api.standard.QueryCommandHandler;
+import eu.faircode.xlua.api.xlua.call.AssignHooksCommand;
+import eu.faircode.xlua.api.xlua.call.ClearAppCommand;
+import eu.faircode.xlua.api.xlua.call.ClearDataCommand;
+import eu.faircode.xlua.api.xlua.call.GetGroupsCommand;
+import eu.faircode.xlua.api.xlua.call.GetSettingCommand;
+import eu.faircode.xlua.api.xlua.call.GetVersionCommand;
+import eu.faircode.xlua.api.xlua.call.InitAppCommand;
+import eu.faircode.xlua.api.xlua.call.PutHookCommand;
+import eu.faircode.xlua.api.xlua.call.PutSettingCommand;
+import eu.faircode.xlua.api.xlua.call.ReportCommand;
+import eu.faircode.xlua.api.xlua.query.GetAppsCommand;
+import eu.faircode.xlua.api.xlua.query.GetAssignedHooksCommand;
+import eu.faircode.xlua.api.xlua.query.GetHooksCommand;
+import eu.faircode.xlua.api.xlua.query.GetLogCommand;
+import eu.faircode.xlua.api.xlua.query.GetSettingsCommand;
+import eu.faircode.xlua.api.xmock.call.GetMockCpusCommand;
+import eu.faircode.xlua.api.xmock.call.GetMockPropValueCommand;
+import eu.faircode.xlua.api.xmock.call.PutGroupStateCommand;
+import eu.faircode.xlua.api.xmock.call.PutMockConfigCommand;
+import eu.faircode.xlua.api.xmock.call.PutMockCpuCommand;
+import eu.faircode.xlua.api.xmock.query.GetMockConfigsCommand;
+import eu.faircode.xlua.api.xmock.query.GetMockPropGroupsCommand;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class XSettingBridgeStatic {
@@ -116,6 +113,8 @@ public class XSettingBridgeStatic {
         HashMap<String, QueryCommandHandler> hs = new HashMap<>();
         hs.put("getMockConfigs", GetMockConfigsCommand.create(false));
         hs.put("getMockConfigs2", GetMockConfigsCommand.create(true));
+        hs.put("getMockPropGroups", GetMockPropGroupsCommand.create(false));
+        hs.put("getMockPropGroups2", GetMockPropGroupsCommand.create(true));
         return hs;
     }
 
@@ -140,10 +139,11 @@ public class XSettingBridgeStatic {
         hs.put("getMockCpus", GetMockCpusCommand.create());
         hs.put("putMockCpu", PutMockCpuCommand.create());
         //get
-        hs.put("getMockProp", GetMockPropCommand.create());
-        hs.put("getMockProps", GetMockPropsCommand.create());
-        hs.put("putMockProp", PutMockPropCommand.create());
-        hs.put("putMockProps", PutMockPropsCommand.create());
+        hs.put("getMockPropValue", GetMockPropValueCommand.create());
+        hs.put("putGroupState", PutGroupStateCommand.create());
+        //hs.put("getMockProps", GetMockPropsCommand.create());
+        //hs.put("putMockProp", PutMockPropCommand.create());
+        //hs.put("putMockProps", PutMockPropsCommand.create());
 
         hs.put("putMockConfig", PutMockConfigCommand.create());
         return hs;

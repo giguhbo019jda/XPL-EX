@@ -24,11 +24,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
@@ -36,31 +34,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.compiler.LuaC;
-import org.luaj.vm2.lib.DebugLib;
-import org.luaj.vm2.lib.OneArgFunction;
-import org.luaj.vm2.lib.VarArgFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
-import org.luaj.vm2.lib.jse.JsePlatform;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.WeakHashMap;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -72,47 +53,16 @@ import eu.faircode.xlua.hooks.XHookUtil;
 
 //package eu.faircode.xlua;
 
-import android.app.Application;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Process;
-import android.os.SystemClock;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.Prototype;
-import org.luaj.vm2.Varargs;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
 
-import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.IXposedHookZygoteInit;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import eu.faircode.xlua.api.XLuaCallApi;
-import eu.faircode.xlua.api.XLuaQueryApi;
+import eu.faircode.xlua.api.xlua.XLuaQuery;
 import eu.faircode.xlua.hooks.LuaHookWrapper;
 import eu.faircode.xlua.hooks.LuaScriptHolder;
-import eu.faircode.xlua.hooks.XHookUtil;
 import eu.faircode.xlua.hooks.XReporter;
 import eu.faircode.xlua.hooks.XResolved;
 import eu.faircode.xlua.utilities.BundleUtil;
 
-import eu.faircode.xlua.api.objects.xlua.hook.xHook;
+import eu.faircode.xlua.api.hook.XLuaHook;
 
 public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
     private static final String TAG = "XLua.XCoreStartup";
@@ -290,20 +240,20 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         //i hope ?
 
         String pName = lpparam.packageName;
-        Collection<xHook> hooks =
-                XLuaQueryApi.getAssignments(context, pName, uid, true);
+        Collection<XLuaHook> hooks =
+                XLuaQuery.getAssignments(context, pName, uid, true);
 
         Log.i(TAG, "pkg=" + lpparam.packageName + " uid=" + uid + " hooks=" + hooks.size());
 
-        final Map<String, String> settings = XLuaQueryApi.getGlobalSettings(context, uid);
-        settings.putAll(XLuaQueryApi.getSettings(context, lpparam.packageName, uid));
+        final Map<String, String> settings = XLuaQuery.getGlobalSettings(context, uid);
+        settings.putAll(XLuaQuery.getSettings(context, lpparam.packageName, uid));
 
         Log.i(TAG,"pkg [" + lpparam.packageName + "] settings=" + settings.size());
 
         Map<LuaScriptHolder, Prototype> scriptPrototype = new HashMap<>();
         PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 
-        for(final xHook hook : hooks) {
+        for(final XLuaHook hook : hooks) {
             try {
                 //SDK Check min & max
                 if(!hook.isAvailable(pInfo.versionCode))

@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ActivityProps extends ActivityBase {
+/*public class ActivityProps extends ActivityBase {
     private static final String TAG = "XLua.Props";
     private FragmentPropsEx fragmentProps;
     private Menu menu;
@@ -105,4 +105,4 @@ public class ActivityProps extends ActivityBase {
                 return super.onOptionsItemSelected(item);
         }
     }
-}
+}*/

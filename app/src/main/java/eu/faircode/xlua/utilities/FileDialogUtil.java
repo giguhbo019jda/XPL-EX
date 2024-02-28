@@ -1,7 +1,6 @@
 package eu.faircode.xlua.utilities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -11,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,17 +17,17 @@ import java.io.OutputStream;
 import java.util.List;
 
 import eu.faircode.xlua.AdapterConfig;
-import eu.faircode.xlua.api.objects.xmock.ConfigSetting;
-import eu.faircode.xlua.api.objects.xmock.phone.MockConfigConversions;
-import eu.faircode.xlua.api.objects.xmock.phone.MockPhoneConfig;
+import eu.faircode.xlua.api.config.XMockConfigSetting;
+import eu.faircode.xlua.api.config.XMockConfigConversions;
+import eu.faircode.xlua.api.config.XMockConfig;
 
 public class FileDialogUtil {
     private static final String TAG = "XLua.FileDialogUtil";
 
-    public static MockPhoneConfig readPhoneConfig(Context context, Uri selectedFileUri) {
+    public static XMockConfig readPhoneConfig(Context context, Uri selectedFileUri) {
         String contents = readAllFile(context, selectedFileUri);
         try {
-            MockPhoneConfig config = new MockPhoneConfig();
+            XMockConfig config = new XMockConfig();
             config.fromJSONObject(new JSONObject(contents));
             return config;
         }catch (JSONException ex) {
@@ -63,13 +61,13 @@ public class FileDialogUtil {
             DocumentFile newFile = pickedDir.createFile("application/json", fName + ".json");
             if (newFile != null) {
                 try (OutputStream out = context.getContentResolver().openOutputStream(newFile.getUri())) {
-                    List<ConfigSetting> settings = config.getEnabledSettings();
+                    List<XMockConfigSetting> settings = config.getEnabledSettings();
                     if(settings == null || settings.isEmpty())
                         throw new IOException("Settings is Empty");
 
-                    MockPhoneConfig mockConfig = new MockPhoneConfig();
+                    XMockConfig mockConfig = new XMockConfig();
                     mockConfig.setName(fName);
-                    mockConfig.setSettings(MockConfigConversions.listToHashMapSettings(settings, false));
+                    mockConfig.setSettings(XMockConfigConversions.listToHashMapSettings(settings, false));
 
                     byte[] bys = mockConfig.toJSON().getBytes();;
                     assert out != null;

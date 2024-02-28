@@ -1,11 +1,6 @@
 package eu.faircode.xlua.hooks;
 
-import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -24,16 +19,9 @@ import java.util.TimerTask;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
-import eu.faircode.xlua.BuildConfig;
-import eu.faircode.xlua.XDataBase;
-import eu.faircode.xlua.XGlobalCore;
-import eu.faircode.xlua.XNotify;
 import eu.faircode.xlua.XSecurity;
-import eu.faircode.xlua.XUtil;
-import eu.faircode.xlua.database.DatabaseQuerySnake;
 
-import eu.faircode.xlua.api.objects.xlua.hook.xHook;
-import eu.faircode.xlua.api.objects.xlua.setting.xSettingConversions;
+import eu.faircode.xlua.api.hook.XLuaHook;
 
 
 public class XReporter {
@@ -41,14 +29,14 @@ public class XReporter {
     private final Map<String, Map<String, Bundle>> queue = new HashMap<String, Map<String, Bundle>>();
     private Timer timer = new Timer();
 
-    public void reportFieldException(Context context, Exception ex, xHook hook, Field field) {
+    public void reportFieldException(Context context, Exception ex, XLuaHook hook, Field field) {
         StringBuilder sb = new StringBuilder();
         XReporter.writeExceptionHeader(sb, ex, context);
         XReporter.writeField(sb, field);
         reportError(context, hook, sb, "after");
     }
 
-    public void reportMemberException(Context context, Exception ex, xHook hook, Member member, String function, XC_MethodHook.MethodHookParam param) {
+    public void reportMemberException(Context context, Exception ex, XLuaHook hook, Member member, String function, XC_MethodHook.MethodHookParam param) {
         StringBuilder sb = new StringBuilder();
         XReporter.writeExceptionHeader(sb, ex, context);
         XReporter.writeMethod(sb, member, function, param);
@@ -116,7 +104,7 @@ public class XReporter {
         sb.append("\n");
     }
 
-    public void reportError(Context context, xHook hook, StringBuilder sb, String functionName) {
+    public void reportError(Context context, XLuaHook hook, StringBuilder sb, String functionName) {
         Log.e(TAG, sb.toString());
 
         Log.e(TAG, sb.toString());
@@ -128,7 +116,7 @@ public class XReporter {
         pushReport(context, hook.getId(), functionName, "use", data);
     }
 
-    public void reportUsage(xHook hook, Varargs result, long startTime, String funName, Context context) {
+    public void reportUsage(XLuaHook hook, Varargs result, long startTime, String funName, Context context) {
         boolean restricted = result.arg1().checkboolean();
         if (restricted && hook.doUsage()) {
             Bundle data = new Bundle();

@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import eu.faircode.xlua.api.objects.xlua.packets.SettingPacket;
-import eu.faircode.xlua.api.objects.xmock.ConfigSetting;
-import eu.faircode.xlua.api.objects.xmock.phone.MockConfigConversions;
-import eu.faircode.xlua.api.objects.xmock.phone.MockPhoneConfig;
-import eu.faircode.xlua.api.xlua.xcall.PutSettingCommand;
+import eu.faircode.xlua.api.settings.XLuaSettingPacket;
+import eu.faircode.xlua.api.config.XMockConfigSetting;
+import eu.faircode.xlua.api.config.XMockConfigConversions;
+import eu.faircode.xlua.api.config.XMockConfig;
+import eu.faircode.xlua.api.xlua.call.PutSettingCommand;
 import eu.faircode.xlua.randomizers.IRandomizer;
 import eu.faircode.xlua.randomizers.GlobalRandoms;
 import eu.faircode.xlua.utilities.BundleUtil;
@@ -38,9 +38,9 @@ import eu.faircode.xlua.utilities.ViewUtil;
 public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder> {
     private static final String TAG = "XLua.AdapterConfig";
 
-    private MockPhoneConfig config = null;
+    private XMockConfig config = null;
 
-    private List<ConfigSetting> settings = new ArrayList<>();
+    private List<XMockConfigSetting> settings = new ArrayList<>();
     private Object lock = new Object();
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -138,7 +138,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             if(DebugUtil.isDebug())
                 Log.i(TAG, "onClick id=" + id);
 
-            final ConfigSetting setting = settings.get(getAdapterPosition());
+            final XMockConfigSetting setting = settings.get(getAdapterPosition());
             String name = setting.getName();
 
             switch (id) {
@@ -159,13 +159,13 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             }
         }
 
-        @SuppressLint("NotifyDataSetChanged")
+        @SuppressLint({"NotifyDataSetChanged", "NonConstantResourceId"})
         @Override
         public void onCheckedChanged(final CompoundButton cButton, boolean isChecked) {
             if(DebugUtil.isDebug())
                 Log.i(TAG, "onCheckedChanged");
 
-            final ConfigSetting setting = settings.get(getAdapterPosition());
+            final XMockConfigSetting setting = settings.get(getAdapterPosition());
             final int id = cButton.getId();
             if(DebugUtil.isDebug())
                 Log.i(TAG, "Item checked=" + id + " == " + setting);
@@ -182,7 +182,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             if(DebugUtil.isDebug())
                 Log.i(TAG, "Expanding Object");
 
-            ConfigSetting setting = settings.get(getAdapterPosition());
+            XMockConfigSetting setting = settings.get(getAdapterPosition());
             String name = setting.getName();
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
 
@@ -196,14 +196,14 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
         if(DebugUtil.isDebug())
             Log.i(TAG, "APPLYING:" + settings.size());
 
-        for (ConfigSetting setting : settings) {
+        for (XMockConfigSetting setting : settings) {
             if(DebugUtil.isDebug()) {
                 Log.i(TAG, "Enum item setting");
                 Log.i(TAG, "setting [" + setting + "]");
             }
 
             if(setting.isEnabled()) {
-                SettingPacket packet = new SettingPacket();
+                XLuaSettingPacket packet = new XLuaSettingPacket();
                 packet.setName(setting.getName());
                 packet.setValue(setting.getValue());
                 packet.setUser(0);
@@ -220,10 +220,10 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    void set(MockPhoneConfig config) {
+    void set(XMockConfig config) {
         this.config = config;
         this.settings.clear();
-        this.settings.addAll(MockConfigConversions.hashMapToListSettings(config.getSettings()));
+        this.settings.addAll(XMockConfigConversions.hashMapToListSettings(config.getSettings()));
         if(DebugUtil.isDebug())
             Log.i(TAG, "SELECTED SETTINGS COUNT=" + settings.size());
 
@@ -231,9 +231,9 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
     }
 
     public String getConfigName() { return config.getName(); }
-    public List<ConfigSetting> getEnabledSettings() {
-        List<ConfigSetting> settingsEnabled = new ArrayList<>();
-        for(ConfigSetting setting : settings)
+    public List<XMockConfigSetting> getEnabledSettings() {
+        List<XMockConfigSetting> settingsEnabled = new ArrayList<>();
+        for(XMockConfigSetting setting : settings)
             if(setting.isEnabled())
                 settingsEnabled.add(setting);
 
@@ -257,7 +257,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             Log.i(TAG, "Adapter Item Creating Internal");
 
         holder.unWire();
-        ConfigSetting cSetting = settings.get(position);
+        XMockConfigSetting cSetting = settings.get(position);
         String settingName = cSetting.getName();
 
         holder.tvSettingName.setText(settingName);

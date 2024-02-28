@@ -11,11 +11,9 @@ import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
-import eu.faircode.xlua.api.objects.xlua.hook.xHook;
-import eu.faircode.xlua.api.objects.xlua.setting.xSettingConversions;
+import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.XParam;
 
 public class LuaHookWrapper {
@@ -30,7 +28,7 @@ public class LuaHookWrapper {
 
     public LuaHookWrapper(
             Context context,
-            xHook hook,
+            XLuaHook hook,
             Map<String, String> settings,
             Prototype compiledScript,
             String function,
@@ -63,7 +61,7 @@ public class LuaHookWrapper {
         };
     }
 
-    public LuaHookWrapper(Context context, xHook hook, Map<String, String> settings, Prototype compiledScript, Field field) {
+    public LuaHookWrapper(Context context, XLuaHook hook, Map<String, String> settings, Prototype compiledScript, Field field) {
         isMemberOrMethod = false;
         // Initialize Lua runtime
         globals = XHookUtil.getGlobals(context, hook, settings);
@@ -79,11 +77,11 @@ public class LuaHookWrapper {
         };
     }
 
-    public static LuaHookWrapper createMember(Context context, xHook hook, Map<String, String> settings, Prototype compiledScript, String function, XC_MethodHook.MethodHookParam param, Globals globals) {
+    public static LuaHookWrapper createMember(Context context, XLuaHook hook, Map<String, String> settings, Prototype compiledScript, String function, XC_MethodHook.MethodHookParam param, Globals globals) {
         return new LuaHookWrapper(context, hook, settings, compiledScript, function, param, globals);
     }
 
-    public static LuaHookWrapper createField(Context context, xHook hook, Map<String, String> settings, Prototype compiledScript, Field field) {
+    public static LuaHookWrapper createField(Context context, XLuaHook hook, Map<String, String> settings, Prototype compiledScript, Field field) {
         return new LuaHookWrapper(context, hook, settings, compiledScript, field);
     }
 

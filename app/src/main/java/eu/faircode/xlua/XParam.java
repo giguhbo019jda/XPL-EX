@@ -43,7 +43,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import de.robv.android.xposed.XC_MethodHook;
-import eu.faircode.xlua.api.XMockCallApi;
+import eu.faircode.xlua.api.xmock.XMockCall;
 import eu.faircode.xlua.interceptors.ShellIntercept;
 import eu.faircode.xlua.utilities.MemoryUtilEx;
 import eu.faircode.xlua.utilities.MockCpuUtil;
@@ -108,17 +108,14 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public String filterBuildProperty(String property) {
-        if(!StringUtil.isValidString(property))
+        if(!StringUtil.isValidString(property) || MockUtils.isPropVxpOrLua(property))
             return MockUtils.NOT_BLACKLISTED;
 
-        if(MockUtils.isPropVxpOrLua(property)) {
-            Log.i(TAG, "Skipping Property avoid Stack Overflow / Recursion");
-            return MockUtils.NOT_BLACKLISTED;
-        }
+        if(DebugUtil.isDebug())
+            Log.i(TAG, "Filtering Property=" + property);
 
-        Log.i(TAG, "Checking Property=" + property);
-        //return MockUtils.filterProperty(property, XMockProxyApi.queryGetMockProps(getApplicationContext()));
-        return MockUtils.filterProperty(property, XMockCallApi.getMockProps(getApplicationContext()));
+        //we can also use the local cached settings
+        return XMockCall.getPropertyValue(getApplicationContext(), property, getPackageName(), 0);
     }
 
     @SuppressWarnings("unused")
@@ -142,7 +139,8 @@ public class XParam {
                 break;
             case "bluetooth_name":
                 if(set.equals("bluetooth_name")) {
-                    setResult("00:00:00:00:00:00");
+                    //setResult("00:00:00:00:00:00");//FIX
+                    setResult(getSetting("bludtooth.id", "00:00:00:00:00:00"));
                     return true;
                 }
                 break;
@@ -222,10 +220,10 @@ public class XParam {
     public ActivityManager.MemoryInfo getFakeMemoryInfo(int totalMemoryInGB, int availableMemoryInGB) { return MemoryUtilEx.getMemory(totalMemoryInGB, availableMemoryInGB); }
 
     @SuppressWarnings("unused")
-    public FileDescriptor createFakeCpuinfoFileDescriptor() { return MockCpuUtil.generateFakeFileDescriptor(XMockCallApi.getSelectedMockCpu(getApplicationContext())); }
+    public FileDescriptor createFakeCpuinfoFileDescriptor() { return MockCpuUtil.generateFakeFileDescriptor(XMockCall.getSelectedMockCpu(getApplicationContext())); }
 
     @SuppressWarnings("unused")
-    public File createFakeCpuinfoFile() { return MockCpuUtil.generateFakeFile(XMockCallApi.getSelectedMockCpu(getApplicationContext())); }
+    public File createFakeCpuinfoFile() { return MockCpuUtil.generateFakeFile(XMockCall.getSelectedMockCpu(getApplicationContext())); }
 
     //
     //End of Memory/CPU Functions

@@ -1,40 +1,6 @@
 package eu.faircode.xlua;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ProgressBar;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import eu.faircode.xlua.api.XMockCallApi;
-import eu.faircode.xlua.api.objects.xmock.prop.MockProp;
-import eu.faircode.xlua.api.objects.xlua.setting.xSettingConversions;
-
-
-import eu.faircode.xlua.api.XLuaCallApi;
-
-public class FragmentPropsEx extends Fragment {
+/*public class FragmentPropsEx extends Fragment {
     private final static String TAG = "XLua.FragmentProps";
 
     private ProgressBar pbProps;
@@ -182,4 +148,4 @@ public class FragmentPropsEx extends Fragment {
         List<MockProp> props = new ArrayList<>();
         Throwable exception = null;
     }
-}
+}*/

@@ -10,7 +10,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
 
-import eu.faircode.xlua.api.objects.xlua.hook.xHook;
+import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.hooks.XReport;
 
 public class XNotify {
@@ -55,7 +55,7 @@ public class XNotify {
     @SuppressLint("MissingPermission")
     public static Notification.Builder buildUsageNotification(
             Context context,
-            xHook hook,
+            XLuaHook hook,
             XReport report,
             PackageManager pm,
             Resources resources) {

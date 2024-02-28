@@ -1,39 +1,6 @@
 package eu.faircode.xlua;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.textfield.TextInputEditText;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import eu.faircode.xlua.api.XMockCallApi;
-import eu.faircode.xlua.api.objects.xmock.prop.MockProp;
-import eu.faircode.xlua.api.xmock.xcall.PutMockPropsCommand;
-import eu.faircode.xlua.utilities.BundleUtil;
-import eu.faircode.xlua.utilities.ViewUtil;
-
-public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
+/*public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
     private static final String TAG = "XLua.ADProp";
 
     private List<MockProp> props = new ArrayList<>();
@@ -222,5 +189,5 @@ public class AdapterProp extends RecyclerView.Adapter<AdapterProp.ViewHolder> {
         holder.updateExpanded();
         holder.wire();
     }
-}
+}*/
 

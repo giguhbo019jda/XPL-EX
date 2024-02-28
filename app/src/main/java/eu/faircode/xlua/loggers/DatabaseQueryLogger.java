@@ -5,10 +5,10 @@ import android.util.Log;
 import java.util.List;
 
 import eu.faircode.xlua.XDataBase;
-import eu.faircode.xlua.database.DatabaseQuerySnake;
+import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 
 public class DatabaseQueryLogger {
-    public static void logSnakeSnapshot(DatabaseQuerySnake snake, boolean logStack, boolean logTableEntries) {
+    public static void logSnakeSnapshot(SqlQuerySnake snake, boolean logStack, boolean logTableEntries) {
         String TAG = "XLua.DatabaseQuerySnake.Log";
         StringBuilder log = new StringBuilder();
 

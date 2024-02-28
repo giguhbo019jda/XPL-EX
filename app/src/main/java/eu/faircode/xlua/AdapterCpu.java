@@ -1,6 +1,6 @@
 package eu.faircode.xlua;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,15 +18,14 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import eu.faircode.xlua.api.XMockCallApi;
-import eu.faircode.xlua.api.objects.xmock.cpu.MockCpu;
+import eu.faircode.xlua.api.xmock.XMockCall;
+import eu.faircode.xlua.api.cpu.XMockCpu;
 import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
     private static final String TAG = "XLua.ADCpu";
 
-    private List<MockCpu> maps = new ArrayList<>();
-    private Object lock = new Object();
+    private List<XMockCpu> maps = new ArrayList<>();
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public class ViewHolder extends RecyclerView.ViewHolder
@@ -71,7 +70,7 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
         @Override
         public void onClick(final View view) {
             Log.i(TAG, "onClick");
-            final MockCpu map = maps.get(getAdapterPosition());
+            final XMockCpu map = maps.get(getAdapterPosition());
             String name = map.getName();
 
             switch (view.getId()) {
@@ -82,10 +81,11 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
             }
         }
 
+        @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
         @Override
         public void onCheckedChanged(final CompoundButton cButton, boolean isChecked) {
             Log.i(TAG, "onCheckedChanged");
-            final MockCpu cpu = maps.get(getAdapterPosition());
+            final XMockCpu cpu = maps.get(getAdapterPosition());
             final int id = cButton.getId();
             Log.i(TAG, "Item Checked=" + id + "==" + cpu.getName());
 
@@ -96,7 +96,7 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
                     executor.submit(new Runnable() {
                         @Override
                         public void run() {
-                            Log.i(TAG, "put cpu result=" + XMockCallApi.putMockCpu(cButton.getContext(), cpu));
+                            Log.i(TAG, "put cpu result=" + XMockCall.putMockCpu(cButton.getContext(), cpu));
                         }
                     });
 
@@ -105,7 +105,7 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
         }
 
         void updateExpanded() {
-            MockCpu map = maps.get(getAdapterPosition());
+            XMockCpu map = maps.get(getAdapterPosition());
             String name = map.getName();
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
             ViewUtil.setViewsVisibility(ivExpanderCpu, isExpanded, tvCpuMapContents);
@@ -114,7 +114,7 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
 
     AdapterCpu() { setHasStableIds(true); }
 
-    void set(List<MockCpu> maps_c) {
+    void set(List<XMockCpu> maps_c) {
         maps.clear();
         maps.addAll(maps_c);
         if(DebugUtil.isDebug())
@@ -137,7 +137,7 @@ public class AdapterCpu extends RecyclerView.Adapter<AdapterCpu.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.unWire();
-        MockCpu cpu = maps.get(position);
+        XMockCpu cpu = maps.get(position);
         holder.tvCpuName.setText(cpu.getName());
         holder.tvCpuModelName.setText(cpu.getModel());
         holder.tvCpuManName.setText(cpu.getManufacturer());

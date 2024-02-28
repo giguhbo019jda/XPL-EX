@@ -1,10 +1,24 @@
 package eu.faircode.xlua.utilities;
 
+import android.util.Log;
+
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StringUtil {
+    private static final String TAG = "XLua.StringUtil";
+
+    public static Integer toInteger(String str) { return toInteger(str, null); }
+    public static Integer toInteger(String str, Integer defaultValue) {
+        try {
+            return Integer.parseInt(str);
+        }catch (Exception ex) {
+            Log.e(TAG, "Error Converting String to Integer: " + str + " " + ex);
+            return defaultValue;
+        }
+    }
+
     public static String join(List<String> args) {
         if (args == null || args.size() == 0)
             return ""; // Return an empty string if the array is null or empty.
