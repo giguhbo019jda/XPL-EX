@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 
 public class SqlQueryBuilder {
     private static final String TAG = "XLua.DatabaseQueryBuilder";
 
-    protected XDataBase db;
+    protected XDatabase db;
     protected String tableName;
 
     protected List<String> compareValues = new ArrayList<>();
@@ -39,7 +39,7 @@ public class SqlQueryBuilder {
     }
 
     public SqlQueryBuilder() { }
-    public SqlQueryBuilder(XDataBase db, String tableName) {
+    public SqlQueryBuilder(XDatabase db, String tableName) {
         this.db = db;
         this.tableName = tableName;
     }

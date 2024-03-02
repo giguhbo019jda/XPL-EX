@@ -15,7 +15,7 @@ import java.util.List;
 import de.robv.android.xposed.XposedBridge;
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobalCore;
 import eu.faircode.xlua.XUiGroup;
 import eu.faircode.xlua.api.xlua.XLuaCall;
@@ -28,7 +28,7 @@ import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 public class XLuaHookProvider {
     private static final String TAG = "XLua.XHookProvider";
 
-    public static List<String> getCollections(XDataBase db, int userId) {
+    public static List<String> getCollections(XDatabase db, int userId) {
         String value = XLuaSettingsDatabase.getSettingValue(db, userId, "global", "collection");
         List<String> result = new ArrayList<>();
 
@@ -44,7 +44,7 @@ public class XLuaHookProvider {
         return result;
     }
 
-    public static boolean putHook(Context context, String id, String definition, XDataBase database) throws Throwable {
+    public static boolean putHook(Context context, String id, String definition, XDatabase database) throws Throwable {
         if (id == null) {
             Log.e("XHookIO.Convert", "ID Missing from Hook!");
             return false;

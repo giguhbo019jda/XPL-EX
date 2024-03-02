@@ -1,98 +1,107 @@
 [
-  { "name": "android.version", "value": "13" },
-  { "name": "android.brand", "value": "OnePlus" },
-  { "name": "android.device", "value": "OnePlus7ProNR" },
-  { "name": "android.model", "value": "GM1920" },
-  { "name": "android.build.tags",  "value": "release-keys" },
-  { "name": "android.build.type", "value": "user" },
-  { "name": "android.build.date.utc",  "value": "1696343919" },
-  { "name": "android.build.date",  "value": "Tue Oct 3 17:38:39 IDT 2023" },
-  { "name": "android.incremental", "value": "eng.ido.20231003.173955" },
-  { "name": "android.version.sdk", "value": "33" },
-  { "name": "android.version.min.sdk", "value": "23"},
-  { "name": "android.build.id", "value": "TQ3A.230805.001" },
-  { "name": "user.agent", "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_9_8; like Mac OS X) AppleWebKit/603.13 (KHTML, like Gecko)  Chrome/50.0.3404.328 Mobile Safari/533.1" },
+  //Device Info Settings
+  { "name": "device.manufacturer", "description": "Device Manufacturer Name / Brand", "value": "OnePlus" },
+  { "name": "device.nick.name", "description": "Device Special name or Nick name", "value": "OnePlus7ProNR" },
+  { "name": "device.model", "description": "Device Model Identifier", "value": "GM1920" },
+  { "name": "device.codename", "description": "Device Codename (usally is food)", "value": "guacamoles" },
+  { "name": "device.bootloader", "description": "Bootloader name", "value": "unknown" },
+  { "name": "device.boot.mode", "description": "Boot Mode", "value": "normal" },
 
-  { "name": "java.vendor", "value": "Oracle YourMom" },
-  { "name": "java.vendor.url", "value": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-  { "name": "java.vm.version","value": "1.0" },
-  { "name": "java.vm.name", "value": "Dalvik"},
+  //Android Build Settings
+  { "name": "android.build.version", "description": "Android version Determined by Number", "value": "13" },
+  { "name": "android.build.version.sdk", "description": "Android version Determined by Number", "value": "33" },
+  { "name": "android.build.version.min.sdk", "description": "Android version Build minimum SDK Version Number", "value": "23"},
+  { "name": "android.build.tags", "description": "Android version Build Tags (release-keys)", "value": "release-keys" },
+  { "name": "android.build.type", "description": "Android version Build Type (user)", "value": "user" },
+  { "name": "android.build.date.utc", "description": "Android ROM Build Date (Unix Epoc TimeStamp)",  "value": "1696343919" },
+  { "name": "android.build.date", "description": "Android ROM Build Date (WEEKDAY MONTH DAY HOUR:MINUTE:SECOND YEAR)", "value": "Tue Oct 3 17:38:39 IDT 2023" },
+  { "name": "android.build.dev.version", "description": "The version string visible in the development phase", "value": "REL" },
+  { "name": "android.build.incremental", "description": "Android ROM Build Incremental ID", "value": "eng.ido.20231003.173955" },
+  { "name": "android.build.description", "description": "Android ROM Build description", "value": "yaap_guacamoles-user 13 TQ3A.230805.001" },
+  { "name": "android.build.id", "description": "Android ROM Build ID", "value": "TQ3A.230805.001" },
+  { "name": "android.build.display.id", "description": "Android ROM Build ID Displayed Version", "value": "TQ3A.230805.001 release-keys" },
+  { "name": "android.build.flavor", "description": "Android ROM Build Name + Build Type (user)", "value": "yaap_guacamoles-user" },
+  { "name": "android.build.host", "description": "Im not too sure rn", "value": "ido-X3999A" },
+  { "name": "android.build.user", "description": "Im not too sure rn", "value": "ido" },
+  { "name": "android.build.patch", "description": "Android ROM Security Patch Date (YYYY-MM-DD)", "value": "2023-10-05" },
+  { "name": "android.build.codename", "description": "Just like flavor, Android ROM Build Name no Build Type", "value": "yaap_guacamoles" },
+  { "name": "android.build.fingerprint", "description": "Android ROM Build fingerprint", "value": "OnePlus/yaap_guacamoles/guacamoles:13/TQ3A.230805.001/ido10031738:user/release-keys" },
 
-  { "name": "cpu.name",  "value": "Linux" },
-  { "name": "cpu.version", "value": "SMP PREEMPT Tue Oct 3 17:44:36 IDT 2023" },
-  { "name": "cpu.release", "value": "4.14.326" },
-  { "name": "cpu.nodename", "value": "localhost" },
-  { "name": "cpu.platform.name", "value": "msmnile" },
-  { "name": "cpu.base.band", "value": "mdm" },
-  { "name": "cpu.arch", "value": "aarch64" },
+  //Java VM Settings Default Value
+  { "name": "java.vendor", "description": "JAVA Runtime Vendor (Orcale)", "value": "Oracle YourMom" },
+  { "name": "java.vendor.url", "description": "JAVA Runtime Vendor URL", "value": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+  { "name": "java.vm.version", "description": "Java Virtual Machine Version", "value": "1.0" },
+  { "name": "java.vm.name", "description": "Java Virtual Machine Name", "value": "Dalvik"},
 
-  { "name": "cpu.abilist", "value": "arm64-v8a,armeabi-v7a,armeabi" },
-  { "name": "cpu.abilist32", "value": "armeabi-v7a,armeabi" },
-  { "name": "cpu.abilist64", "value": "arm64-v8a" },
-  { "name": "cpu.abi", "value": "arm64-v8a" },
-  { "name": "cpu.dalvik.vm.variant", "value": "cortex-a76" },
+  //Android Kernel Default Settings
+  { "name": "android.kernel.name", "description": "Kernel Kind Name (Linux, Unix...)", "value": "Linux" },
+  { "name": "android.kernel.version", "description": "Kernel Version Info long", "value": "SMP PREEMPT Tue Oct 3 17:44:36 IDT 2023" },
+  { "name": "android.kernel.release", "description": "Kernel Release Number", "value": "4.14.326" },
+  { "name": "android.kernel.nodename", "description": "Kernel Build nodename (localhost)", "value": "localhost" },
 
-  { "name": "gpu.opengls.version", "value": "19660" },
+  //Android CPU Default Settings
+  { "name": "cpu.arch", "description": "CPU Architecture", "value": "aarch64" },
+  { "name": "cpu.abi", "description": "CPU ABI (Application Binary Interface)", "value": "arm64-v8a" },
+  { "name": "cpu.abilist", "description": "CPU ABI (Application Binary Interface) List", "value": "arm64-v8a,armeabi-v7a,armeabi" },
+  { "name": "cpu.abilist32", "description": "CPU ABI (Application Binary Interface) List 32bit", "value": "armeabi-v7a,armeabi" },
+  { "name": "cpu.abilist64", "description": "CPU ABI (Application Binary Interface) List 64bit", "value": "arm64-v8a" },
+  { "name": "cpu.dalvik.vm.variant", "description": "Base CPU Kind", "value": "cortex-a76" },
+  { "name": "cpu.platform.name", "description": "CPU Platform Name", "value": "msmnile" },
+  { "name": "cpu.base.band", "description": "CPU Band Name", "value": "mdm" },
 
-  { "name": "android.build.description", "value": "yaap_guacamoles-user 13 TQ3A.230805.001" },
-  { "name": "android.build.display.id", "value": "TQ3A.230805.001 release-keys" },
-  { "name": "android.build.flavor", "value": "yaap_guacamoles-user" },
-  { "name": "android.build.host", "value": "ido-X3999A" },
-  { "name": "android.build.user", "value": "ido" },
-  { "name": "android.build.patch", "value": "2023-10-05" },
-  { "name": "android.build.codename", "value": "REL" },
+  //Android GPU Default Settings
+  { "name": "gpu.opengls.version",  "description": "GPU OpenGLS Version Number", "value": "19660" },
 
+  //Android ROM Specific Default Settings
+  { "name": "android.rom.adb.secure", "description": "Is ADB Secure ?", "value": "1" },
+  { "name": "android.rom.secure", "description": "Is ROM Secure ?", "value": "1" },
+  { "name": "android.rom.debuggable", "description": "Is ROM Debuggable/Debug", "value": "0" },
+  { "name": "android.rom.allow.mock", "description": "Is Mock Locations allowed", "value": "0" },
+  { "name": "android.rom.enforce", "description": "SELinux Mode", "value": "enforce" },
+  { "name": "android.rom.flash.locked", "description": "Is Flash Locked ?", "value": "1" },
+  { "name": "android.rom.verified.boot", "description": "Verified Boot State", "value": "green" },
+  { "name": "android.rom.root.image", "description": "I dunno", "value":  "true"  },
+  { "name": "android.rom.netflix", "description": "This prop makes Netflix select L1 instead of L3.", "value": "Q855-16947-1" },
 
-  { "name": "android.rom.codename", "value": "yaap_guacamoles" },
-  { "name": "android.rom.fingerprint", "value": "OnePlus/yaap_guacamoles/guacamoles:13/TQ3A.230805.001/ido10031738:user/release-keys" },
-  { "name": "android.rom.hide", "value": "" },
-  { "name": "android.rom.netflix", "value": "Q855-16947-1" },
-  { "name": "android.rom.adb.secure",  "value": "1" },
-  { "name": "android.rom.allow.mock",  "value": "0" },
-  { "name": "android.rom.secure", "value": "1" },
-  { "name": "android.rom.debuggable", "value": "0" },
-  { "name": "android.rom.enforce", "value": "enforce" },
+  //System hardware Default Settings
+  { "name": "hardware.nfc.kind", "description": "NFC Protocal", "value": "I2C" },
+  { "name": "hardware.camera.app", "description": "Packagename for Camera APP", "value": "com.oneplus.camera" },
+  { "name": "hardware.bluetooth.name", "description": "Bluetooth Name Starter", "value": "Android" },
+  { "name": "hardware.bluetooth.soc", "description": "Bluetooh SOC", "value": "cherokee" },
+  { "name": "hardware.fp.sensor", "description": "Fingerprint Sensor Short Name", "value": "gdx" },
+  { "name": "hardware.fp.sensor.name", "description": "Fingerprint Sensor Name","value": "goodix" },
+  { "name": "hardware.boot.sku", "description": "PAI targeting per hardware SKU", "value":  "pn553"  },
+  { "name": "hardware.boot.product.sku", "description": "Property used by vintf for sku specific manifests", "value":  "noese"  },
+  { "name": "hardware.gsm.version", "description": "GSM Chip Name", "value": "Qualcomm RIL 1.0" },
+  { "name": "hardware.gsm.band.version", "description": "GSM Chip Version", "value": "017-SM8150_GENFUSION_PACK-1.299167.1.399259.3" },
 
-  { "name": "android.rom.flash.locked", "value": "1" },
-  { "name": "android.rom.verified.boot", "value": "green" },
-  { "name": "android.rom.root.image", "value":  "true"  },
-
-  { "name": "android.system.bootloader", "value": "unknown" },
-  { "name": "android.system.boot.mode", "value": "normal" },
-  { "name": "android.system.codename", "value": "guacamoles" },
-
-  { "name": "hardware.nfc.kind", "value": "I2C" },
-  { "name": "hardware.camera.app", "value": "com.oneplus.camera" },
-  { "name": "hardware.bluetooth.name", "value": "Android" },
-  { "name": "hardware.bluetooth.soc", "value": "cherokee" },
-  { "name": "hardware.fp.sensor", "value": "gdx" },
-  { "name": "hardware.fp.sensor.name", "value": "goodix" },
-  { "name": "hardware.fp.hide", "value": "" },
-
-  { "name": "hardware.boot.product.sku", "value":  "noese"  },
-  { "name": "hardware.boot.sku", "value":  "pn553"  },
-
-  { "name": "hardware.gsm.version", "value": "Qualcomm RIL 1.0" },
-  { "name": "hardware.gsm.band.version", "value": "017-SM8150_GENFUSION_PACK-1.299167.1.399259.3" },
-
-  { "name": "unique.serial.no", "value": "840er743" },
-
-  { "name": "network.dns", "value": "8.8.8.8" },
+  //Unique Identifiers Default Values
+  { "name": "unique.serial.no", "description": "Android Build Serial", "value": "840er743" },
+  { "name": "unique.gsm.imei", "description": "IMEI Number for GSM Devices", "value": "743893156789320" },
+  { "name": "unique.bluetooth.address", "description": "Bluetooth MAC/Hardware Address", "value": "00:00:00:00:00:00" },
 
 
-  { "name": "zone.timezone.id", "value": "Atlantic/Reykjavik" },
-  { "name": "zone.language.iso", "value": "IS" },
-  { "name": "zone.country.iso", "value": "IS" },
-  { "name": "zone.language.tag", "value": "is-IS" },
-  { "name": "gsm.operator.id", "value": "274299" },
-  { "name": "gsm.operator.alpha.tag", "value": "00000000000" },
-  { "name": "gsm.operator.mcc", "value": "274" },
-  { "name": "gsm.operator.mnc", "value": "299" },
-  { "name": "gsm.operator.roaming", "value": "false" },
+  //Zone Default Settings (Time, Date, Region, Language)
+  { "name": "zone.timezone.id", "description": "TimeZone ID (Atlantic/Reykjavik)", "value": "Atlantic/Reykjavik" },
+  { "name": "zone.country.iso", "description": "Country ISO3 ID", "value": "IS" },
+  { "name": "zone.language.iso", "description": "Language ISO3 ID", "value": "IS" },
+  { "name": "zone.language.tag", "description": "Language Tag (is-IS)", "value": "is-IS" },
 
-  { "name": "gsm.phone.type", "value": "GSM" },
-  { "name": "gsm.sim.state", "value": "READY" },
+  //Network Default Settings
+  { "name": "network.dns", "description": "DNS Address (8.8.8.8)", "value": "8.8.8.8" },
 
-  { "name": "gsm.network.type", "value": "Unknown/Remote Sim" },
-  { "name": "gsm.network.carrier", "value": "Siminn" }
+  //GSM Default Settings
+  { "name": "gsm.operator.id", "description": "Operator ID", "value": "274299" },
+  { "name": "gsm.operator.mcc", "description": "Operator MCC Value", "value": "274" },
+  { "name": "gsm.operator.mnc", "description": "Operator MNC Value", "value": "299" },
+
+  { "name": "gsm.network.roaming", "description": "Is Network Roaming", "value": "false" },
+  { "name": "gsm.network.type",  "description": "Indicates the available radio technology. (unknown, GPRS, EDGE, UMTS)", "value": "GPRS" },
+  { "name": "gsm.network.carrier", "description": "Alpha name of current registered operator. aka Carrier Name", "value": "Siminn" }
+
+  { "name": "gsm.phone.type", "description": "GSM=(1) CDMA=(2) NONE=(0) SIP=(3)", "value": "1" },
+  { "name": "gsm.sim.state", "description": "State of the SIM Card (SIM_STATE_READY)", "value": "READY" },
+
+  //User Default Values
+  { "name": "user.agent", "description": "User agent of Device, for APIs that grab User-agent", "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_9_8; like Mac OS X) AppleWebKit/603.13 (KHTML, like Gecko)  Chrome/50.0.3404.328 Mobile Safari/533.1" }
 ]

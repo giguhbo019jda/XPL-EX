@@ -17,7 +17,7 @@ import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.utilities.CursorUtil;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
 
-public class XDataBase {
+public class XDatabase {
     private static final String TAG = "XLua.Database.SqliteWrapper";
 
     private String path;
@@ -27,10 +27,10 @@ public class XDataBase {
     public ReentrantReadWriteLock dbLock = new ReentrantReadWriteLock(true);
     private SQLiteDatabase db = null;
 
-    public XDataBase(String dbname, Context context) {
+    public XDatabase(String dbname, Context context) {
         this(dbname, context, true);
     }
-    public XDataBase(String dbname, Context context, boolean setPerms) {
+    public XDatabase(String dbname, Context context, boolean setPerms) {
         if(!dbname.endsWith(".db"))
             dbname += ".db";
 
@@ -329,7 +329,7 @@ public class XDataBase {
         }
     }
 
-    public static boolean isReady(XDataBase database) {
+    public static boolean isReady(XDatabase database) {
         if(database == null) {
             Log.e(TAG, "null Database entry cannot check if [isReady] if Database object is null...");
             return false;

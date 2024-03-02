@@ -6,7 +6,7 @@ import android.database.MatrixCursor;
 
 import java.util.List;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobalCore;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.XProxyContent;
@@ -31,7 +31,7 @@ public class GetAssignedHooksCommand extends QueryCommandHandler {
         //This is fine tho make sure marshall works properly
         MatrixCursor result = new MatrixCursor(new String[]{marshall ? "blob" : "json", "used"});
         String[] selection = commandData.getSelection();
-        XDataBase db = commandData.getDatabase();
+        XDatabase db = commandData.getDatabase();
 
         if(selection == null || selection.length == 0)
             return result;

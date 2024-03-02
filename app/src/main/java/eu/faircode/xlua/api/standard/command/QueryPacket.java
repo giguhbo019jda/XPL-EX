@@ -4,15 +4,15 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 
 public class QueryPacket {
     private Context context;
     private String method;
     private String[] selection;
-    private XDataBase db;
+    private XDatabase db;
 
-    public QueryPacket(Context context, String method, String[] selection, XDataBase db) {
+    public QueryPacket(Context context, String method, String[] selection, XDatabase db) {
         this.context = context;
         this.method = method;
         this.selection = selection;
@@ -22,7 +22,7 @@ public class QueryPacket {
     public Context getContext() { return this.context; }
     public String getMethod() { return this.method; }
     public String[] getSelection() { return this.selection; }
-    public XDataBase getDatabase() { return this.db; }
+    public XDatabase getDatabase() { return this.db; }
 
     @NonNull
     @Override

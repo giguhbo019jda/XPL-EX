@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.props.XMockProp;
 import eu.faircode.xlua.api.props.XMockPropGroup;
 import eu.faircode.xlua.api.props.XMockPropSetting;
@@ -26,7 +26,7 @@ public class XMockPropertiesProvider {
     private static Map<String, XMockPropSetting> properties = new HashMap<>();
     private static final Object lock = new Object();
 
-    public static XMockPropGroup getSettingGroup(Context context, XDataBase db, String settingName) {
+    public static XMockPropGroup getSettingGroup(Context context, XDatabase db, String settingName) {
         if(properties == null || properties.isEmpty())
             initCache(context, db);
 
@@ -40,7 +40,7 @@ public class XMockPropertiesProvider {
         return group;
     }
 
-    public static String getPropertySettingName(Context context, XDataBase db, String propertyName) {
+    public static String getPropertySettingName(Context context, XDatabase db, String propertyName) {
         if(properties == null || properties.isEmpty())
             initCache(context, db);
 
@@ -54,7 +54,7 @@ public class XMockPropertiesProvider {
         return setting.getSettingName();
     }
 
-    public static Collection<XMockPropSetting> getAllProperties(Context context, XDataBase db) {
+    public static Collection<XMockPropSetting> getAllProperties(Context context, XDatabase db) {
         if(properties == null || properties.isEmpty())
             initCache(context, db);
 
@@ -64,8 +64,8 @@ public class XMockPropertiesProvider {
     }
 
 
-    public static boolean setGroupState(Context context, XDataBase db, XMockPropSetting setting) { return setGroupState(context, db, setting.getSettingName(), setting.isEnabled()); }
-    public static boolean setGroupState(Context context, XDataBase db, String settingName, Boolean enabled) {
+    public static boolean setGroupState(Context context, XDatabase db, XMockPropSetting setting) { return setGroupState(context, db, setting.getSettingName(), setting.isEnabled()); }
+    public static boolean setGroupState(Context context, XDatabase db, String settingName, Boolean enabled) {
         if(enabled == null)
             return false;
 
@@ -89,8 +89,8 @@ public class XMockPropertiesProvider {
         return false;
     }
 
-    public static Collection<XMockPropGroup> getGroups(Context context, XDataBase db, String packageName) { return getGroups(context, db, 0, packageName); }
-    public static Collection<XMockPropGroup> getGroups(Context context, XDataBase db, Integer uid, String packageName) {
+    public static Collection<XMockPropGroup> getGroups(Context context, XDatabase db, String packageName) { return getGroups(context, db, 0, packageName); }
+    public static Collection<XMockPropGroup> getGroups(Context context, XDatabase db, Integer uid, String packageName) {
         if(packageName == null)
             packageName = "Global";
 
@@ -128,7 +128,7 @@ public class XMockPropertiesProvider {
         return groups;
     }
 
-    public static XMockProp getMockPropValue(Context context, XDataBase db, XMockProp prop) {
+    public static XMockProp getMockPropValue(Context context, XDatabase db, XMockProp prop) {
         if(prop == null)
             return (XMockProp) new XMockProp().setValue(MockUtils.NOT_BLACKLISTED);
 
@@ -161,7 +161,7 @@ public class XMockPropertiesProvider {
         return prop;
     }
 
-    public static Collection<XMockPropGroup> initCache(Context context, XDataBase db) {
+    public static Collection<XMockPropGroup> initCache(Context context, XDatabase db) {
         if(properties == null || properties.isEmpty() || groups == null || groups.isEmpty()) {
             synchronized (lock) {
                 if(groups == null || groups.isEmpty()) {

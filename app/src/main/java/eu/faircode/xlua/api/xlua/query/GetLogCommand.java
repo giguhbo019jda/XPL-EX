@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.os.Binder;
 import android.os.Process;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
@@ -23,7 +23,7 @@ public class GetLogCommand extends QueryCommandHandler {
     public Cursor handle(QueryPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
 
-        XDataBase db = commandData.getDatabase();
+        XDatabase db = commandData.getDatabase();
         if (commandData.getSelection() != null)
             throw new IllegalArgumentException("selection invalid");
 

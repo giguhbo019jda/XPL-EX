@@ -39,21 +39,21 @@ public class XGlobalCore {
     private static final String DB_NAME_LUA = "xlua";
     private static final String DB_NAME_MOCK = "mock";
 
-    private static XDataBase xLua_db = null;
-    private static XDataBase xMock_db = null;
+    private static XDatabase xLua_db = null;
+    private static XDatabase xMock_db = null;
 
     private static boolean mock_init = false;
 
     final static String cChannelName = "xlua";
 
-    public static XDataBase getLuaDatabase(Context context) {
+    public static XDatabase getLuaDatabase(Context context) {
         checkDatabases(context);
         synchronized (hookLock) {
             return xLua_db;
         }
     }
 
-    public static XDataBase getMockDatabase(Context context) {
+    public static XDatabase getMockDatabase(Context context) {
         checkDatabases(context);
         synchronized (mockLock) {
             return xMock_db;
@@ -64,7 +64,7 @@ public class XGlobalCore {
         try {
             synchronized (mockLock) {
                 if(xMock_db == null) {
-                    xMock_db = new XDataBase(DB_NAME_MOCK, context, true);
+                    xMock_db = new XDatabase(DB_NAME_MOCK, context, true);
                     XMockUpdater.reset();
                     mock_init = false;
                 }else if(DebugUtil.isDebug())
@@ -75,7 +75,7 @@ public class XGlobalCore {
 
             synchronized (hookLock) {
                 if(xLua_db == null) {
-                    xLua_db = new XDataBase(DB_NAME_LUA, context, true);
+                    xLua_db = new XDatabase(DB_NAME_LUA, context, true);
                     XLuaUpdater.checkForUpdate(xLua_db);
                 }else if(DebugUtil.isDebug())
                     DatabasePathUtil.log("XLua Database is db=" + xMock_db, false);
@@ -134,7 +134,7 @@ public class XGlobalCore {
         DatabasePathUtil.log("Loaded hook definitions hooks=" + hooks.size() + " builtIns=" + builtIn.size(), false);
     }
 
-    public static Collection<XLuaHook> getHooks(XDataBase db, boolean all) {
+    public static Collection<XLuaHook> getHooks(XDatabase db, boolean all) {
         Log.i(TAG, "Getting Hooks all=" + all + " internal size list =" + hooks.size());
         List<String> collection = XLuaHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
         Log.i(TAG, "collection size=" + collection.size());
@@ -157,7 +157,7 @@ public class XGlobalCore {
         return hv;
     }
 
-    public static List<String> getGroups(XDataBase db) {
+    public static List<String> getGroups(XDatabase db) {
         List<String> groups = new ArrayList<>();
         List<String> collections = XLuaHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
 

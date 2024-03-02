@@ -6,7 +6,7 @@ import android.util.Log;
 
 import java.util.List;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobalCore;
 import eu.faircode.xlua.api.settings.XLuaLuaSetting;
 
@@ -26,7 +26,7 @@ public class XLuaAppDatabase {
             String packageName,
             int uid,
             boolean kill,
-            XDataBase db) throws Throwable {
+            XDatabase db) throws Throwable {
 
         int userid = XUtil.getUserId(uid);
         List<String> collection = XLuaHookProvider.getCollections(db, userid);
@@ -62,7 +62,7 @@ public class XLuaAppDatabase {
             int uid,
             boolean full,
             boolean kill,
-            XDataBase db) throws Throwable {
+            XDatabase db) throws Throwable {
 
         int userid = XUtil.getUserId(uid);
         SqlQuerySnake assSnake = SqlQuerySnake
@@ -97,7 +97,7 @@ public class XLuaAppDatabase {
         }
     }
 
-    public static boolean clearData(int userid, XDataBase db)  {
+    public static boolean clearData(int userid, XDatabase db)  {
         Log.i(TAG, "Clearing data user=" + userid);
 
         boolean result;

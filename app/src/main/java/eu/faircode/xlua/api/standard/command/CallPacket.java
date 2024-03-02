@@ -5,16 +5,16 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.standard.interfaces.ISerial;
 
 public class CallPacket {
     private Context context;
     private String method;
     private Bundle extras;
-    private XDataBase db;
+    private XDatabase db;
 
-    public CallPacket(Context context, String method, Bundle extras, XDataBase db) {
+    public CallPacket(Context context, String method, Bundle extras, XDatabase db) {
         this.context = context;
         this.method = method;
         this.extras = extras;
@@ -33,7 +33,7 @@ public class CallPacket {
         return extras;
     }
 
-    public XDataBase getDatabase() {
+    public XDatabase getDatabase() {
         return db;
     }
 

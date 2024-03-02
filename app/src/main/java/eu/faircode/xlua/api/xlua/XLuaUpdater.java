@@ -11,14 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
 
 public class XLuaUpdater {
     private static final String  TAG = "XLua.XLuaUpdater";
 
-    public static void checkForUpdate(XDataBase db) throws Throwable {
+    public static void checkForUpdate(XDatabase db) throws Throwable {
         if(db == null || !db.isOpen(true)) {
             DatabasePathUtil.log("Failed to checkFor Update for Database", false);
             return;

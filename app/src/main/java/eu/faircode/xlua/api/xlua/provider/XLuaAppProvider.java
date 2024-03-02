@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.faircode.xlua.BuildConfig;
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobalCore;
 import eu.faircode.xlua.api.settings.XLuaLuaSetting;
 
@@ -54,7 +54,7 @@ public class XLuaAppProvider {
         }
     }
 
-    public static Map<String, XLuaApp> getApps(Context context, int userId, XDataBase db, boolean initForceToStop, boolean initSettings) {
+    public static Map<String, XLuaApp> getApps(Context context, int userId, XDatabase db, boolean initForceToStop, boolean initSettings) {
         Map<String, XLuaApp> apps = new HashMap<>();
 
         long identity = Binder.clearCallingIdentity();
@@ -107,7 +107,7 @@ public class XLuaAppProvider {
         return apps;
     }
 
-    private static void initAppForceToStop(Map<String, XLuaApp> apps, XDataBase db, int userid) {
+    private static void initAppForceToStop(Map<String, XLuaApp> apps, XDatabase db, int userid) {
         //direct insert here
         SqlQuerySnake snake = SqlQuerySnake
                 .create(db, XLuaLuaSetting.Table.name)
@@ -141,7 +141,7 @@ public class XLuaAppProvider {
         }
     }
 
-    private static void initAppDatabaseSettings(Map<String, XLuaApp> apps, XDataBase db, int userid) {
+    private static void initAppDatabaseSettings(Map<String, XLuaApp> apps, XDatabase db, int userid) {
         int start = XUtil.getUserUid(userid, 0);
         int end = XUtil.getUserUid(userid, Process.LAST_APPLICATION_UID);
         SqlQuerySnake snake = SqlQuerySnake

@@ -13,6 +13,7 @@ public class XMockPropBase {
         setPropertyName(propertyName);
         setPackageName(packageName);
         setUserId(userId);
+
         setValue(value);
     }
 

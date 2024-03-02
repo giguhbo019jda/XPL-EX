@@ -132,15 +132,4 @@ public class XMockCpu extends XMockCpuBase implements ISerial, IDBSerial, IJsonS
             return new XMockCpu[size];
         }
     };
-
-    public static class Table {
-        public static final String name = "cpumaps";
-        public static final LinkedHashMap<String, String> columns = new LinkedHashMap<String, String>() {{
-            put("name", "TEXT");
-            put("model", "TEXT");
-            put("manufacturer", "TEXT");
-            put("contents", "TEXT");
-            put("selected", "BOOLEAN");
-        }};
-    }
 }

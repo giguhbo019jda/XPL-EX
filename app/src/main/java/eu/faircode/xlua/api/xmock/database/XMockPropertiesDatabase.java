@@ -1,20 +1,12 @@
 package eu.faircode.xlua.api.xmock.database;
 
 import android.content.Context;
-import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.XDataBase;
-import eu.faircode.xlua.XUtil;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.props.XMockPropGroup;
 import eu.faircode.xlua.api.props.XMockPropSetting;
-import eu.faircode.xlua.api.standard.JsonHelper;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 
 public class XMockPropertiesDatabase {
@@ -24,7 +16,7 @@ public class XMockPropertiesDatabase {
     //we can also just still return :P group array
     //from the group array we create a list of all settings ez
     //if we needed the list ofc
-    public static Collection<XMockPropSetting> initDatabase(Context context, XDataBase db) {
+    public static Collection<XMockPropSetting> initDatabase(Context context, XDatabase db) {
         return DatabaseHelp.initDatabaseLists(
                 context,
                 db,

@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobalCore;
 import eu.faircode.xlua.XSettingBridgeStatic;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
@@ -57,7 +57,7 @@ public class XCommandService {
         //Be careful when VXP + Direct Invoke when it ATTEMPTS to set param value aka clean up param shit
 
         CallCommandHandler command = null;
-        XDataBase dataBase = null;
+        XDatabase dataBase = null;
         ExecutorService executorService = null;
 
         switch (method) {
@@ -86,7 +86,7 @@ public class XCommandService {
 
     public Cursor executeCursor(Context context, String method, String arg, String[] selection, String packageName) throws Exception {
         QueryCommandHandler command = null;
-        XDataBase dataBase = null;
+        XDatabase dataBase = null;
         ExecutorService executorService = null;
 
         Log.i(TAG, "executeCursor   method=" + method + "  arg=" + arg);

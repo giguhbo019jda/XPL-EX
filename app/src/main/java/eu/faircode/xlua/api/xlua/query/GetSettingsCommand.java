@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
@@ -26,7 +26,7 @@ public class GetSettingsCommand extends QueryCommandHandler {
     public Cursor handle(QueryPacket commandData) throws Throwable {
         MatrixCursor result = new MatrixCursor(new String[]{"name", "value"});
         String[] selection = commandData.getSelection();
-        XDataBase db = commandData.getDatabase();
+        XDatabase db = commandData.getDatabase();
 
         if(selection == null || selection.length == 0)
             return result;

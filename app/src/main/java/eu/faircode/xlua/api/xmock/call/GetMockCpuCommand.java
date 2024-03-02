@@ -39,7 +39,6 @@ public class GetMockCpuCommand extends CallCommandHandler {
                             packet.getName()), true);*/
         }
 
-        Log.e("XLua.GETMOKCPU", "umm weord");
         return null;
     }
 

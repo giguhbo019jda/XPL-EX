@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.settings.XMockDefaultSetting;
 import eu.faircode.xlua.api.xmock.database.XMockSettingsDatabase;
 
@@ -16,7 +16,7 @@ public class XMockSettingsProvider {
     private static final String TAG = "XLua.XMockSettingsProvider";
     private static Map<String, XMockDefaultSetting> defaultSettings = new HashMap<>();
 
-    public static String getDefaultSettingValue(Context context, XDataBase db, String settingName) {
+    public static String getDefaultSettingValue(Context context, XDatabase db, String settingName) {
         if(defaultSettings == null || defaultSettings.isEmpty()) {
             synchronized (lock) {
                 if(defaultSettings == null || defaultSettings.isEmpty()) {

@@ -31,7 +31,6 @@ public class XMockPropGroup extends XMockPropGroupBase implements IJsonSerial, P
 
     @Override
     public Bundle toBundle() {
-
         Bundle b = new Bundle();
         if(settingName != null) b.putString("settingName", settingName);
         if(value != null) b.putString("value", value);

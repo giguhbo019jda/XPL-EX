@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobalCore;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
@@ -22,7 +22,7 @@ import eu.faircode.xlua.hooks.XReport;
 public class XLuaHookDatabase {
     private static final String TAG = "XLua.XHookDatabase";
 
-    public static boolean updateHook(XDataBase db, XLuaHook hook, String extraId) {
+    public static boolean updateHook(XDatabase db, XLuaHook hook, String extraId) {
         Log.i(TAG, "updating Hook, id=" + extraId);
         if(hook == null || !hook.isBuiltin())
             return hook == null ?
@@ -32,7 +32,7 @@ public class XLuaHookDatabase {
         return true;
     }
 
-    public static boolean putHook(XDataBase db, XLuaHook hook) {
+    public static boolean putHook(XDatabase db, XLuaHook hook) {
         //Make sure we do not need to prepare db what not
         return !DatabaseHelp.insertItem(
                 db,
@@ -40,13 +40,13 @@ public class XLuaHookDatabase {
                 hook);
     }
 
-    public static boolean deleteHook(XDataBase db, String id) {
+    public static boolean deleteHook(XDatabase db, String id) {
         return !DatabaseHelp.deleteItem(db, SqlQuerySnake
                 .create("hook")
                 .whereColumn("id", id));
     }
 
-    public static boolean assignHooks(Context context, List<String> hookIds, String packageName, int uid, boolean delete, boolean kill, XDataBase db) throws Throwable {
+    public static boolean assignHooks(Context context, List<String> hookIds, String packageName, int uid, boolean delete, boolean kill, XDatabase db) throws Throwable {
         //Assign Hook(s) to a App (package name, uid)
         List<String> groups = new ArrayList<>();
         XLuaAssignmentDataHelper assignmentData = new XLuaAssignmentDataHelper(packageName, uid);
@@ -102,7 +102,7 @@ public class XLuaHookDatabase {
         return true;
     }
 
-    public static long report(XReport report, XLuaHook hook, XDataBase db) {
+    public static long report(XReport report, XLuaHook hook, XDatabase db) {
         Log.i(TAG , "Updating Assignment: " + report);
 
         //Update Assignment , make it a function ?

@@ -4,9 +4,10 @@ import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.cpu.XMockCpu;
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
@@ -16,28 +17,37 @@ public class XMockCpuDatabase {
     public static final int COUNT = 43;
     public static final String JSON = "cpumaps.json";
 
-    public static boolean insertCpuMap(XDataBase db, XMockCpu map) {
+    public static final String TABLE_NAME = "cpumaps";
+    public static final LinkedHashMap<String, String> TABLE_COLUMNS = new LinkedHashMap<String, String>() {{
+        put("name", "TEXT");
+        put("model", "TEXT");
+        put("manufacturer", "TEXT");
+        put("contents", "TEXT");
+        put("selected", "BOOLEAN");
+    }};
+
+    public static boolean insertCpuMap(XDatabase db, XMockCpu map) {
         return DatabaseHelp.insertItem(
                 db,
-                XMockCpu.Table.name,
+                TABLE_NAME,
                 map);
     }
 
-    public static boolean updateCpuMap(XDataBase db, String name, boolean selected) {
+    public static boolean updateCpuMap(XDatabase db, String name, boolean selected) {
         XMockCpu map = new XMockCpu(name, null, null, null, selected);
-        SqlQuerySnake snake = SqlQuerySnake.create(db, XMockCpu.Table.name)
+        SqlQuerySnake snake = SqlQuerySnake.create(db, TABLE_NAME)
                 .whereColumn("name", name)
                 .whereColumn("selected", Boolean.toString(!selected));
 
         return DatabaseHelp.updateItem(snake, map);
     }
 
-    public static boolean putCpuMaps(XDataBase db, Collection<XMockCpu> maps) {
-       return DatabaseHelp.insertItems(db, XMockCpu.Table.name, maps);
+    public static boolean putCpuMaps(XDatabase db, Collection<XMockCpu> maps) {
+       return DatabaseHelp.insertItems(db, TABLE_NAME, maps);
     }
 
-    public static XMockCpu getSelectedMap(XDataBase db, boolean getContents) {
-        SqlQuerySnake snake = SqlQuerySnake.create(db, XMockCpu.Table.name)
+    public static XMockCpu getSelectedMap(XDatabase db, boolean getContents) {
+        SqlQuerySnake snake = SqlQuerySnake.create(db, TABLE_NAME)
                 .whereColumn("selected", "true");
 
         if(!getContents)
@@ -46,9 +56,9 @@ public class XMockCpuDatabase {
         return snake.queryGetFirstAs(XMockCpu.class, true);
     }
 
-    public static XMockCpu getMap(XDataBase db, String name, boolean getContents) {
+    public static XMockCpu getMap(XDatabase db, String name, boolean getContents) {
         SqlQuerySnake snake = SqlQuerySnake
-                .create(db, XMockCpu.Table.name)
+                .create(db, TABLE_NAME)
                 .whereColumn("name", name);
 
         if(!getContents)
@@ -57,8 +67,8 @@ public class XMockCpuDatabase {
         return snake.queryGetFirstAs(XMockCpu.class, true);
     }
 
-    public static void enforceOneSelected(XDataBase db, String keepMapName, boolean keepFirstSelected) {
-        SqlQuerySnake selectedSnake = SqlQuerySnake.create(db, XMockCpu.Table.name)
+    public static void enforceOneSelected(XDatabase db, String keepMapName, boolean keepFirstSelected) {
+        SqlQuerySnake selectedSnake = SqlQuerySnake.create(db, TABLE_NAME)
                 .whereColumn("selected", "true")
                 .onlyReturnColumns("name", "selected");
 
@@ -79,44 +89,44 @@ public class XMockCpuDatabase {
             for (XMockCpu m : selected)
                 m.setSelected(false);
 
-            DatabaseHelp.updateItems(db, XMockCpu.Table.name, selected, selectedSnake);
+            DatabaseHelp.updateItems(db, TABLE_NAME, selected, selectedSnake);
         }
     }
 
-    public static Collection<XMockCpu> getSelectedMaps(XDataBase db) {
-        SqlQuerySnake selectedSnake = SqlQuerySnake.create(db, XMockCpu.Table.name)
+    public static Collection<XMockCpu> getSelectedMaps(XDatabase db) {
+        SqlQuerySnake selectedSnake = SqlQuerySnake.create(db, TABLE_NAME)
                 .whereColumn("selected", "true")
                 .onlyReturnColumns("name", "selected");
 
         return selectedSnake.queryAs(XMockCpu.class, true);
     }
 
-    public static Collection<String> getSelectedMapNames(XDataBase db) {
-        SqlQuerySnake selectedSnake = SqlQuerySnake.create(db, XMockCpu.Table.name)
+    public static Collection<String> getSelectedMapNames(XDatabase db) {
+        SqlQuerySnake selectedSnake = SqlQuerySnake.create(db, TABLE_NAME)
                 .whereColumn("selected", "true")
                 .onlyReturnColumns("name", "selected");
 
         return selectedSnake.queryAsStringList("name", true);
     }
 
-    public static Collection<XMockCpu> getCpuMaps(Context context, XDataBase db) {
-        return DatabaseHelp.initDatabase(
+    public static Collection<XMockCpu> getCpuMaps(Context context, XDatabase db) {
+        return DatabaseHelp.getOrInitTable(
                 context,
                 db,
-                XMockCpu.Table.name,
-                XMockCpu.Table.columns,
+                TABLE_NAME,
+                TABLE_COLUMNS,
                 JSON,
                 true,
                 XMockCpu.class,
                 COUNT);
     }
 
-    public static boolean forceDatabaseCheck(Context context, XDataBase db) {
+    public static boolean forceDatabaseCheck(Context context, XDatabase db) {
         return DatabaseHelp.prepareTableIfMissingOrInvalidCount(
                 context,
                 db,
-                XMockCpu.Table.name,
-                XMockCpu.Table.columns,
+                TABLE_NAME,
+                TABLE_COLUMNS,
                 JSON,
                 true,
                 XMockCpu.class,

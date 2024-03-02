@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.loggers.DatabaseQueryLogger;
 
@@ -20,12 +20,12 @@ public class SqlQuerySnake extends SqlQueryBuilder {
 
     public static SqlQuerySnake create() { return new SqlQuerySnake();}
     public static SqlQuerySnake create(String tableName) { return new SqlQuerySnake(null, tableName); }
-    public static SqlQuerySnake create(XDataBase db, String tableName) {
+    public static SqlQuerySnake create(XDatabase db, String tableName) {
         return new SqlQuerySnake(db, tableName);
     }
 
     public SqlQuerySnake() { super(); }
-    public SqlQuerySnake(XDataBase db, String tableName) { super(db, tableName); }
+    public SqlQuerySnake(XDatabase db, String tableName) { super(db, tableName); }
 
     public SqlQuerySnake setSymbol(String symbol, String compareValue) {
         setSymbol(symbol, compareValue);
@@ -87,7 +87,7 @@ public class SqlQuerySnake extends SqlQueryBuilder {
         return this;
     }
 
-    public XDataBase getDatabase() { return db; }
+    public XDatabase getDatabase() { return db; }
     public String getOrderBy() { return orderOrFieldName; }
 
     public List<String> getOnlyReturn() {

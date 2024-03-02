@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
@@ -43,14 +43,14 @@ public class DatabaseHelp {
     }
 
     public static boolean deleteItem(
-            XDataBase db,
+            XDatabase db,
             SqlQuerySnake query) {
 
         return deleteItem(db, query.tableName, query.getSelectionCompareValues(), query.getSelectionArgs());
     }
 
     public static boolean deleteItem(
-            XDataBase db,
+            XDatabase db,
             String tableName,
             SqlQuerySnake query) {
 
@@ -58,7 +58,7 @@ public class DatabaseHelp {
     }
 
     public static boolean deleteItem(
-            XDataBase db,
+            XDatabase db,
             String tableName,
             String[] selectionArgs,
             String argValues) {
@@ -88,7 +88,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean updateItems(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 Collection<T> items,
                 SqlQuerySnake query) {
@@ -98,7 +98,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean updateItems(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 Collection<T> items,
                 SqlQuerySnake query,
@@ -109,7 +109,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean insertItems(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 Collection<T> items) {
 
@@ -118,7 +118,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean insertItems(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 Collection<T> items,
                 boolean prepareResult) {
@@ -128,7 +128,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean insertOrUpdateItems(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 Collection<T> items,
                 SqlQuerySnake query,
@@ -141,7 +141,7 @@ public class DatabaseHelp {
             return false;
         }
 
-        if(!XDataBase.isReady(db)) {
+        if(!XDatabase.isReady(db)) {
             error(tableName, db, TAG_InsertUpdateS, ERROR_READY);
             return false;
         }
@@ -188,7 +188,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean updateItem(
-                XDataBase database,
+                XDatabase database,
                 SqlQuerySnake snake,
                 T item) {
 
@@ -197,7 +197,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean updateItem(
-                XDataBase database,
+                XDatabase database,
                 String tableName,
                 SqlQuerySnake snake,
                 T item) {
@@ -207,7 +207,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean updateItem(
-                XDataBase database,
+                XDatabase database,
                 String tableName,
                 SqlQuerySnake snake,
                 T item,
@@ -218,7 +218,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean insertItem(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 T item) {
         return updateOrInsertItem(db, tableName,null, item, true);
@@ -226,7 +226,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean insertItem(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 T item,
                 boolean prepareResult) {
@@ -235,7 +235,7 @@ public class DatabaseHelp {
 
     public static <T extends IDBSerial>
         boolean updateOrInsertItem(
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 SqlQuerySnake query,
                 T item,
@@ -246,7 +246,7 @@ public class DatabaseHelp {
             return false;
         }
 
-        if(!XDataBase.isReady(db)) {
+        if(!XDatabase.isReady(db)) {
             error(tableName, db, TAG_InsertUpdate, ERROR_READY);
             return false;
         }
@@ -291,7 +291,7 @@ public class DatabaseHelp {
     public static <T extends IJsonSerial>
         boolean prepareTableIfMissingOrInvalidCount (
                 Context context,
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 Map<String, String> columns,
                 Class<T> typeClass) {
@@ -301,7 +301,7 @@ public class DatabaseHelp {
     public static <T extends IJsonSerial>
         boolean prepareTableIfMissingOrInvalidCount(
                 Context context,
-                XDataBase db,
+                XDatabase db,
                 String tableName,
                 Map<String, String> columns,
                 String jsonName,
@@ -310,7 +310,7 @@ public class DatabaseHelp {
                 int itemCheckCount) {
 
         //Do note this will not work in HOOK context
-        if(!XDataBase.isReady(db)) {
+        if(!XDatabase.isReady(db)) {
             error(tableName, db, TAG_prepareTable, ERROR_READY);
             return false;
         }
@@ -330,7 +330,7 @@ public class DatabaseHelp {
 
         if(itemCheckCount == DB_FORCE_CHECK) {
             info(tableName, db, TAG_prepareTable, "Forcing Table Check");
-            Collection<T> items = initDatabase(
+            Collection<T> items = getOrInitTable(
                     context,
                     db,
                     tableName,
@@ -356,7 +356,7 @@ public class DatabaseHelp {
 
         if(db.tableEntries(tableName) < itemCheckCount) {
             warning(tableName, db, TAG_prepareTable, "Table is Empty or NULL Fixing to=" + itemCheckCount);
-            Collection<T> items = initDatabase(
+            Collection<T> items = getOrInitTable(
                     context,
                     db,
                     tableName,
@@ -381,7 +381,7 @@ public class DatabaseHelp {
 
     public static <TFrom extends IJsonSerial, TAs extends IJsonSerial> Collection<TAs> initDatabaseLists(
             Context context,
-            XDataBase db,
+            XDatabase db,
             String tableName,
             Map<String, String> columns,
             String jsonName,
@@ -392,7 +392,7 @@ public class DatabaseHelp {
 
     public static <TJSONFrom extends IJsonSerial, TAs extends IJsonSerial> Collection<TAs> initDatabaseLists(
             Context context,
-             XDataBase db,
+             XDatabase db,
              String tableName,
              Map<String, String> columns,
              String jsonName,
@@ -401,7 +401,7 @@ public class DatabaseHelp {
              Class<TAs> typeClassAs,
              int itemCheckCount) {
         Collection<TAs> items = new ArrayList<>();
-        if(!XDataBase.isReady(db)) {
+        if(!XDatabase.isReady(db)) {
             error(tableName, db, TAG_initDatabase, ERROR_READY);
             return items;
         }
@@ -512,17 +512,17 @@ public class DatabaseHelp {
     }
     public static  <T extends IJsonSerial> Collection<T> initDatabase(
             Context context,
-            XDataBase db,
+            XDatabase db,
             String tableName,
             Map<String, String> columns,
             String jsonName,
             boolean stopOnFirstJson,
             Class<T> typeClass,
-            boolean forCheckElements) { return initDatabase(context, db, tableName, columns, jsonName, stopOnFirstJson, typeClass, forCheckElements ? DB_FORCE_CHECK : -1); }
+            boolean forCheckElements) { return getOrInitTable(context, db, tableName, columns, jsonName, stopOnFirstJson, typeClass, forCheckElements ? DB_FORCE_CHECK : -1); }
 
-    public static  <T extends IJsonSerial> Collection<T> initDatabase(
+    public static  <T extends IJsonSerial> Collection<T> getOrInitTable(
             Context context,
-            XDataBase db,
+            XDatabase db,
             String tableName,
             Map<String, String> columns,
             String jsonName,
@@ -534,7 +534,7 @@ public class DatabaseHelp {
 
         Log.i(TAG, "init tableName=" + tableName + " count=" + itemCheckCount + " db=" + db);
 
-        if(!XDataBase.isReady(db)) {
+        if(!XDatabase.isReady(db)) {
             error(tableName, db, TAG_initDatabase, ERROR_READY);
             return items;
         }
@@ -573,6 +573,7 @@ public class DatabaseHelp {
                 items = getFromDatabase(db, tableName, typeClass);
                 info(tableName, db, TAG_initDatabase, "itemCheckCount=" + itemCheckCount + " size=" + items.size());
                 if(itemCheckCount == DB_FORCE_CHECK) {
+                    //check if json not null
                     info(tableName, db, TAG_initDatabase, "Forcing Database Check on Generic Items");
                     Collection<T> genericItems = new ArrayList<>();
 
@@ -639,8 +640,10 @@ public class DatabaseHelp {
 
             if(!CollectionUtil.isValid(items))
                 error(tableName, db, TAG_initDatabase, "Returning EMPTY List from Database Entries!");
+            else
+                info(tableName, db, TAG_initDatabase, "Finished Loading Database Items Count=" + items.size());
 
-            info(tableName, db, TAG_initDatabase, "Finished Loading Database Items Count=" + items.size());
+
             db.setTransactionSuccessful();
             return items;
         }catch (Exception e) {
@@ -654,7 +657,7 @@ public class DatabaseHelp {
     }
 
     public static <T extends IDBSerial> Collection<T> getFromDatabase(
-            XDataBase db,
+            XDatabase db,
             String tableName,
             Class<T> typeClass) {
 
@@ -675,22 +678,22 @@ public class DatabaseHelp {
         return items;
     }
 
-    private static void info(String tableName, XDataBase db, String methodName, String message) {
+    private static void info(String tableName, XDatabase db, String methodName, String message) {
         StringBuilder sb = new StringBuilder();
         sb.append("PROGRESS\n");
         doLog(sb, tableName, db, methodName, message);
         Log.i(TAG, sb.toString());
     }
 
-    private static void warning(String tableName, XDataBase db, String methodName, String message) {
+    private static void warning(String tableName, XDatabase db, String methodName, String message) {
         StringBuilder sb = new StringBuilder();
         sb.append("WARNING\n");
         doLog(sb, tableName, db, methodName, message);
         Log.w(TAG, sb.toString());
     }
 
-    private static void error(String tableName, XDataBase db, String methodName, String message) { error(tableName, db, methodName, new Exception(message)); }
-    private static void error(String tableName, XDataBase db, String methodName, Exception e) {
+    private static void error(String tableName, XDatabase db, String methodName, String message) { error(tableName, db, methodName, new Exception(message)); }
+    private static void error(String tableName, XDatabase db, String methodName, Exception e) {
         StringBuilder sb = new StringBuilder();
         sb.append("ERROR");
         doLog(sb, tableName, db, methodName, e == null ? "nil" : e.getMessage());
@@ -702,7 +705,7 @@ public class DatabaseHelp {
         Log.e(TAG, sb.toString());
     }
 
-    private static void doLog(StringBuilder sb, String tableName, XDataBase db, String methodName, String message) {
+    private static void doLog(StringBuilder sb, String tableName, XDatabase db, String methodName, String message) {
         sb.append("Database=");
         sb.append(db);
         sb.append(" table=");

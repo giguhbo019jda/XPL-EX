@@ -36,9 +36,8 @@ public class XMockQuery {
                 marshall,
                 true);
 
-        for(XMockConfig conf : configs) {
+        for(XMockConfig conf : configs)
             conf.orderSettings(true);
-        }
 
         return configs;
     }

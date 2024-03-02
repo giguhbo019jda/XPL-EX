@@ -8,22 +8,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.cpu.XMockCpu;
 import eu.faircode.xlua.api.xmock.database.XMockCpuDatabase;
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 
 public class XMockCpuProvider {
-    private static boolean makeSureOneSelected = false;
+    private static final boolean makeSureOneSelected = false;
 
-    private static List<XMockCpu> selectedMapObjects = new ArrayList<>();
-    private static List<String> allMapNames = new ArrayList<>();
+    private static final List<XMockCpu> selectedMapObjects = new ArrayList<>();
+    private static final List<String> allMapNames = new ArrayList<>();
 
     private static final Object lock = new Object();
 
     private static final String TAG = "XLua.XMockCpuApi";
 
-    public static boolean putCpuMap(XDataBase db, String cpuMapName, boolean selected) {
+    public static boolean putCpuMap(XDatabase db, String cpuMapName, boolean selected) {
         synchronized (lock) {
             if(selected) {
                 if(selectedMapObjects.size() > 0) {
@@ -68,7 +68,7 @@ public class XMockCpuProvider {
         }
     }
 
-    public static XMockCpu getSelectedCpuMap(Context context, XDataBase db) {
+    public static XMockCpu getSelectedCpuMap(Context context, XDatabase db) {
         //synchronized (lock) {
 
         //}
@@ -103,7 +103,7 @@ public class XMockCpuProvider {
         return getSelectedCpuMap(context, db);
     }
 
-    public static void initCache(Context context, XDataBase db) {
+    public static void initCache(Context context, XDatabase db) {
         selectedMapObjects.clear();
         allMapNames.clear();
         //Here is the bug
@@ -128,7 +128,7 @@ public class XMockCpuProvider {
 
         if (!reset.isEmpty()) {
             Log.i(TAG, "Too many 'selected' CPU Maps, resetting them.. size=" + reset.size());
-            if (!DatabaseHelp.insertItems(db, XMockCpu.Table.name, reset))
+            if (!DatabaseHelp.insertItems(db, XMockCpuDatabase.TABLE_NAME , reset))
                 Log.e(TAG, "Failed to Reset CPU Maps Selected .....");
         }
     }

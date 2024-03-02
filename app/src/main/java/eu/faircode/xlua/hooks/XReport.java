@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.api.hook.group.XLuaGroup;
@@ -67,7 +67,7 @@ public class XReport implements IDBSerial {
         return userid;
     }
 
-    public boolean getNotify(XDataBase db) {
+    public boolean getNotify(XDatabase db) {
         if(notify == null)
             notify = Boolean.parseBoolean(XLuaSettingsDatabase.getSettingValue(db, getUserId(), packageName, "notify"));
 

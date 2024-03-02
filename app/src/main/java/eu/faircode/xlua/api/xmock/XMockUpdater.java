@@ -2,7 +2,7 @@ package eu.faircode.xlua.api.xmock;
 
 import android.content.Context;
 
-import eu.faircode.xlua.XDataBase;
+import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.xmock.database.XMockCpuDatabase;
 import eu.faircode.xlua.api.xmock.database.XMockConfigDatabase;
 import eu.faircode.xlua.api.xmock.database.XMockSettingsDatabase;
@@ -14,7 +14,7 @@ public class XMockUpdater {
     private static boolean check_2 = false;
     private static boolean check_3 = false;
 
-    public static boolean initDatabase(Context context, XDataBase db) {
+    public static boolean initDatabase(Context context, XDatabase db) {
         if(!check_1)
             check_1 = XMockConfigDatabase.forceDatabaseCheck(context, db);
         if(!check_2)
