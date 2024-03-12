@@ -7,7 +7,7 @@ import eu.faircode.xlua.utilities.RandomStringGenerator;
 public class RandomMEID implements IRandomizer {
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("meid");
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("meid") || setting.equalsIgnoreCase("unique.gsm.meid");
     }
 
     @Override

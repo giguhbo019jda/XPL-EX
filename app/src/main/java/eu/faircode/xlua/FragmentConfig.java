@@ -2,6 +2,7 @@ package eu.faircode.xlua;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,17 +12,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -33,33 +42,42 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
+import eu.faircode.xlua.api.configs.MockConfig;
+import eu.faircode.xlua.api.properties.MockPropConversions;
+import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
-import eu.faircode.xlua.api.config.XMockConfigSetting;
-import eu.faircode.xlua.api.config.XMockConfigConversions;
-import eu.faircode.xlua.api.config.XMockConfig;
 import eu.faircode.xlua.api.xmock.call.PutMockConfigCommand;
 import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.FileDialogUtil;
 
-public class FragmentConfig extends Fragment {
+public class FragmentConfig extends Fragment implements View.OnClickListener, View.OnLongClickListener {
     private final static String TAG = "XLua.FragmentConfig";
 
     private AdapterConfig rvConfigAdapter;
     private Spinner spConfigSelection;
-    private ArrayAdapter<XMockConfig> spConfigs;
+    private ArrayAdapter<MockConfig> spConfigs;
 
-    private Button btApply;
-    private Button btExport;
+    private FloatingActionButton flMain, flApply, flExport, flSave, flImport;
+    private Animation fabOpen, fabClose, fromBottom, toBottom;
+    private boolean isActionOpen = false;
 
-    private Button btSave;
-    private Button btImport;
+    private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefresh;
 
-    private FloatingActionButton flConfigActions;
+    private RecyclerView rvSettings;
+
+    private TextView tvPackageName;
+    private TextView tvPackageUid;
+    private TextView tvPackageFull;
+    private ImageView ivPackageIcon;
 
     private static final int PICK_FILE_REQUEST_CODE = 1; // This is a request code you define to identify your request
     private static final int PICK_FOLDER_RESULT_CODE = 2;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private AppGeneric application;
 
     public View onCreateView(
             final @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,101 +87,89 @@ public class FragmentConfig extends Fragment {
 
         final View main = inflater.inflate(R.layout.configeditor, container, false);
 
-        flConfigActions = main.findViewById(R.id.flConfigOptions);
-        flConfigActions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        //Buttons
+        flMain = main.findViewById(R.id.flActionConfigOptions);
+        flSave = main.findViewById(R.id.flActionConfigSave);
+        flImport = main.findViewById(R.id.flActionConfigImport);
+        flApply = main.findViewById(R.id.flActionConfigApply);
+        flExport = main.findViewById(R.id.flActionConfigExport);
 
-                View configOpsView = inflater.inflate(R.layout.configops, (ViewGroup) main, false);
+        progressBar = main.findViewById(R.id.pbConfigs);
+        swipeRefresh = main.findViewById(R.id.swipeRefreshConfigs);
 
-                // Add the inflated view to the main view
-                ((ViewGroup) main).addView(configOpsView);
-                //Show the view "configops.xml" over the "main" view code here
-            }
-        });
+        tvPackageName = main.findViewById(R.id.tvConfigsPackageName);
+        tvPackageUid = main.findViewById(R.id.tvCongisPackageUid);
+        tvPackageFull = main.findViewById(R.id.tvConfigsPackageFull);
+        ivPackageIcon = main.findViewById(R.id.ivConfigsAppIcon);
+
+        application = AppGeneric.from(getArguments(), getContext());
+        Log.i(TAG, "Application Object Created=" + application);
+
+
+        fabOpen = AnimationUtils.loadAnimation
+                (getContext(),R.anim.rotate_open_anim_one);
+        fabClose = AnimationUtils.loadAnimation
+                (getContext(),R.anim.rotate_close_anim_one);
+        fromBottom = AnimationUtils.loadAnimation
+                (getContext(),R.anim.from_bottom_anim_one);
+        toBottom = AnimationUtils.loadAnimation
+                (getContext(),R.anim.to_bottom_anim_one);
+
+        rvSettings = main.findViewById(R.id.rvConfigSettings);
 
         //Buttons
-        btSave = main.findViewById(R.id.btSaveConfig);
-        btSave.setOnClickListener(new View.OnClickListener() {
+        initDropDown(main);
+        initRefresh(main);
+        initRecyclerView(main);
+
+        rvSettings.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onClick(View v) {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
 
-                String name = rvConfigAdapter.getConfigName();
-                List<XMockConfigSetting> settings = rvConfigAdapter.getEnabledSettings();
-
-                final XMockConfig config = new XMockConfig();
-                config.setName(name);
-                config.setSettings(XMockConfigConversions.listToHashMapSettings(settings, false));
-                config.orderSettings(true);
-
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        final Bundle ret = PutMockConfigCommand.invoke(getContext(), config);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @SuppressLint("NotifyDataSetChanged")
-                            @Override
-                            public void run() {
-                                String messageResult = BundleUtil.readResultStatusMessage(ret);
-                                Toast.makeText(getContext(), messageResult, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                });
-
-            }
-        });
-
-        btApply = main.findViewById(R.id.btApplyConfig);
-        btApply.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(DebugUtil.isDebug())
-                    Log.i(TAG, "Applying Settings from config=" + rvConfigAdapter.getConfigName());
-
-                rvConfigAdapter.applyConfig(getContext(), null);
-                Toast.makeText(getContext(), "Finished Applying Settings!", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        btExport = main.findViewById(R.id.btExportConfig);
-        btExport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-                try {
-                    startActivityForResult(intent, PICK_FOLDER_RESULT_CODE);
-                } catch (Exception e) {
-                    Log.i(TAG, "Open Directory Error: " + e);
-                    Toast.makeText(getContext(), "An error occurred while opening the directory picker.", Toast.LENGTH_LONG).show();
+                // If scrolling up, show the FAB; if scrolling down, hide the FAB
+                if (dy > 0 && flMain.isShown()) {
+                    flMain.hide();
+                } else if (dy < 0 && !flMain.isShown()) {
+                    flMain.show();
                 }
             }
         });
 
-        btImport = main.findViewById(R.id.btImportConfig);
-        btImport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*"); // Use "image/*" for images, "application/pdf" for PDF, etc.
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
+        tvPackageName.setText(application.getName());
+        tvPackageFull.setText(application.getPackageName());
+        tvPackageUid.setText(String.valueOf(application.getUid()));
+        application.initIcon(ivPackageIcon, Objects.requireNonNull(getContext()));
 
-                try {
-                    startActivityForResult(Intent.createChooser(intent, "Select a file"), PICK_FILE_REQUEST_CODE);
-                } catch (Exception e) {
-                    Log.i(TAG, "Open File Error: " + e);
-                    Toast.makeText(getContext(), "An error occurred while opening target Config File.", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        wire();
+        return main;
+    }
 
-        //Buttons
+    public void setVisibility(boolean clicked) {
+        int state = clicked ? View.INVISIBLE : View.VISIBLE;
+        flApply.setVisibility(state);
+        flSave.setVisibility(state);
+        flImport.setVisibility(state);
+        flExport.setVisibility(state);
+    }
 
+    public void setAnimation(boolean clicked) {
+        if(!clicked) {
+            flExport.startAnimation(fromBottom);
+            flImport.setAnimation(fromBottom);
+            flSave.setAnimation(fromBottom);
+            flApply.setAnimation(fromBottom);
+            flMain.setAnimation(fabOpen);
+        }else {
+            flExport.startAnimation(toBottom);
+            flImport.setAnimation(toBottom);
+            flSave.setAnimation(toBottom);
+            flApply.setAnimation(toBottom);
+            flMain.setAnimation(fabClose);
+        }
+    }
+
+    public void initDropDown(View view) {
         if(DebugUtil.isDebug())
             Log.i(TAG, "Creating the Drop Down for Configs Fragment Config");
 
@@ -174,7 +180,7 @@ public class FragmentConfig extends Fragment {
         if(DebugUtil.isDebug())
             Log.i(TAG, "Created the Empty Array for Configs Fragment Config");
 
-        spConfigSelection = main.findViewById(R.id.spConfigEdit);
+        spConfigSelection = view.findViewById(R.id.spConfigEdit);
         spConfigSelection.setTag(null);
         spConfigSelection.setAdapter(spConfigs);
         spConfigSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -187,7 +193,7 @@ public class FragmentConfig extends Fragment {
             }
 
             private void updateSelection() {
-                XMockConfig selected = (XMockConfig) spConfigSelection.getSelectedItem();
+                MockConfig selected = (MockConfig) spConfigSelection.getSelectedItem();
                 String configName = (selected == null ? null : selected.getName());
                 if(DebugUtil.isDebug())
                     Log.i(TAG, "CONFIG SELECTED=" + configName);
@@ -199,12 +205,21 @@ public class FragmentConfig extends Fragment {
                     rvConfigAdapter.set(selected);
             }
         });
+    }
 
+    private void initRefresh(final View view) {
+        //int colorAccent = XUtil.resolveColor(Objects.requireNonNull(getContext()), R.attr.colorAccent);
+        //swipeRefresh.setColorSchemeColors(colorAccent, colorAccent, colorAccent);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() { loadData(); }
+        });
+    }
 
+    public void initRecyclerView(View view) {
         if(DebugUtil.isDebug())
             Log.i(TAG, "Created Configs Drop Down, Getting Rotate View For Config Settings, Fragment Config");
 
-        RecyclerView rvSettings = main.findViewById(R.id.rvConfigSettings);
         rvSettings.setVisibility(View.VISIBLE);
         rvSettings.setHasFixedSize(false);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity()) {
@@ -222,27 +237,36 @@ public class FragmentConfig extends Fragment {
         rvConfigAdapter = new AdapterConfig();
         rvSettings.setAdapter(rvConfigAdapter);
 
-        List<XMockConfig> configs = new ArrayList<>(XMockQuery.getConfigs(getContext(), true, true));
-        pushConfigs(configs);
-
         if(DebugUtil.isDebug())
             Log.i(TAG, "Created the Layout for Config Settings, Fragment Config, leaving now...");
-
-        return main;
     }
 
-    public void pushConfig(XMockConfig config) {
+    public void pushConfig(MockConfig config) {
         spConfigs.add(config);
         spConfigs.notifyDataSetChanged();
     }
 
-    public void pushConfigs(List<XMockConfig> configs) {
+    public void pushConfigs(List<MockConfig> configs) {
         if(DebugUtil.isDebug())
             Log.i(TAG, "[pushConfigs] configs size=" + configs.size());
 
         spConfigs.clear();
         spConfigs.addAll(configs);
         spConfigs.notifyDataSetChanged(); // Ensure this is here
+    }
+
+    public void wire() {
+        flSave.setOnClickListener(this);
+        flApply.setOnClickListener(this);
+        flExport.setOnClickListener(this);
+        flImport.setOnClickListener(this);
+        flMain.setOnClickListener(this);
+
+
+        flSave.setOnLongClickListener(this);
+        flApply.setOnLongClickListener(this);
+        flExport.setOnLongClickListener(this);
+        flImport.setOnLongClickListener(this);
     }
 
     @SuppressLint("WrongConstant")
@@ -261,13 +285,13 @@ public class FragmentConfig extends Fragment {
             case PICK_FILE_REQUEST_CODE:
                 String mimeType = Objects.requireNonNull(getContext()).getContentResolver().getType(selectedFileUri);
                 if ("application/json".equals(mimeType) || "text/plain".equals(mimeType)) {
-                    final XMockConfig config = FileDialogUtil.readPhoneConfig(getContext(), selectedFileUri);
+                    final MockConfig config = FileDialogUtil.readPhoneConfig(getContext(), selectedFileUri);
                     if(config == null)
                         Toast.makeText(getContext(), "Failed Read Config File: " + selectedFileUri.getPath(), Toast.LENGTH_SHORT).show();
                     else {
                         String configName = config.getName();
                         for(int i = 0; i < spConfigs.getCount(); i++) {
-                            XMockConfig conf = spConfigs.getItem(i);
+                            MockConfig conf = spConfigs.getItem(i);
                             if(configName.equals(conf.getName())) {
                                 configName += "-" + ThreadLocalRandom.current().nextInt(10000,999999999);
                                 config.setName(configName);
@@ -298,10 +322,196 @@ public class FragmentConfig extends Fragment {
     }
 
     @Override
-    public void onResume() { super.onResume(); }
+    public void onResume() { super.onResume();  loadData(); }
 
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public void onClick(View v) {
+        int code = v.getId();
+        Log.i(TAG, "onClick=" + code);
+
+        switch (code) {
+            case R.id.flActionConfigApply:
+                if(DebugUtil.isDebug())
+                    Log.i(TAG, "Applying Settings from config=" + rvConfigAdapter.getConfigName());
+
+                rvConfigAdapter.applyConfig(getContext(), null);
+                Toast.makeText(getContext(), "Finished Applying Settings!", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.flActionConfigSave:
+                String name = rvConfigAdapter.getConfigName();
+                List<LuaSettingEx> settings = rvConfigAdapter.getEnabledSettings();
+
+                final MockConfig config = new MockConfig();
+                config.setName(name);
+                config.setSettings(settings);
+                //config.setSettings(XMockConfigConversions.listToHashMapSettings(settings, false));
+                //config.orderSettings(true);
+
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        //polish this
+                        final Bundle ret = PutMockConfigCommand.invoke(getContext(), config);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @SuppressLint("NotifyDataSetChanged")
+                            @Override
+                            public void run() {
+                                String messageResult = BundleUtil.readResultStatusMessage(ret);
+                                Toast.makeText(getContext(), messageResult, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+                break;
+            case R.id.flActionConfigExport:
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                try {
+                    startActivityForResult(intent, PICK_FOLDER_RESULT_CODE);
+                } catch (Exception e) {
+                    Log.i(TAG, "Open Directory Error: " + e);
+                    Toast.makeText(getContext(), "An error occurred while opening the directory picker.", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.flActionConfigImport:
+                Intent intent2 = new Intent(Intent.ACTION_GET_CONTENT);
+                intent2.setType("*/*"); // Use "image/*" for images, "application/pdf" for PDF, etc.
+                intent2.addCategory(Intent.CATEGORY_OPENABLE);
+
+                try {
+                    startActivityForResult(Intent.createChooser(intent2, "Select a file"), PICK_FILE_REQUEST_CODE);
+                } catch (Exception e) {
+                    Log.i(TAG, "Open File Error: " + e);
+                    Toast.makeText(getContext(), "An error occurred while opening target Config File.", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.flActionConfigOptions:
+                setAnimation(isActionOpen);
+                setVisibility(isActionOpen);
+                isActionOpen = !isActionOpen;
+                break;
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onLongClick(View v) {
+        int code = v.getId();
+        Log.i(TAG, "onLongClick=" + code);
+        switch (code) {
+            case R.id.flActionConfigApply:
+                Toast.makeText(getContext(), "Apply Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigSave:
+                Toast.makeText(getContext(), "Save Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigExport:
+                Toast.makeText(getContext(), "Export Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigImport:
+                Toast.makeText(getContext(), "Import Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigOptions:
+                Toast.makeText(getContext(), "Options", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        return true;
+    }
+
+    private void loadData() {
+        Log.i(TAG, "Starting data loader");
+        LoaderManager manager = getActivity().getSupportLoaderManager();
+        manager.restartLoader(ActivityMain.LOADER_DATA, new Bundle(), dataLoaderCallbacks).forceLoad();
+    }
+
+    LoaderManager.LoaderCallbacks dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<PropsDataHolder>() {
+        @Override
+        public Loader<PropsDataHolder> onCreateLoader(int id, Bundle args) {
+            return new ConfigsDataLoader(getContext()).setApp(application);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<PropsDataHolder> loader, PropsDataHolder data) {
+            Log.i(TAG, "onLoadFinished");
+            if(data.exception == null) {
+                ActivityBase activity = (ActivityBase) getActivity();
+                if (!data.theme.equals(activity.getThemeName()))
+                    activity.recreate();
+
+                /*Collections.sort(data.propGroups, new Comparator<MockPropGroupHolder>() {
+                    @Override
+                    public int compare(MockPropGroupHolder o1, MockPropGroupHolder o2) {
+                        return o1.getSettingName().compareToIgnoreCase(o2.getSettingName());
+                    }
+                });*/
+
+                //rvPropsAdapter.set(data.propGroups, application);
+
+                //if(rvConfigAdapter.getItemCount() < 1) {
+                //    pushConfigs(data.configs);
+                    //rvConfigAdapter.set(data.configs.get(0));
+                //}
+                pushConfigs(data.configs);
+
+                swipeRefresh.setRefreshing(false);
+                progressBar.setVisibility(View.GONE);
+            }else {
+                Log.e(TAG, Log.getStackTraceString(data.exception));
+                Snackbar.make(getView(), data.exception.toString(), Snackbar.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<PropsDataHolder> loader) {
+            // Do nothing
+        }
+    };
+
+    private static class ConfigsDataLoader extends AsyncTaskLoader<PropsDataHolder> {
+        private AppGeneric application;
+        public ConfigsDataLoader setApp(AppGeneric application) {
+            this.application = application;
+            return this;
+        }
+
+        ConfigsDataLoader(Context context) {
+            super(context);
+            setUpdateThrottle(1000);
+        }
+
+        @Nullable
+        @Override
+        public PropsDataHolder loadInBackground() {
+            Log.i(TAG, "Data loader started");
+            PropsDataHolder data = new PropsDataHolder();
+            try {
+                Log.i(TAG, "Getting cursor");
+                data.theme = XLuaCall.getTheme(getContext());
+                data.configs = new ArrayList<>(XMockQuery.getConfigs(getContext(), true, true));
+                Log.i(TAG, "configs from cursor=" + data.configs.size());
+            }catch (Throwable ex) {
+                data.configs.clear();
+                data.exception = ex;
+                Log.e(TAG, ex.getMessage());
+            }
+
+            Log.i(TAG, "DataLoader Props Finished=" + data.configs.size());
+            return data;
+        }
+    }
+
+    private static class PropsDataHolder {
+        String theme;
+        List<MockConfig> configs = new ArrayList<>();
+        Throwable exception = null;
     }
 }

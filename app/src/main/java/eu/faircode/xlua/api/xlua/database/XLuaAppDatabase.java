@@ -26,10 +26,10 @@ public class XLuaAppDatabase {
             String packageName,
             int uid,
             boolean kill,
-            XDatabase db) throws Throwable {
+            XDatabase db) {
 
         int userid = XUtil.getUserId(uid);
-        List<String> collection = XLuaHookProvider.getCollections(db, userid);
+        List<String> collection = XLuaHookProvider.getCollections(context, db, userid);
         List<String> hookIds = XGlobalCore.getHookIds(packageName, collection);
         XLuaAssignmentDataHelper assignmentData = new XLuaAssignmentDataHelper(packageName, uid);
 
@@ -62,7 +62,7 @@ public class XLuaAppDatabase {
             int uid,
             boolean full,
             boolean kill,
-            XDatabase db) throws Throwable {
+            XDatabase db)  {
 
         int userid = XUtil.getUserId(uid);
         SqlQuerySnake assSnake = SqlQuerySnake

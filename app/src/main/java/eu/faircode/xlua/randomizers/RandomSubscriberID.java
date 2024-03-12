@@ -7,7 +7,7 @@ import eu.faircode.xlua.utilities.RandomStringGenerator;
 public class RandomSubscriberID implements IRandomizer {
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName());
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("unique.gsm.subscription.id") ;
     }
 
     @Override

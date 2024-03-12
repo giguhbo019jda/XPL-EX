@@ -1,12 +1,16 @@
 package eu.faircode.xlua.api.standard.command;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import eu.faircode.xlua.XDatabase;
+import eu.faircode.xlua.api.standard.interfaces.IPacket;
 
 public class QueryPacket {
+    private static final String TAG = "XLua.QueryPacket";
+
     private Context context;
     private String method;
     private String[] selection;
@@ -23,6 +27,17 @@ public class QueryPacket {
     public String getMethod() { return this.method; }
     public String[] getSelection() { return this.selection; }
     public XDatabase getDatabase() { return this.db; }
+
+    public <T extends IPacket> T readFrom(Class<T> classType, int flags) {
+        try {
+            T itm = classType.newInstance();
+            itm.readSelectionArgs(selection, flags);
+            return itm;
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to read Selections args! " + e);
+            return null;
+        }
+    }
 
     @NonNull
     @Override

@@ -19,12 +19,15 @@
 
 package eu.faircode.xlua;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,6 +40,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -60,6 +64,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.settingsex.LuaSettingPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.standard.interfaces.IListener;
 import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
@@ -67,6 +73,7 @@ import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.api.hook.assignment.XLuaAssignmentPacket;
 
 import eu.faircode.xlua.api.app.XLuaApp;
+import eu.faircode.xlua.api.xmock.XMockCall;
 
 public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> implements Filterable {
     private static final String TAG = "XLua.App";
@@ -206,6 +213,7 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             ivSettings.setOnClickListener(this);
+            ivSettings.setOnLongClickListener(this);
             cbAssigned.setOnCheckedChangeListener(this);
             cbForceStop.setOnCheckedChangeListener(this);
         }
@@ -214,10 +222,12 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
             itemView.setOnClickListener(null);
             itemView.setOnLongClickListener(null);
             ivSettings.setOnClickListener(null);
+            ivSettings.setOnLongClickListener(null);
             cbAssigned.setOnCheckedChangeListener(null);
             cbForceStop.setOnCheckedChangeListener(null);
         }
 
+        @SuppressLint("NonConstantResourceId")
         @Override
         public void onClick(View view) {
             XLuaApp app = filtered.get(getAdapterPosition());
@@ -241,6 +251,7 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
                         else
                             view.getContext().startActivity(browse);
                     } else {
+                        //this is where package is created
                         settings.putExtra("packageName", pkgName);
                         view.getContext().startActivity(settings);
                     }
@@ -248,15 +259,33 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
             }
         }
 
+        @SuppressLint("NonConstantResourceId")
         @Override
         public boolean onLongClick(View view) {
-            XLuaApp app = filtered.get(getAdapterPosition());
-            Intent launch = view.getContext().getPackageManager().getLaunchIntentForPackage(app.getPackageName());
-            if (launch != null)
-                view.getContext().startActivity(launch);
-            return true;
+            try {
+                XLuaApp app = filtered.get(getAdapterPosition());
+                //We can also pass something like this directly down to the UI
+                int id = view.getId();
+                Log.i(TAG, "onLongClick=" + id + " full=" + view);
+                switch (id) {
+                    case R.id.ivSettings:
+                        Intent settingIntent = new Intent(view.getContext(), ActivitySettings.class);
+                        settingIntent.putExtra("packageName", app.getPackageName());
+                        view.getContext().startActivity(settingIntent);
+                        return true;
+                }
+
+                Intent launch = view.getContext().getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+                if (launch != null)
+                    view.getContext().startActivity(launch);
+                return true;
+            }catch (Exception e) {
+                Log.e(TAG, "XLua App [onLongClick] Exception=" + e + " id=" + view.getId());
+                return false;
+            }
         }
 
+        @SuppressLint("NonConstantResourceId")
         @Override
         public void onCheckedChanged(final CompoundButton compoundButton, boolean checked) {
             Log.i(TAG, "Check changed");
@@ -270,13 +299,25 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
 
                 case R.id.cbForceStop:
                     app.setForceStop(checked);
+
                     executor.submit(new Runnable() {
                         @Override
                         public void run() {
-                            XLuaCall.putSettingBoolean(
-                                    compoundButton.getContext(), app.getPackageName(), "forcestop", app.getForceStop());
+                            LuaSettingPacket packet = LuaSettingPacket.create("forcestop", Boolean.toString(app.getForceStop()));
+                            packet.setCategory(app.getPackageName());
+                            final XResult ret = XLuaCall.putSetting(compoundButton.getContext(), packet);
+
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @SuppressLint("NotifyDataSetChanged")
+                                @Override
+                                public void run() {
+                                    Toast.makeText(compoundButton.getContext(), ret.getResultMessage(), Toast.LENGTH_SHORT).show();
+                                    notifyDataSetChanged();
+                                }
+                            });
                         }
                     });
+
                     break;
             }
         }

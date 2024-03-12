@@ -18,7 +18,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_host",
-    "settings":[ "net.host_address" ]
+    "settings":[ "network.host.address" ]
   },
   {
     "builtin": false,
@@ -39,7 +39,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_host",
-    "settings":[ "net.host_address" ]
+    "settings":[ "network.host.address" ]
   },
   {
     "builtin": false,
@@ -59,7 +59,8 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_fakestr_one"
+    "luaScript": "@id_inetaddress_host",
+    "settings":[ "network.host.address" ]
   },
   {
     "builtin": false,
@@ -79,7 +80,8 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_fakestr_one"
+    "luaScript": "@id_inetaddress_host",
+    "settings":[ "network.host.address" ]
   },
   {
     "builtin": false,
@@ -99,7 +101,8 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_fakestr_one"
+    "luaScript": "@id_inetaddress_host",
+    "settings":[ "network.host.address" ]
   },
   {
     "builtin": false,
@@ -119,7 +122,8 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_fakestr_one"
+    "luaScript": "@id_inetaddress_host",
+    "settings":[ "network.host.address" ]
   },
 
   //id_inetaddress_getaddress
@@ -141,7 +145,8 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_inetaddress_getaddress"
+    "luaScript": "@id_inetaddress_getaddress",
+    "settings":[ "network.host.address" ]
   },
   {
     "builtin": false,
@@ -162,7 +167,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_host",
-    "settings":[ "net.host_address" ]
+    "settings":[ "network.host.address" ]
   },
   {
     "builtin": false,
@@ -183,7 +188,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_name",
-    "settings":[ "net.host_name" ]
+    "settings":[ "network.host.name" ]
   },
   {
     "builtin": false,
@@ -204,7 +209,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_name",
-    "settings":[ "net.host_name" ]
+    "settings":[ "network.host.name" ]
   },
   {
     "builtin": false,
@@ -225,7 +230,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_name",
-    "settings":[ "net.host_name" ]
+    "settings":[ "network.host.name" ]
   },
   {
     "builtin": false,
@@ -246,7 +251,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_name",
-    "settings":[ "net.host_name" ]
+    "settings":[ "network.host.name" ]
   },
   {
     "builtin": false,
@@ -267,10 +272,8 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_name",
-    "settings":[ "net.host_address" ]
+    "settings":[ "network.host.name" ]
   },
-
-
   {
     "builtin": false,
     "collection": "PrivacyEx",
@@ -289,10 +292,9 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_fakestr_one"
-    //lets create a better fake
+    "luaScript": "@id_inetaddress_name",
+    "settings":[ "network.host.name" ]
   },
-
   {
     "builtin": false,
     "collection": "PrivacyEx",
@@ -311,10 +313,9 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_fakestr_one"
-    //lets create a better fake
+    "luaScript": "@id_inetaddress_name",
+    "settings":[ "network.host.name" ]
   },
-
   {
     "builtin": false,
     "collection": "PrivacyEx",
@@ -335,7 +336,6 @@
     "notify":false,
     "luaScript": "@id_wifiinfo_getipaddress"
   },
-
   {
     "builtin": false,
     "collection": "PrivacyEx",
@@ -356,7 +356,6 @@
     "notify":false,
     "luaScript": "@id_wifiinfo_getipaddress_2"
   },
-
   {
     "builtin": false,
     "collection": "PrivacyEx",
@@ -376,6 +375,6 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_inetaddress_host",
-    "settings":[ "net.host_address" ]
+    "settings":[ "network.host.address" ]
   }
 ]

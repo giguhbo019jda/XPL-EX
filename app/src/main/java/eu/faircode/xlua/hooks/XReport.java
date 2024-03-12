@@ -69,7 +69,7 @@ public class XReport implements IDBSerial {
 
     public boolean getNotify(XDatabase db) {
         if(notify == null)
-            notify = Boolean.parseBoolean(XLuaSettingsDatabase.getSettingValue(db, getUserId(), packageName, "notify"));
+            notify = XLuaSettingsDatabase.getSettingBoolean(null, db, "notify", getUserId(), packageName);
 
         return notify;
     }

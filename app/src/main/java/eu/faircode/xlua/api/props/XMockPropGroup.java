@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Process;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,7 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
-import eu.faircode.xlua.utilities.JSONUtil;
 import eu.faircode.xlua.utilities.ParcelUtil;
 
 public class XMockPropGroup extends XMockPropGroupBase implements IJsonSerial, Parcelable  {
@@ -27,7 +24,7 @@ public class XMockPropGroup extends XMockPropGroupBase implements IJsonSerial, P
 
     public XMockPropGroup(String settingName) { this(settingName, null); }
     public XMockPropGroup(String settingName, String value) { this(settingName, value, null); }
-    public XMockPropGroup(String settingName, String value, List<XMockPropSetting> settings) { super(settingName, value, settings); }
+    public XMockPropGroup(String settingName, String value, List<XMockPropMapped> settings) { super(settingName, value, settings); }
 
     @Override
     public Bundle toBundle() {
@@ -58,7 +55,7 @@ public class XMockPropGroup extends XMockPropGroupBase implements IJsonSerial, P
     @Override
     public List<ContentValues> createContentValuesList() {
         List<ContentValues> cvs = new ArrayList<>();
-        for(XMockPropSetting setting : properties)
+        for(XMockPropMapped setting : properties)
             cvs.add(setting.createContentValues());
 
         return cvs;
@@ -66,9 +63,9 @@ public class XMockPropGroup extends XMockPropGroupBase implements IJsonSerial, P
 
     @Override
     public void fromContentValuesList(List<ContentValues> contentValues) {
-        List<XMockPropSetting> props = new ArrayList<>();
+        List<XMockPropMapped> props = new ArrayList<>();
         for(ContentValues cv : contentValues)
-            props.add(new XMockPropSetting(cv));
+            props.add(new XMockPropMapped(cv));
 
         properties = props;
     }

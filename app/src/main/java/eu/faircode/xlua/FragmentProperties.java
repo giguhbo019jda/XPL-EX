@@ -1,19 +1,27 @@
 package eu.faircode.xlua;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -21,12 +29,18 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import eu.faircode.xlua.api.properties.MockPropConversions;
+import eu.faircode.xlua.api.properties.MockPropGroupHolder;
+import eu.faircode.xlua.api.properties.MockPropSetting;
+import eu.faircode.xlua.api.settingsex.LuaSettingEx;
 import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.api.props.XMockPropGroup;
 
@@ -38,11 +52,34 @@ public class FragmentProperties extends Fragment {
     private AdapterPropertiesGroup rvPropsAdapter;
 
     private RecyclerView rvPropGroups;
+    private AppGeneric application;
+
+
+    private TextView tvPackageName;
+    private TextView tvPackage;
+    private TextView tvPackageUid;
+
+    private ImageView ivAppIcon;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View main = inflater.inflate(R.layout.proprecyclerview, container, false);
         initRefresh(main);
         initRecyclerView(main);
+
+        application = AppGeneric.from(getArguments(), getContext());
+        Log.i(TAG, "Application Object Created=" + application);
+
+        tvPackageName = main.findViewById(R.id.tvPropertiesPackageName);
+        tvPackage = main.findViewById(R.id.tvPropertiesPackageFull);
+        tvPackageUid = main.findViewById(R.id.tvPropertiesPackageUid);
+        ivAppIcon = main.findViewById(R.id.ivPropertiesAppIcon);
+
+
+        tvPackageName.setText(application.getName());
+        tvPackage.setText(application.getPackageName());
+        tvPackageUid.setText(String.valueOf(application.getUid()));
+        application.initIcon(ivAppIcon, Objects.requireNonNull(getContext()));
+
         return main;
     }
 
@@ -99,7 +136,7 @@ public class FragmentProperties extends Fragment {
     LoaderManager.LoaderCallbacks dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<PropsDataHolder>() {
         @Override
         public Loader<PropsDataHolder> onCreateLoader(int id, Bundle args) {
-            return new PropsDataLoader(getContext());
+            return new PropsDataLoader(getContext()).setApp(application);
         }
 
         @Override
@@ -110,14 +147,14 @@ public class FragmentProperties extends Fragment {
                 if (!data.theme.equals(activity.getThemeName()))
                     activity.recreate();
 
-                Collections.sort(data.propGroups, new Comparator<XMockPropGroup>() {
+                Collections.sort(data.propGroups, new Comparator<MockPropGroupHolder>() {
                     @Override
-                    public int compare(XMockPropGroup o1, XMockPropGroup o2) {
+                    public int compare(MockPropGroupHolder o1, MockPropGroupHolder o2) {
                         return o1.getSettingName().compareToIgnoreCase(o2.getSettingName());
                     }
                 });
 
-                rvPropsAdapter.set(data.propGroups);
+                rvPropsAdapter.set(data.propGroups, application);
                 swipeRefresh.setRefreshing(false);
                 progressBar.setVisibility(View.GONE);
             }else {
@@ -133,6 +170,12 @@ public class FragmentProperties extends Fragment {
     };
 
     private static class PropsDataLoader extends AsyncTaskLoader<PropsDataHolder> {
+        private AppGeneric application;
+        public PropsDataLoader setApp(AppGeneric application) {
+            this.application = application;
+            return this;
+        }
+
         PropsDataLoader(Context context) {
             super(context);
             setUpdateThrottle(1000);
@@ -145,7 +188,10 @@ public class FragmentProperties extends Fragment {
             PropsDataHolder data = new PropsDataHolder();
             try {
                 data.theme = XLuaCall.getTheme(getContext());
-                data.propGroups = new ArrayList<>(XMockQuery.getPropertiesGroup(getContext()));
+                Collection<MockPropSetting> props = XMockQuery.getAllProperties(getContext(), application.getPackageName());
+                Collection<LuaSettingEx> settings = new ArrayList<>(XMockQuery.getAllSettings(getContext(), true, XLuaSettingsDatabase.GLOBAL_USER, application.getPackageName()));
+                Log.i(TAG, "props size=" + props.size() + " settings size=" + settings.size());
+                data.propGroups = new ArrayList<>(MockPropConversions.createHolders(getContext(), props, settings));
                 Log.i(TAG, "prop groups from cursor=" + data.propGroups.size());
             }catch (Throwable ex) {
                 data.propGroups.clear();
@@ -160,7 +206,7 @@ public class FragmentProperties extends Fragment {
 
     private static class PropsDataHolder {
         String theme;
-        List<XMockPropGroup> propGroups = new ArrayList<>();
+        List<MockPropGroupHolder> propGroups = new ArrayList<>();
         Throwable exception = null;
     }
 }

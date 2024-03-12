@@ -1,7 +1,6 @@
 package eu.faircode.xlua.api.xlua.database;
 
 import android.content.Context;
-import android.os.Process;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -11,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.XUtil;
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.settings.XBulkSettingActionPacket;
 import eu.faircode.xlua.api.xlua.provider.XLuaAppProvider;
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
@@ -19,125 +19,71 @@ import eu.faircode.xlua.api.settings.XLuaSettingPacket;
 
 import eu.faircode.xlua.api.settings.XLuaLuaSetting;
 import eu.faircode.xlua.api.settings.XLuaSettingCategory;
+import eu.faircode.xlua.utilities.CollectionUtil;
 
 public class XLuaSettingsDatabase {
     private static final String TAG = "XLua.XSettingsDatabase";
-
     public static final String DEFAULT_THEME = "dark";
     public static final String DEFAULT_COLLECTIONS = "Privacy,PrivacyEx";
 
+    public static final String GLOBAL_NAMESPACE = "Global";
+    public static final int GLOBAL_USER = 0;
 
-    public static boolean putSetting(XDatabase db, XLuaSettingPacket packet) {
+    public static XResult putSetting(Context context, XDatabase db, String settingName) { return putSetting(context, db, settingName, null); }
+    public static XResult putSetting(Context context, XDatabase db, String settingName, String value) { return putSetting(context, db, XLuaLuaSetting.create(GLOBAL_USER, GLOBAL_NAMESPACE, settingName, value), false); }
+    public static XResult putSetting(Context context, XDatabase db, String settingName, Integer userId, String categoryOrPackageName, String value, Boolean kill) { return putSetting(context, db, XLuaLuaSetting.create(userId, categoryOrPackageName, settingName, value), kill); }
+    public static XResult putSetting(Context context, XDatabase db, XLuaSettingPacket packet) { return putSetting(context, db, (XLuaLuaSetting)packet, packet.getKill()); }
+    public static XResult putSetting(Context context, XDatabase db, XLuaLuaSetting setting, Boolean kill) {
+        XResult res = XResult.create().setMethodName("putSetting").setExtra(setting.toString());
+        Log.i(TAG, " putting setting internal [putSetting]=" + setting);
+        if(!XLuaLuaSetting.isValid(setting))
+            res.setFailed("Setting passed was Invalid!");
         boolean result =
-                packet.getValue() != null ?
+                !setting.isDeleteAction() ?
                         DatabaseHelp.insertItem(
                                 db,
                                 XLuaLuaSetting.Table.name,
-                                packet) :
+                                setting) :
                         DatabaseHelp.deleteItem(
                                 SqlQuerySnake
-                                    .create(db, XLuaLuaSetting.Table.name)
-                                    .whereColumn("user", packet.getUser())
-                                    .whereColumn("name", packet.getName()));
-
-        return result;
-    }
-
-    public static boolean putSetting(Context context, String name, String value, boolean kill, XDatabase db) { return putSetting(context, 0, name, value, kill, db); }
-    public static boolean putSetting(Context context, int user, String name, String value, boolean kill, XDatabase db) { return putSetting(context, user, "global", name, value, kill, db); }
-    public static boolean putSetting(Context context, int user, String category, String name, String value, boolean kill, XDatabase db) {
-        boolean result =
-                DatabaseHelp.insertItem(
-                        db,
-                        XLuaLuaSetting.Table.name,
-                        XLuaLuaSetting.create(user, category, name, value));
-        if (!result && kill) {
-            try {
-                XLuaAppProvider.forceStop(context, category, user);
-            }catch (Throwable e) {
-                Log.e(TAG, "Failed to Kill user=" + user + "\n" + e);
-            }
-        }
-
-        return result;
-    }
-
-    public static boolean putSetting(Context context, XLuaLuaSetting setting, boolean kill, XDatabase db) throws Throwable {
-        Log.i(TAG, "[putSetting] " + setting);
-
-        boolean result =
-                setting.getValue() != null ?
-                        DatabaseHelp.insertItem(db, XLuaLuaSetting.Table.name, setting) :
-                        DatabaseHelp.deleteItem(SqlQuerySnake
-                                .create(db, XLuaLuaSetting.Table.name)
-                                .whereColumn("user", setting.getUser())
-                                .whereColumn("name", setting.getName()));
+                                        .create(db, XLuaLuaSetting.Table.name)
+                                        .whereColumn("user", setting.getUser())
+                                        .whereColumn("name", setting.getName()));
 
         if (!result && kill)
-            XLuaAppProvider.forceStop(context, setting.getCategory(), setting.getUser());
+            XLuaAppProvider.forceStop(context, setting.getCategory(), setting.getUser(), res);
 
-        return result;
+        return res.setResult(result);
     }
 
-    public static boolean putSettings(Context context, XDatabase db, List<XLuaLuaSetting> settings) {
-        return DatabaseHelp.insertItems(
+    public static XResult putSettings(Context context, XDatabase db, XBulkSettingActionPacket packet) { return putSettings(context, db, packet.getSettingsLua(), packet.getKill()); }
+    public static XResult putSettings(Context context, XDatabase db, List<XLuaLuaSetting> settings) { return putSettings(context, db, settings, false); }
+    public static XResult putSettings(Context context, XDatabase db, List<XLuaLuaSetting> settings, boolean kill) {
+        XResult res = XResult.create().setMethodName("putSettings");
+        if(!CollectionUtil.isValid(settings))
+            return res.setFailed("Settings List was empty or null...");
+
+        String category = settings.get(0).getCategory();
+        int user = settings.get(0).getUser();
+        boolean result = DatabaseHelp.insertItems(
                 db,
                 XLuaLuaSetting.Table.name,
                 settings,
                 prepareDatabaseTable(context, db));
+
+        if (!result && kill)
+            XLuaAppProvider.forceStop(context, category, user, res);
+
+        return res.setResult(result);
     }
 
-    public static boolean putSetting(Context context, XDatabase db, XLuaLuaSetting setting) {
-        return DatabaseHelp.insertItem(
-                db,
-                XLuaLuaSetting.Table.name,
-                setting,
-                prepareDatabaseTable(context, db));
-    }
+    public static boolean getSettingBoolean(Context context, XDatabase db, String settingName) { return Boolean.parseBoolean(getSettingValue(context, db, settingName, GLOBAL_USER, GLOBAL_NAMESPACE)); }
+    public static boolean getSettingBoolean(Context context, XDatabase db, String settingName, int userId, String category) { return Boolean.parseBoolean(getSettingValue(context, db, settingName, userId, category)); }
 
-    public static boolean prepareDatabaseTable(Context context, XDatabase db) {
-        //if(context == null) return true;//Assume its handled
-        return DatabaseHelp.prepareTableIfMissingOrInvalidCount(
-                context,
-                db,
-                XLuaLuaSetting.Table.name,
-                XLuaLuaSetting.Table.columns,
-                XLuaLuaSetting.class);
-    }
-
-    public static Collection<XLuaLuaSetting> getSettingsFromName(XDatabase db, String settingsName) {
-        return SqlQuerySnake
-                .create(db, XLuaLuaSetting.Table.name)
-                .whereColumn("name", settingsName)
-                .queryAs(XLuaLuaSetting.class, true);
-    }
-
-    public static Collection<XLuaLuaSetting> getSettings(XDatabase db, int userId, String categoryName) { return getSettings(db, new XLuaSettingCategory(userId, categoryName)); }
-    public static Collection<XLuaLuaSetting> getSettings(XDatabase db, XLuaSettingCategory category) {
-        return SqlQuerySnake
-                .create(db, XLuaLuaSetting.Table.name)
-                .whereColumns("user", "category")
-                .whereColumnValues(Integer.toString(category.getUserId()), category.getName())
-                .queryAs(XLuaLuaSetting.class, true);
-    }
-
-    public static Collection<XLuaLuaSetting> getSettingsByName(XDatabase db, int userId, String settingName) {
-        return SqlQuerySnake
-                .create(db, XLuaLuaSetting.Table.name)
-                .whereColumns("user", "name")
-                .whereColumnValues(Integer.toString(userId), settingName)
-                .queryAs(XLuaLuaSetting.class, true);
-    }
-
-    public static boolean getSettingBoolean(XDatabase db, String category, String settingName) { return getSettingBoolean(db, XUtil.getUserId(Process.myUid()), category, settingName); }
-    public static boolean getSettingBoolean(XDatabase db, int userId, String category, String settingName) {
-        return Boolean.parseBoolean(getSettingValue(db, userId, category, settingName));
-    }
-
-    public static String getSettingValue(XDatabase db, XLuaLuaSetting setting) { return getSettingValue(db, setting.getUser(), setting.getCategory(), setting.getName()); }
-
-    public static String getSettingValue(XDatabase db, String category, String settingName) { return getSettingValue(db, 0, category, settingName); }
-    public static String getSettingValue(XDatabase db, int userId, String category, String settingName) {
+    public static String getSettingValue(Context context, XDatabase db, XLuaLuaSetting setting) { return getSettingValue(context, db, setting.getName(), setting.getUser(), setting.getCategory()); }
+    public static String getSettingValue(Context context, XDatabase db, String settingName, String category) { return getSettingValue(context, db, settingName, GLOBAL_USER, category); }
+    public static String getSettingValue(Context context, XDatabase db, String settingName) { return getSettingValue(context, db, settingName, GLOBAL_USER, GLOBAL_NAMESPACE); }
+    public static String getSettingValue(Context context, XDatabase db, String settingName, int userId, String category) {
         String v = SqlQuerySnake.
                 create(db, XLuaLuaSetting.Table.name)
                 .whereColumns("user", "category", "name")
@@ -148,15 +94,15 @@ public class XLuaSettingsDatabase {
 
         if(v == null) {
             if(settingName.equals("theme")) {
-                XLuaSettingPacket packet = new XLuaSettingPacket(userId, category, settingName);
+                XLuaSettingPacket packet = new XLuaSettingPacket(GLOBAL_USER, GLOBAL_NAMESPACE, settingName);
                 packet.setValue(DEFAULT_THEME);
-                putSetting(db, packet);
+                putSetting(context, db, packet);
                 return DEFAULT_THEME;
             }
             else if(settingName.equals("collection")) {
-                XLuaSettingPacket packet = new XLuaSettingPacket(userId, category, settingName);
+                XLuaSettingPacket packet = new XLuaSettingPacket(GLOBAL_USER, GLOBAL_NAMESPACE, settingName);
                 packet.setValue(DEFAULT_COLLECTIONS);
-                putSetting(db, packet);
+                putSetting(context, db, packet);
                 return DEFAULT_COLLECTIONS;
             }
         }
@@ -164,8 +110,8 @@ public class XLuaSettingsDatabase {
         return v;
     }
 
-    public static XLuaLuaSetting getSetting(XDatabase db, XLuaSettingCategory category, String settingName) { return getSetting(db, category.getUserId(), category.getName(), settingName);  }
-    public static XLuaLuaSetting getSetting(XDatabase db, int userId, String category, String settingName) {
+    public static XLuaLuaSetting getSetting(XDatabase db, XLuaSettingCategory category, String settingName) { return getSetting(db, category.getName(), category.getUserId(), settingName);  }
+    public static XLuaLuaSetting getSetting(XDatabase db, String category,  int userId, String settingName) {
         return SqlQuerySnake
                 .create(db, XLuaLuaSetting.Table.name)
                 .whereColumns("user", "category", "name")
@@ -173,7 +119,7 @@ public class XLuaSettingsDatabase {
                 .queryGetFirstAs(XLuaLuaSetting.class, true);
     }
 
-    public static Collection<String> getCategoriesFromUID(XDatabase db, int userId) {
+    public static Collection<String> getCategoriesFromUserId(XDatabase db, int userId) {
         return SqlQuerySnake
                 .create(db, XLuaLuaSetting.Table.name)
                 .whereColumn("user", Integer.toString(userId))
@@ -204,5 +150,39 @@ public class XLuaSettingsDatabase {
         }
 
         return categories;
+    }
+
+    public static Collection<XLuaLuaSetting> getSettingsByCategory(XDatabase db, int userId, String categoryName) { return getSettingsByCategory(db, new XLuaSettingCategory(userId, categoryName)); }
+    public static Collection<XLuaLuaSetting> getSettingsByCategory(XDatabase db, XLuaSettingCategory category) {
+        return SqlQuerySnake
+                .create(db, XLuaLuaSetting.Table.name)
+                .whereColumns("user", "category")
+                .whereColumnValues(Integer.toString(category.getUserId()), category.getName())
+                .queryAs(XLuaLuaSetting.class, true);
+    }
+
+    public static Collection<XLuaLuaSetting> getSettingsByNameAndUser(XDatabase db, int userId, String settingName) {
+        return SqlQuerySnake
+                .create(db, XLuaLuaSetting.Table.name)
+                .whereColumns("user", "name")
+                .whereColumnValues(Integer.toString(userId), settingName)
+                .queryAs(XLuaLuaSetting.class, true);
+    }
+
+    public static Collection<XLuaLuaSetting> getSettingsByName(XDatabase db, String settingsName) {
+        return SqlQuerySnake
+                .create(db, XLuaLuaSetting.Table.name)
+                .whereColumn("name", settingsName)
+                .queryAs(XLuaLuaSetting.class, true);
+    }
+
+    public static boolean prepareDatabaseTable(Context context, XDatabase db) {
+        //if(context == null) return true;//Assume its handled
+        return DatabaseHelp.prepareTableIfMissingOrInvalidCount(
+                context,
+                db,
+                XLuaLuaSetting.Table.name,
+                XLuaLuaSetting.Table.columns,
+                XLuaLuaSetting.class);
     }
 }

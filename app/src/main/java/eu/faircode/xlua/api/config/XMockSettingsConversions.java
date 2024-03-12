@@ -80,7 +80,6 @@ public class XMockSettingsConversions {
                 settingsObj.put(r.getKey(), r.getValue());
 
             rootObject.put("settings", settingsObj);
-            //rootObject.put("settings", settings);
         }catch (Exception e) {
             Log.e(TAG, "Failed to write Settings to JSON: " + e);
         }

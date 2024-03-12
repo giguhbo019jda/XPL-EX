@@ -7,7 +7,7 @@ import eu.faircode.xlua.utilities.RandomStringGenerator;
 public class RandomDRM implements IRandomizer {
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("drm");
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("drm") || setting.equalsIgnoreCase("unique.drm.id");
     }
 
     @Override

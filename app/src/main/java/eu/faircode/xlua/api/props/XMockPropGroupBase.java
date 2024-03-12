@@ -1,7 +1,5 @@
 package eu.faircode.xlua.api.props;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -12,10 +10,10 @@ import eu.faircode.xlua.utilities.CollectionUtil;
 public class XMockPropGroupBase {
     protected String settingName;
     protected String value;
-    protected List<XMockPropSetting> properties = new ArrayList<>();
+    protected List<XMockPropMapped> properties = new ArrayList<>();
 
     protected XMockPropGroupBase() { }
-    protected XMockPropGroupBase(String settingName, String value, List<XMockPropSetting> properties) {
+    protected XMockPropGroupBase(String settingName, String value, List<XMockPropMapped> properties) {
         setSettingName(settingName);
         setValue(value);
         setProperties(properties);
@@ -33,14 +31,14 @@ public class XMockPropGroupBase {
         return this;
     }
 
-    public List<XMockPropSetting> getProperties() { return properties; }
-    public XMockPropGroupBase setProperties(List<XMockPropSetting> properties) {
+    public List<XMockPropMapped> getProperties() { return properties; }
+    public XMockPropGroupBase setProperties(List<XMockPropMapped> properties) {
         if(CollectionUtil.isValid(properties)) this.properties = properties;
         return this;
     }
 
-    public boolean containsProperty(XMockPropSetting pSetting) {
-        for (XMockPropSetting setting : properties) {
+    public boolean containsProperty(XMockPropMapped pSetting) {
+        for (XMockPropMapped setting : properties) {
             if(setting.getPropertyName().equalsIgnoreCase(pSetting.getPropertyName())) {
                 return true;
             }
@@ -49,7 +47,7 @@ public class XMockPropGroupBase {
         return false;
     }
 
-    public void addProperty(XMockPropSetting pSetting) {
+    public void addProperty(XMockPropMapped pSetting) {
         if(properties == null)
             properties = new ArrayList<>();
 
@@ -60,11 +58,11 @@ public class XMockPropGroupBase {
     public boolean equals(Object obj) {
         if (!(obj instanceof XMockPropGroupBase)) {
             try {
-                List<XMockPropSetting> pSettings = (List<XMockPropSetting>) obj;
+                List<XMockPropMapped> pSettings = (List<XMockPropMapped>) obj;
                 if(pSettings != null) {
                     //check if given settings has all of our settings :P simple nigga cmon
-                    List<XMockPropSetting> pCopy = new ArrayList<>(properties);
-                    for(XMockPropSetting pSetting : pSettings) {
+                    List<XMockPropMapped> pCopy = new ArrayList<>(properties);
+                    for(XMockPropMapped pSetting : pSettings) {
                         for(int i = 0; i < pCopy.size(); i++) {
                             if(pCopy.get(i).equals(pSetting)) {
                                 pCopy.remove(i);

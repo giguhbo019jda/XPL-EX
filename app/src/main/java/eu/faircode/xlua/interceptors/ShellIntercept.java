@@ -1,7 +1,6 @@
 package eu.faircode.xlua.interceptors;
 
 import android.content.Context;
-import android.system.Os;
 import android.util.Log;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.api.xmock.XMockCall;
-import eu.faircode.xlua.api.cpu.XMockCpu;
+import eu.faircode.xlua.api.cpu.MockCpu;
 import eu.faircode.xlua.utilities.MemoryUtil;
 import eu.faircode.xlua.utilities.MockUtils;
 import eu.faircode.xlua.utilities.StringUtil;
@@ -76,7 +75,7 @@ public class ShellIntercept {
             //note this can be used to detect odd environment
         }
         else if(lowered.contains(cpuFile)) {
-            XMockCpu mockCpu = XMockCall.getSelectedMockCpu(context);
+            MockCpu mockCpu = XMockCall.getSelectedMockCpu(context);
             fakeValue = mockCpu.getContents();
         }
         else if(lowered.contains(memFile)) {

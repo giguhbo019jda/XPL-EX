@@ -12,50 +12,66 @@ import org.json.JSONObject;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import eu.faircode.xlua.XDatabase;
+import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
+import eu.faircode.xlua.api.standard.interfaces.IDBQuery;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
+import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
+import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.CursorUtil;
 import eu.faircode.xlua.utilities.JSONUtil;
-import eu.faircode.xlua.utilities.ParcelUtil;
 
-public class XMockPropSetting extends XMockPropSettingBase implements IJsonSerial, Parcelable {
+public class XMockPropSetting extends XMockPropSettingBase implements IJsonSerial, IDBQuery, Parcelable {
+    public static final int PROP_DELETE = -1;
+    public static final int PROP_HIDE = 0x0;
+    public static final int PROP_SKIP = 0x1;
+    public static final int PROP_NULL = 0x2;
+
+    public static XMockPropSetting create() { return new XMockPropSetting(); }
+    public static XMockPropSetting create(String propName) { return new XMockPropSetting(propName, null, null, null); }
+    public static XMockPropSetting create(String propName, Integer userId, String packageName) { return new XMockPropSetting(propName, userId, packageName, null); }
+    public static XMockPropSetting create(String propName, Integer userId, String packageName, int value) { return new XMockPropSetting(propName, userId, packageName, value); }
+
     public XMockPropSetting() { }
-    public XMockPropSetting(Parcel in) { fromParcel(in); }
-    public XMockPropSetting(Bundle bundle) { fromBundle(bundle); }
-
-    public XMockPropSetting(ContentValues cv) { fromContentValues(cv); }
-    public XMockPropSetting(String propertyName, String settingName) { super(propertyName, settingName); }
-    public XMockPropSetting(String propertyName, String settingName, Boolean enabled) { super(propertyName, settingName, enabled); }
+    public XMockPropSetting(Parcel p) { fromParcel(p); }
+    public XMockPropSetting(String name, Integer userId, String packageName, Integer value) { super(name, userId, packageName, value); }
 
     @Override
     public Bundle toBundle() {
         Bundle b = new Bundle();
-        if(this.propertyName != null) b.putString("propertyName", propertyName);
-        if(this.settingName != null) b.putString("settingName", settingName);
-        if(this.enabled != null) b.putBoolean("enabled", enabled);
+        ensureIdentification();
+        b.putInt("user", this.user);
+        b.putString("packageName", this.packageName);
+        b.putString("name", name);
+        b.putInt("value", value);
         return b;
     }
 
     @Override
     public void fromBundle(Bundle b) {
-        this.propertyName = b.getString("propertyName");
-        this.settingName = b.getString("settingName");
-        this.enabled = b.getBoolean("enabled");
+        this.user = BundleUtil.readInteger(b, "user", XLuaSettingsDatabase.GLOBAL_USER);
+        this.packageName = BundleUtil.readString(b, "category", XLuaSettingsDatabase.GLOBAL_NAMESPACE);
+        this.name = BundleUtil.readString(b, "name");
+        this.value = BundleUtil.readInteger(b, "value", PROP_HIDE);
     }
 
     @Override
     public ContentValues createContentValues() {
         ContentValues cv = new ContentValues();
-        if(propertyName != null) cv.put("propertyName", propertyName);
-        if(settingName != null) cv.put("settingName", settingName);
-        if(enabled != null) cv.put("enabled", enabled);
+        ensureIdentification();
+        cv.put("user", this.user);
+        cv.put("packageName", this.packageName);
+        cv.put("name", this.name);
+        cv.put("value", this.value);
         return cv;
     }
 
     @Override
     public void fromContentValues(ContentValues contentValue) {
-        this.propertyName = contentValue.getAsString("propertyName");
-        this.settingName = contentValue.getAsString("settingName");
-        this.enabled = contentValue.getAsBoolean("enabled");
+        this.user = contentValue.getAsInteger("user");
+        this.packageName = contentValue.getAsString("packageName");
+        this.name = contentValue.getAsString("name");
+        this.value = contentValue.getAsInteger("value");
     }
 
     @Override
@@ -66,16 +82,18 @@ public class XMockPropSetting extends XMockPropSettingBase implements IJsonSeria
 
     @Override
     public void fromCursor(Cursor cursor) {
-        this.propertyName = CursorUtil.getString(cursor, "propertyName");
-        this.settingName = CursorUtil.getString(cursor, "settingName");
-        this.enabled = CursorUtil.getBoolean(cursor, "enabled");
+        this.user = CursorUtil.getInteger(cursor, "user", XLuaSettingsDatabase.GLOBAL_USER);
+        this.packageName = CursorUtil.getString(cursor, "packageName", XLuaSettingsDatabase.GLOBAL_NAMESPACE);
+        this.name = CursorUtil.getString(cursor, "name");
+        this.value = CursorUtil.getInteger(cursor, "value", PROP_HIDE);
     }
 
     @Override
     public void fromParcel(Parcel in) {
-        this.settingName = in.readString();
-        this.propertyName = in.readString();
-        this.enabled = ParcelUtil.readBool(in);
+        this.user = in.readInt();
+        this.packageName = in.readString();
+        this.name = in.readString();
+        this.value = in.readInt();
     }
 
     @Override
@@ -83,9 +101,11 @@ public class XMockPropSetting extends XMockPropSettingBase implements IJsonSeria
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.settingName);
-        dest.writeString(this.propertyName);
-        ParcelUtil.writeBool(dest, this.enabled);
+        ensureIdentification();
+        dest.writeInt(this.user);
+        dest.writeString(this.packageName);
+        dest.writeString(this.name);
+        dest.writeInt(this.value);
     }
 
     @Override
@@ -94,17 +114,20 @@ public class XMockPropSetting extends XMockPropSettingBase implements IJsonSeria
     @Override
     public JSONObject toJSONObject() throws JSONException {
         JSONObject jRoot = new JSONObject();
-        jRoot.put("settingName", settingName);
-        jRoot.put("propertyName", propertyName);
-        jRoot.put("enabled", enabled);
+        ensureIdentification();
+        jRoot.put("user", this.user);
+        jRoot.put("packageName", this.packageName);
+        jRoot.put("name", this.name);
+        jRoot.put("value", this.value);
         return jRoot;
     }
 
     @Override
     public void fromJSONObject(JSONObject obj) throws JSONException {
-        this.settingName = obj.getString("settingName");
-        this.propertyName = obj.getString("propertyName");
-        this.enabled = JSONUtil.getBoolean(obj, "enabled", true);
+        this.user = JSONUtil.getInteger(obj, "user", XLuaSettingsDatabase.GLOBAL_USER);
+        this.packageName = JSONUtil.getString(obj, "packageName", XLuaSettingsDatabase.GLOBAL_NAMESPACE);
+        this.name = obj.getString("name");
+        this.value = JSONUtil.getInteger(obj, "value", PROP_HIDE);
     }
 
     public static final Parcelable.Creator<XMockPropSetting> CREATOR = new Parcelable.Creator<XMockPropSetting>() {
@@ -119,12 +142,29 @@ public class XMockPropSetting extends XMockPropSettingBase implements IJsonSeria
         }
     };
 
+    @Override
+    public SqlQuerySnake createQuery(XDatabase db) {
+        ensureIdentification();
+        return SqlQuerySnake.create(db, Table.name)
+                .whereColumn("user", this.user)
+                .whereColumn("packageName", this.packageName)
+                .whereColumn("name", this.name);
+    }
+
+    private void ensureIdentification() {
+        if(this.user == null)
+            this.user = XLuaSettingsDatabase.GLOBAL_USER;
+        if(this.packageName == null)
+            this.packageName = XLuaSettingsDatabase.GLOBAL_NAMESPACE;
+    }
+
     public static class Table {
-        public static final String name = "propmaps";
+        public static final String name = "prop_settings";
         public static final LinkedHashMap<String, String> columns = new LinkedHashMap<String, String>() {{
-            put("propertyName", "TEXT");
-            put("settingName", "TEXT");
-            put("enabled", "BOOLEAN");
+            put("user", "TEXT");
+            put("packageName", "TEXT");
+            put("name", "TEXT");
+            put("value", "INTEGER");
         }};
     }
 }

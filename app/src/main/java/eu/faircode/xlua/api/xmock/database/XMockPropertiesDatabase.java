@@ -6,7 +6,7 @@ import java.util.Collection;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.props.XMockPropGroup;
-import eu.faircode.xlua.api.props.XMockPropSetting;
+import eu.faircode.xlua.api.props.XMockPropMapped;
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 
 public class XMockPropertiesDatabase {
@@ -16,16 +16,16 @@ public class XMockPropertiesDatabase {
     //we can also just still return :P group array
     //from the group array we create a list of all settings ez
     //if we needed the list ofc
-    public static Collection<XMockPropSetting> initDatabase(Context context, XDatabase db) {
+    public static Collection<XMockPropMapped> initDatabase(Context context, XDatabase db) {
         return DatabaseHelp.initDatabaseLists(
                 context,
                 db,
-                XMockPropSetting.Table.name,
-                XMockPropSetting.Table.columns,
+                XMockPropMapped.Table.name,
+                XMockPropMapped.Table.columns,
                 JSON,
                 true,
                 XMockPropGroup.class,
-                XMockPropSetting.class,
+                XMockPropMapped.class,
                 true);
     }
 }

@@ -76,7 +76,8 @@ public class XGlobalCore {
             synchronized (hookLock) {
                 if(xLua_db == null) {
                     xLua_db = new XDatabase(DB_NAME_LUA, context, true);
-                    XLuaUpdater.checkForUpdate(xLua_db);
+                    XLuaUpdater.initDatabase(context, xLua_db);
+                    //XLuaUpdater.checkForUpdate(xLua_db);
                 }else if(DebugUtil.isDebug())
                     DatabasePathUtil.log("XLua Database is db=" + xMock_db, false);
 
@@ -134,9 +135,9 @@ public class XGlobalCore {
         DatabasePathUtil.log("Loaded hook definitions hooks=" + hooks.size() + " builtIns=" + builtIn.size(), false);
     }
 
-    public static Collection<XLuaHook> getHooks(XDatabase db, boolean all) {
+    public static Collection<XLuaHook> getHooks(Context context, XDatabase db, boolean all) {
         Log.i(TAG, "Getting Hooks all=" + all + " internal size list =" + hooks.size());
-        List<String> collection = XLuaHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
+        List<String> collection = XLuaHookProvider.getCollections(context, db, XUtil.getUserId(Binder.getCallingUid()));
         Log.i(TAG, "collection size=" + collection.size());
         List<XLuaHook> hv = new ArrayList();
         synchronized (hookLock) {
@@ -157,9 +158,9 @@ public class XGlobalCore {
         return hv;
     }
 
-    public static List<String> getGroups(XDatabase db) {
+    public static List<String> getGroups(Context context, XDatabase db) {
         List<String> groups = new ArrayList<>();
-        List<String> collections = XLuaHookProvider.getCollections(db, XUtil.getUserId(Binder.getCallingUid()));
+        List<String> collections = XLuaHookProvider.getCollections(context, db, XUtil.getUserId(Binder.getCallingUid()));
 
         if(DebugUtil.isDebug()) {
             Log.i(TAG, "Returned Collections size=" + collections.size());

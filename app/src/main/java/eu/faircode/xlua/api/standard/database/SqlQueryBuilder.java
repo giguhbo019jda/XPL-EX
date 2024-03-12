@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.faircode.xlua.XDatabase;
+import eu.faircode.xlua.utilities.StringUtil;
 
 public class SqlQueryBuilder {
     private static final String TAG = "XLua.DatabaseQueryBuilder";
@@ -70,6 +71,9 @@ public class SqlQueryBuilder {
 
     protected void internal_whereColumnBinds(String columnName, String value) { internal_whereColumnBinds(columnName, value, null); }
     protected void internal_whereColumnBinds(String columnName, String value, String symbol) {
+        if(!StringUtil.isValidString(columnName))
+            return;
+
         if(fCount != 0)
             selectionArgsBuilder.append(useOr ? " OR " : " AND ");
 
@@ -81,7 +85,7 @@ public class SqlQueryBuilder {
 
         selectionArgsBuilder.append(columnName);
         selectionArgsBuilder.append(symbol == null ? symbolWithCompare : symbol);
-        if(value != null) compareValues.add(value);
+        compareValues.add(value);
         fCount++;
     }
 

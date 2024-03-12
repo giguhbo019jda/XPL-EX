@@ -46,7 +46,7 @@ public class RandomSSID implements IRandomizer {
 
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName());
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("unique.network.ssid");
     }
 
     @Override

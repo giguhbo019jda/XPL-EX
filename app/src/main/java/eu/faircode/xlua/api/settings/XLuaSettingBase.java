@@ -40,7 +40,7 @@ public class XLuaSettingBase {
     }
 
     public XLuaSettingBase setValue(String value) {
-        if(value != null) this.value = value;
+        this.value = value;
         return this;
     }
 

@@ -88,6 +88,9 @@ public class XUtil {
     }
 
     public static int getUserId(int uid) {
+        if(uid < 1)
+            return 0;
+
         try {
             // public static final int getUserId(int uid)
             Method method = UserHandle.class.getDeclaredMethod("getUserId", int.class);

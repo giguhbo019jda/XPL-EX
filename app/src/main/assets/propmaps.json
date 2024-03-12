@@ -1,6 +1,7 @@
 [
   //Device Info Default Settings
-  { "settingName": "device.manufacturer", "propNames": ["ro.vendor_dlkm.build.manufacturer", "ro.vendor_dlkm.build.brand", "ro.product.vendor.manufacturer ", "ro.product.system_ext.manufacturer", "ro.product.system.manufacturer", "ro.product.odm.manufacturer", "ro.product.manufacturer", "ro.vendor.product.manufacturer", "ro.product.brand","ro.product.odm.brand","ro.product.system.brand","ro.product.system_ext.brand","ro.product.vendor.brand", "ro.vendor.product.brand"] },
+  { "settingName": "device.brand", "propNames": ["ro.vendor_dlkm.build.brand", "ro.product.brand","ro.product.odm.brand","ro.product.system.brand","ro.product.system_ext.brand","ro.product.vendor.brand", "ro.vendor.product.brand"] },
+  { "settingName": "device.manufacturer", "propNames": ["ro.vendor_dlkm.build.manufacturer", "ro.product.vendor.manufacturer ", "ro.product.system_ext.manufacturer", "ro.product.system.manufacturer", "ro.product.odm.manufacturer", "ro.product.manufacturer", "ro.vendor.product.manufacturer"] },
   { "settingName": "device.nick.name", "propNames": ["ro.vendor_dlkm.build.device", "ro.product.nickname","ro.vendor.product.device", "ro.build.product","ro.product.device","ro.product.odm.device","ro.product.system.device","ro.product.system_ext.device","ro.product.vendor.device", "ro.product.system.name"] },
   { "settingName": "device.model", "propNames": [ "ro.vendor_dlkm.build.model", "persist.sys.exif.model", "ro.vendor.product.model", "ro.product.odm.model","ro.product.system.model","ro.product.system_ext.model","ro.product.vendor.model"] },
   { "settingName": "device.codename", "propNames": [ "ro.boot.device" ] },
@@ -15,7 +16,7 @@
   { "settingName": "android.build.type", "propNames": [ "ro.vendor_dlkm.build.type", "ro.build.type","ro.system.build.type","ro.system_ext.build.type","ro.vendor.build.type"] },
   { "settingName": "android.build.date.utc",  "propNames": ["ro.build.date.utc","ro.odm.build.date.utc","ro.system.build.date.utc","ro.system_ext.build.date.utc","ro.vendor.build.date.utc"] },
   { "settingName": "android.build.date", "propNames": ["ro.vendor_dlkm.build.date", "ro.build.date","ro.odm.build.date","ro.system.build.date","ro.system_ext.build.date","ro.vendor.build.date"] },
-  { "settingName": "android.build.dev.version", "propNames": [ "ro.build.version.codename", "ro.build.version.preview_sdk_fingerprint", "ro.build.version.all_codenames", "" ] },
+  { "settingName": "android.build.dev.codename", "propNames": [ "ro.build.version.codename", "ro.build.version.preview_sdk_fingerprint", "ro.build.version.all_codenames", "" ] },
   { "settingName": "android.build.incremental", "propNames": ["ro.vendor_dlkm.build.version.incremental", "ro.build.version.incremental","ro.system.build.version.incremental","ro.system_ext.build.version.incremental"] },
   { "settingName": "android.build.description", "propNames": [ "ro.build.description" ] },
   { "settingName": "android.build.id", "propNames": [ "ro.build.id", "ro.system.build.id", "ro.system_ext.build.id", "ro.vendor.build.id" ] },
@@ -51,6 +52,8 @@
   { "settingName": "cpu.dalvik.vm.variant", "propNames": [ "dalvik.vm.isa.arm.variant", "dalvik.vm.isa.arm64.variant" ] },
   { "settingName": "cpu.platform.name", "propNames": [ "ro.board.platform", "ro.product.board" ] },
   { "settingName": "cpu.base.band", "propNames": [ "ro.baseband", "ro.baseband.arch" ] },
+  { "settingName": "cpu.hardware.name", "propNames": [ "ro.hardware" ] },
+  { "settingName": "cpu.soc.model", "propNames": [ "ro.soc.model" ] },
 
   //Android ROM Specific Settings
   { "settingName": "android.rom.adb.secure", "propNames": [ "ro.adb.secure" ] },
@@ -66,14 +69,16 @@
   //System hardware Settings
   { "settingName": "hardware.nfc.kind", "propNames": [ "ro.nfc.port" ] },
   { "settingName": "hardware.camera.app", "propNames": [ "persist.vendor.camera.privapp.list" ] },
-  { "settingName": "hardware.bluetooth.name", "propNames": [ "net.bt.name" ] },
-  { "settingName": "hardware.bluetooth.soc", "propNames": [ "vendor.bluetooth.soc" ] },
   { "settingName": "hardware.fp.sensor", "propNames": [ "ro.boot.fpsensor" ] },
   { "settingName": "hardware.fp.sensor.name", "propNames": [ "ro.boot.fp" ] },
   { "settingName": "hardware.boot.sku", "propNames": [ "ro.boot.hardware.sku" ] },
   { "settingName": "hardware.boot.product.sku", "propNames": [ "ro.boot.product.hardware.sku" ] },
   { "settingName": "hardware.gsm.version", "propNames": [ "gsm.version.ril-impl" ] },
   { "settingName": "hardware.gsm.band.version", "propNames": [ "gsm.version.baseband" ] },
+
+  //Bluetooth Settings
+  { "settingName": "bluetooth.name", "propNames": [ "net.bt.name" ] },
+  { "settingName": "bluetooth.soc", "propNames": [ "vendor.bluetooth.soc" ] },
 
   //Unique Identifiers
   { "settingName": "unique.serial.no", "propNames": [ "ro.serialno", "ro.boot.serialno" ] },
@@ -91,11 +96,13 @@
   //GSM Settings
   { "settingName": "gsm.operator.id", "propNames": [ "gsm.operator.numeric", "gsm.sim.operator.numeric" ] },
   { "settingName": "gsm.network.type", "propNames": [ "gsm.network.type" ] },
-  { "settingName": "gsm.network.roaming", "propNames": [ "gsm.operator.isroaming" ] },
   { "settingName": "gsm.network.carrier", "propNames": [ "ro.carrier", "ro.cdma.home.operator.alpha", "gsm.operator.alpha", "gsm.sim.operator.alpha"] },
   { "settingName": "gsm.phone.type", "propNames": [ "gsm.current.phone-type" , "gsm.phone.type"] },
   { "settingName": "gsm.sim.state", "propNames": [ "gsm.sim.state" ] },
+  { "settingName": "gsm.setting.network.roaming", "propNames": [ "gsm.operator.isroaming" ] },
+
 
   //User Agent Properties
   { "settingName": "user.agent", "propNames": [ "http.agent", "user.agent", "user-agent" ] }
 ]
+

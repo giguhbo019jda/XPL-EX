@@ -1,7 +1,9 @@
 package eu.faircode.xlua;
 
 import android.annotation.SuppressLint;
-import android.os.Process;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -10,16 +12,19 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -30,74 +35,132 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import eu.faircode.xlua.api.app.XLuaApp;
-import eu.faircode.xlua.api.config.XMockConfigSetting;
-import eu.faircode.xlua.api.cpu.XMockCpu;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
-import eu.faircode.xlua.api.props.XMockPropGroup;
-import eu.faircode.xlua.api.props.XMockPropSetting;
-import eu.faircode.xlua.api.xmock.XMockCall;
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.properties.MockPropGroupHolder;
+import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settingsex.LuaSettingPacket;
+import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.randomizers.GlobalRandoms;
+import eu.faircode.xlua.randomizers.IRandomizer;
+import eu.faircode.xlua.utilities.SettingUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterPropertiesGroup.ViewHolder> implements Filterable {
     private static final String TAG = "XLua.AdapterPropertiesGroup";
 
-    private List<XMockPropGroup> groups = new ArrayList<>();
-    private List<XMockPropGroup> filtered = new ArrayList<>();
-    private HashMap<String, Boolean> expanded = new HashMap<>();
+    private final List<MockPropGroupHolder> groups = new ArrayList<>();
+    private List<MockPropGroupHolder> filtered = new ArrayList<>();
+    private final HashMap<String, Boolean> expanded = new HashMap<>();
 
+    private final HashMap<LuaSettingEx, String> modified = new HashMap<>();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private final Object lock = new Object();
 
     private boolean dataChanged = false;
     private CharSequence query = null;
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private AppGeneric application;
 
     public class ViewHolder extends RecyclerView.ViewHolder
             implements CompoundButton.OnCheckedChangeListener, View.OnClickListener, TextWatcher, View.OnTouchListener {
 
         final View itemView;
 
-        final ImageView ivPropertiesDrop;
+        final ImageView ivDropDown;
         final TextView tvSettingName;
-        final CheckBox cbEnableSetting;
-        final TextInputEditText tiPropertyValue;
 
-        final ArrayList<String> propArrayAdapter;
-        final ListView propListView;
+        final AdapterProperty adapterProps;
+        final RecyclerView rvGroupProps;
+
+        final TextView tvSettingDescription;
+        final TextInputEditText tiSettingValue;
+
+        final ImageView ivBtSave;
+        final ImageView ivBtDelete;
+        final ImageView ivBtRandomize;
+
+        final Spinner spRandomSelector;
+        final ArrayAdapter<IRandomizer> spRandomizer;
 
         ViewHolder(View itemView) {
             super(itemView);
 
             this.itemView = itemView;
 
-            ivPropertiesDrop = itemView.findViewById(R.id.ivSettingDropDown);
+            ivDropDown = itemView.findViewById(R.id.ivSettingDropDown);
             tvSettingName = itemView.findViewById(R.id.tvSettingName);
-            cbEnableSetting = itemView.findViewById(R.id.cbEnableSetting);
-            tiPropertyValue = itemView.findViewById(R.id.tiSettingValue);
-            propListView = itemView.findViewById(R.id.lvPropertiesList);
 
-            propArrayAdapter = new ArrayList<>();
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(itemView.getContext(), android.R.layout.simple_list_item_1, propArrayAdapter);
-            propListView.setAdapter(adapter);
+            tvSettingDescription = itemView.findViewById(R.id.tvSettingDescriptionFromProperties);
+            tiSettingValue = itemView.findViewById(R.id.tiSettingValueFromProperties);
+
+            ivBtSave = itemView.findViewById(R.id.ivBtSaveSettingFromProperties);
+            ivBtDelete = itemView.findViewById(R.id.ivBtDeleteSettingFromProperties);
+            ivBtRandomize = itemView.findViewById(R.id.ivBtRandomSettingValueFromProperties);
+
+            //Start of Drop Down
+            spRandomizer = new ArrayAdapter<>(itemView.getContext(), android.R.layout.simple_spinner_item);
+            spRandomizer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spRandomSelector = itemView.findViewById(R.id.spSettingRandomizerSpinnerProperties);
+            if(DebugUtil.isDebug())
+                Log.i(TAG, "Created the Empty Array for Configs Fragment Config");
+
+            spRandomSelector.setTag(null);
+            spRandomSelector.setAdapter(spRandomizer);
+            spRandomSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { updateSelection(); }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+                    updateSelection();
+                }
+
+                private void updateSelection() {
+                    IRandomizer selected = (IRandomizer) spRandomSelector.getSelectedItem();
+                    String name = selected.getName();
+                    if(DebugUtil.isDebug())
+                        Log.i(TAG, "Selected Randomizer=" + name);
+
+                    if (name == null ? spRandomSelector.getTag() != null : !name.equals(spRandomSelector.getTag()))
+                        spRandomSelector.setTag(name);
+                }
+            });
+
+            spRandomizer.clear();
+            spRandomizer.addAll(GlobalRandoms.getRandomizers());
+
+            //Init settings Adapter
+            rvGroupProps = itemView.findViewById(R.id.rvGroupProperties);
+            rvGroupProps.setHasFixedSize(true);
+            LinearLayoutManager llm = new LinearLayoutManager(itemView.getContext());
+            llm.setAutoMeasureEnabled(true);
+            rvGroupProps.setLayoutManager(llm);
+            adapterProps = new AdapterProperty();
+            rvGroupProps.setAdapter(adapterProps);
         }
 
 
         @SuppressLint("ClickableViewAccessibility")
         private void unWire() {
             itemView.setOnClickListener(null);
-            cbEnableSetting.setOnCheckedChangeListener(null);
-            tiPropertyValue.removeTextChangedListener(this);
-            ivPropertiesDrop.setOnClickListener(null);
-            propListView.setOnTouchListener(null);
+            tiSettingValue.removeTextChangedListener(this);
+            ivDropDown.setOnClickListener(null);
+
+            ivBtDelete.setOnClickListener(null);
+            ivBtRandomize.setOnClickListener(null);
+            ivBtSave.setOnClickListener(null);
         }
 
         @SuppressLint("ClickableViewAccessibility")
         private void wire() {
             itemView.setOnClickListener(this);
-            cbEnableSetting.setOnCheckedChangeListener(this);
-            tiPropertyValue.addTextChangedListener(this);
-            ivPropertiesDrop.setOnClickListener(this);
-            propListView.setOnTouchListener(this);
+            tiSettingValue.addTextChangedListener(this);
+            ivDropDown.setOnClickListener(this);
+
+            ivBtDelete.setOnClickListener(this);
+            ivBtRandomize.setOnClickListener(this);
+            ivBtSave.setOnClickListener(this);
         }
 
         @SuppressLint("NonConstantResourceId")
@@ -107,7 +170,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
             if(DebugUtil.isDebug())
                 Log.i(TAG, "onClick id=" + id);
 
-            final XMockPropGroup group = filtered.get(getAdapterPosition());
+            final MockPropGroupHolder group = filtered.get(getAdapterPosition());
             String name = group.getSettingName();
 
             Log.i(TAG, "selected=" + group);
@@ -118,34 +181,54 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
                     ViewUtil.internalUpdateExpanded(expanded, name);
                     updateExpanded();
                     break;
+                case R.id.ivBtDeleteSettingFromProperties:
+                    sendSetting(itemView.getContext(), group.getSetting(), true, false);
+                    break;
+                case R.id.ivBtRandomSettingValueFromProperties:
+                    IRandomizer randomizer = (IRandomizer) spRandomSelector.getSelectedItem();
+                    String randomValue = randomizer.generateString();
+                    SettingUtil.updateSetting(group.getSetting(), randomValue, modified);
+                    tiSettingValue.setText(randomValue);
+                    break;
+                case R.id.ivBtSaveSettingFromProperties:
+                    if(modified.containsKey(group.getSetting()))
+                        sendSetting(view.getContext(), group.getSetting(), false, false);
+                    break;
             }
+        }
+
+        public void sendSetting(final Context context, final LuaSettingEx setting, boolean deleteSetting, boolean forceKill) {
+            final LuaSettingPacket packet = setting.generatePacket(deleteSetting, forceKill, application.getPackageName());
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (lock) {
+                        final XResult ret = XLuaCall.putSetting(context, packet);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @SuppressLint("NotifyDataSetChanged")
+                            @Override
+                            public void run() {
+                                if(ret.succeeded())
+                                    modified.remove(setting);
+
+                                Toast.makeText(context, ret.getResultMessage(), Toast.LENGTH_SHORT).show();
+                                notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }
+            });
         }
 
         @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
         @Override
         public void onCheckedChanged(final CompoundButton cButton, final boolean isChecked) {
             Log.i(TAG, "onCheckedChanged");
-            final XMockPropGroup group = filtered.get(getAdapterPosition());
+            final MockPropGroupHolder group = filtered.get(getAdapterPosition());
             final String name = group.getSettingName();
             final int id = cButton.getId();
 
             Log.i(TAG, "Item Checked=" + id + "==" + name);
-
-            switch (id) {
-                case R.id.cbEnableSetting:
-                    for(XMockPropSetting setting : group.getProperties())
-                        setting.setIsEnabled(isChecked);
-
-                    notifyDataSetChanged();
-                    executor.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.i(TAG, "put group result=" + XMockCall.setPropGroupState(cButton.getContext(), name, isChecked));
-                        }
-                    });
-
-                    break;
-            }
         }
 
         @Override
@@ -160,10 +243,10 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
         void updateExpanded() {
-            XMockPropGroup group = filtered.get(getAdapterPosition());
+            MockPropGroupHolder group = filtered.get(getAdapterPosition());
             String name = group.getSettingName();
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
-            ViewUtil.setViewsVisibility(ivPropertiesDrop, isExpanded, tiPropertyValue, propListView);
+            ViewUtil.setViewsVisibility(ivDropDown, isExpanded, tiSettingValue, rvGroupProps, ivBtDelete, ivBtRandomize, ivBtSave, tvSettingDescription, spRandomSelector);
         }
 
         @Override
@@ -182,15 +265,15 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     }
 
     AdapterPropertiesGroup() { setHasStableIds(true); }
-    void set(List<XMockPropGroup> groups) {
+    void set(List<MockPropGroupHolder> groups, AppGeneric application) {
         this.dataChanged = true;
         this.groups.clear();
         this.groups.addAll(groups);
+        this.application = application;
 
         if(DebugUtil.isDebug())
             Log.i(TAG, "Internal Count=" + this.groups.size());
 
-        //notifyDataSetChanged();
         getFilter().filter(query);
     }
 
@@ -202,23 +285,23 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
             @Override
             protected FilterResults performFiltering(CharSequence query) {
                 AdapterPropertiesGroup.this.query = query;
-                List<XMockPropGroup> visible = new ArrayList<>(groups);
-                List<XMockPropGroup> results = new ArrayList<>();
+                List<MockPropGroupHolder> visible = new ArrayList<>(groups);
+                List<MockPropGroupHolder> results = new ArrayList<>();
 
                 if (TextUtils.isEmpty(query))
                     results.addAll(visible);
                 else {
                     String q = query.toString().toLowerCase().trim();
-                    for(XMockPropGroup p : visible) {
+                    for(MockPropGroupHolder p : visible) {
                         if(p.getSettingName().toLowerCase().contains(q))
                             results.add(p);
                         else if(p.getValue() != null && p.getValue().toLowerCase().contains(q))
                             results.add(p);
                         else {
-                            for(XMockPropSetting setting : p.getProperties()) {
+                            /*for(XMockPropMapped setting : p.getProperties()) {
                                 if(setting.getPropertyName().toLowerCase().contains(q))
                                     results.add(p);
-                            }
+                            }*/
                         }
                     }
                 }
@@ -237,9 +320,10 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
                 return filterResults;
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             protected void publishResults(CharSequence query, FilterResults result) {
-                final List<XMockPropGroup> groups = (result.values == null ? new ArrayList<XMockPropGroup>() : (List<XMockPropGroup>) result.values);
+                final List<MockPropGroupHolder> groups = (result.values == null ? new ArrayList<MockPropGroupHolder>() : (List<MockPropGroupHolder>) result.values);
                 Log.i(TAG, "Filtered groups size=" + groups.size());
 
                 if(dataChanged) {
@@ -248,7 +332,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
                     notifyDataSetChanged();
                 }else {
                     DiffUtil.DiffResult diff =
-                            DiffUtil.calculateDiff(new AdapterPropertiesGroup.AppDiffCallback(expanded1, filtered, groups));
+                            DiffUtil.calculateDiff(new AppDiffCallback(expanded1, filtered, groups));
                     filtered = groups;
                     diff.dispatchUpdatesTo(AdapterPropertiesGroup.this);
                 }
@@ -256,13 +340,12 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
         };
     }
 
-
-    private class AppDiffCallback extends DiffUtil.Callback {
+    private static class AppDiffCallback extends DiffUtil.Callback {
         private final boolean refresh;
-        private final List<XMockPropGroup> prev;
-        private final List<XMockPropGroup> next;
+        private final List<MockPropGroupHolder> prev;
+        private final List<MockPropGroupHolder> next;
 
-        AppDiffCallback(boolean refresh, List<XMockPropGroup> prev, List<XMockPropGroup> next) {
+        AppDiffCallback(boolean refresh, List<MockPropGroupHolder> prev, List<MockPropGroupHolder> next) {
             this.refresh = refresh;
             this.prev = prev;
             this.next = next;
@@ -280,23 +363,23 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            XMockPropGroup g1 = prev.get(oldItemPosition);
-            XMockPropGroup g2 = next.get(newItemPosition);
+            MockPropGroupHolder g1 = prev.get(oldItemPosition);
+            MockPropGroupHolder g2 = next.get(newItemPosition);
             return (!refresh && g1.getSettingName().equalsIgnoreCase(g2.getSettingName()));
         }
 
         @Override
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            XMockPropGroup g1 = prev.get(oldItemPosition);
-            XMockPropGroup g2 = next.get(newItemPosition);
+            MockPropGroupHolder g1 = prev.get(oldItemPosition);
+            MockPropGroupHolder g2 = next.get(newItemPosition);
 
             if(!g1.getSettingName().equalsIgnoreCase(g2.getSettingName()))
                 return false;
 
-            for(XMockPropSetting setting : g1.getProperties()) {
+            /*for(XMockPropMapped setting : g1.getProperties()) {
                 if(!g2.containsProperty(setting))
                     return false;
-            }
+            }*/
 
             return true;
         }
@@ -308,6 +391,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     @Override
     public int getItemCount() { return filtered.size(); }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.propgroup, parent, false));
@@ -316,18 +400,24 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.unWire();
-        XMockPropGroup group = filtered.get(position);
-        holder.tvSettingName.setText(group.getSettingName());
-        holder.tiPropertyValue.setText(group.getValue());
+        MockPropGroupHolder group = filtered.get(position);
+        String sName = group.getSettingName();
 
-        if(!holder.propArrayAdapter.isEmpty())
-            holder.propArrayAdapter.clear();
+        holder.tvSettingName.setText(SettingUtil.cleanSettingName(sName));
+        holder.tiSettingValue.setText(group.getValue());
+        holder.tvSettingDescription.setText(group.getDescription());
 
-        for(XMockPropSetting setting : group.getProperties())
-            holder.propArrayAdapter.add(setting.getPropertyName());
+        Log.i(TAG, "props in settings group=" + group.getProperties().size());
 
+        holder.adapterProps.set(group.getProperties());
 
-        holder.cbEnableSetting.setChecked(group.getProperties().get(0).isEnabled());
+        for(int i = 0; i < holder.spRandomizer.getCount(); i++) {
+            IRandomizer randomizer = holder.spRandomizer.getItem(i);
+            if(randomizer != null && randomizer.isSetting(sName)) {
+                holder.spRandomSelector.setSelection(i);
+                break;
+            }
+        }
 
         holder.updateExpanded();
         holder.wire();

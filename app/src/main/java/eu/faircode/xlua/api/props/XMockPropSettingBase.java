@@ -3,48 +3,46 @@ package eu.faircode.xlua.api.props;
 import androidx.annotation.NonNull;
 
 public class XMockPropSettingBase {
-    protected String propertyName;
-    protected String settingName;
-    protected Boolean enabled;
+    protected String name;
+    protected String packageName;
+    protected Integer user;
+    protected Integer value;
 
     protected XMockPropSettingBase() { }
-    protected XMockPropSettingBase(String propertyName, String settingName) { this(propertyName, settingName, true); }
-    protected XMockPropSettingBase(String propertyName, String settingName, Boolean enabled) {
-        setPropertyName(propertyName);
-        setSettingName(settingName);
-        setIsEnabled(enabled);
+    protected XMockPropSettingBase(String name, Integer userId, String packageName, Integer value) {
+        setName(name);
+        setUserId(userId);
+        setPackageName(packageName);
+        setValue(value);
     }
 
-    public String getPropertyName() { return propertyName; }
-    public XMockPropSettingBase setPropertyName(String propertyName) {
-        if(propertyName != null) this.propertyName = propertyName;
+    public String getName() { return name; }
+    public XMockPropSettingBase setName(String name) {
+        if(name != null) this.name = name;
         return this;
     }
 
-    public String getSettingName() { return settingName; }
-    public XMockPropSettingBase setSettingName(String settingName) {
-        if(settingName != null) this.settingName = settingName;
+    public String getPackageName() { return packageName; }
+    public XMockPropSettingBase setPackageName(String packageName) {
+        if(packageName != null) this.packageName = packageName;
         return this;
     }
 
-    public Boolean isEnabled() { return enabled; }
-    public XMockPropSettingBase setIsEnabled(Boolean isEnabled) {
-        if(isEnabled != null) this.enabled = isEnabled;
+    public Integer getUser() { return user; }
+    public XMockPropSettingBase setUserId(Integer userId) {
+        if(userId != null) this.user = userId;
         return this;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof XMockPropSettingBase))
-            return false;
-
-        XMockPropSettingBase other = (XMockPropSettingBase) obj;
-        return this.getSettingName().equalsIgnoreCase(other.getSettingName()) && this.getPropertyName().equalsIgnoreCase(other.getPropertyName());
+    public int getValue() { return value; }
+    public XMockPropSettingBase setValue(Integer value) {
+        if(value != null) this.value = value;
+        return this;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return propertyName;
+        return name + "::" + user + "::" + packageName + "::" + value;
     }
 }

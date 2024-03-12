@@ -7,7 +7,7 @@ import eu.faircode.xlua.utilities.RandomStringGenerator;
 public class RandomIMEI implements IRandomizer {
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("imei");
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("imei") || setting.equalsIgnoreCase("unique.gsm.imei");
     }
 
     @Override

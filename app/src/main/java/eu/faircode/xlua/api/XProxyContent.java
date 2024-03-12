@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import eu.faircode.xlua.XSecurity;
+import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 
 public class XProxyContent {
     private static final String TAG = "XLua.XProxyContent";
@@ -23,12 +24,15 @@ public class XProxyContent {
     public static Cursor mockQuery(Context context, String method) { return mockQuery(context, method, null, null); }
     public static Cursor mockQuery(Context context, String method, String[] args_selection) { return mockQuery(context, method, args_selection, null); }
     public static Cursor mockQuery(Context context, String method, String[] args_selection, String selection) { return invokeQuery(context, "mock", method, args_selection, selection); }
-
-
+    public static Cursor mockQuery(Context context, String method, SqlQuerySnake query) { return invokeQuery(context, "mock", method, query); }
 
     public static Cursor luaQuery(Context context, String method) { return luaQuery(context, method, null, null); }
     public static Cursor luaQuery(Context context, String method, String[] args_selection) { return luaQuery(context, method, args_selection, null); }
     public static Cursor luaQuery(Context context, String method, String[] args_selection, String selection) { return invokeQuery(context, "xlua", method, args_selection, selection); }
+    public static Cursor luaQuery(Context context, String method, SqlQuerySnake query) { return invokeQuery(context, "xlua", method, query); }
+
+
+    public static Cursor invokeQuery(Context context, String handler, String method, SqlQuerySnake query) { return invokeQuery(context, handler, method, query.getSelectionCompareValues(), query.getSelectionArgs()); }
 
     public static Cursor invokeQuery(Context context,String handler, String method) { return invokeQuery(context, handler, method, null, null); }
     public static Cursor invokeQuery(Context context,String handler, String method, String[] args_selection) { return invokeQuery(context, handler, method, args_selection, null); }

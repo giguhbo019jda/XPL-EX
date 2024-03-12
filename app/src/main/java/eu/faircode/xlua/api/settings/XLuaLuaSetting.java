@@ -20,6 +20,7 @@ import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 import eu.faircode.xlua.api.standard.interfaces.ISerial;
 import eu.faircode.xlua.utilities.CursorUtil;
+import eu.faircode.xlua.utilities.StringUtil;
 
 public class XLuaLuaSetting extends XLuaSettingBase implements ISerial, IDBSerial, IJsonSerial, Parcelable {
     public static XLuaLuaSetting create(Integer user, String category, String name, String value) { return new XLuaSettingPacket(user, category, name, value); }
@@ -29,8 +30,11 @@ public class XLuaLuaSetting extends XLuaSettingBase implements ISerial, IDBSeria
     public XLuaLuaSetting(Integer user, String category, String name) { super(user, category, name, null); }
     public XLuaLuaSetting(Integer user, String category, String name, String value) { super(user, category, name, value); }
 
+    public boolean isDeleteAction() { return !StringUtil.isValidString(value); }
+
     @Override
     public Bundle toBundle() {
+        Log.w("XLua.XLuaLuaSetting", " toBundle (putSetting) s=" + toString());
         Bundle b = new Bundle();
         if(user != null) b.putInt("user", user);
         if(category != null) b.putString("category", category);
@@ -48,6 +52,8 @@ public class XLuaLuaSetting extends XLuaSettingBase implements ISerial, IDBSeria
             category = b.getString("category");
             name = b.getString("name");
             value = b.getString("value");
+
+            Log.w("XLua.XLuaLuaSetting", " fromBundle [putSetting] s=" + toString());
 
             //if(b.containsKey("kill")) kill = b.getBoolean("kill");
         }
@@ -68,10 +74,10 @@ public class XLuaLuaSetting extends XLuaSettingBase implements ISerial, IDBSeria
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.user);
-        dest.writeString(this.category);
-        dest.writeString(this.name);
-        dest.writeString(this.value);
+        if(this.user != null) dest.writeInt(this.user);
+        if(this.category != null) dest.writeString(this.category);
+        if(this.name != null) dest.writeString(this.name);
+        if(this.value != null) dest.writeString(this.value);
     }
 
     @Override
@@ -161,6 +167,18 @@ public class XLuaLuaSetting extends XLuaSettingBase implements ISerial, IDBSeria
 
         return sb.toString();
     }
+
+    public static boolean isValid(XLuaLuaSetting setting) {
+        if(setting == null)
+            return false;
+        if(setting.user == null)
+            setting.user = 0;
+        if(!StringUtil.isValidString(setting.category))
+            setting.category = "Global";
+
+        return StringUtil.isValidString(setting.name);
+    }
+
 
     public static class Table {
         public static final String name = "setting";

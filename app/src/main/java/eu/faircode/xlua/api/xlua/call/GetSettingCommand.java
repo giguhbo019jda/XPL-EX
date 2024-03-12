@@ -6,6 +6,8 @@ import android.util.Log;
 
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.api.XProxyContent;
+import eu.faircode.xlua.api.settingsex.LuaSettingPacket;
+import eu.faircode.xlua.api.settingsex.LuaSettingsDatabase;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
 import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
@@ -23,35 +25,30 @@ public class GetSettingCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
-        XLuaSettingPacket packet = commandData.read(XLuaSettingPacket.class);
+        LuaSettingPacket packet = commandData.read(LuaSettingPacket.class);
 
         if(BuildConfig.DEBUG)
             Log.i("XLua.GetSettingCommand", "handler packet=" + packet);
 
-        if(packet.getValue() != null && packet.getValue().equals("*")) {
-            return XLuaSettingsDatabase.getSetting(
+        if(packet.isGetObject()) {
+            return LuaSettingsDatabase.getSetting(
                     commandData.getDatabase(),
+                    packet.getName(),
                     packet.getUser(),
-                    packet.getCategory(),
-                    packet.getName()).toBundle();
-        } else {
-            return BundleUtil.
-                    createSingleString("value",
-                            XLuaSettingsDatabase.getSettingValue(
-                                    commandData.getDatabase(),
-                                    packet.getUser(),
-                                    packet.getCategory(),
-                                    packet.getName()));
+                    packet.getCategory()).toBundle();
+        }else {
+            return BundleUtil.createSingleString("value",
+                    LuaSettingsDatabase.getSettingValueEx(
+                            commandData.getContext(),
+                            commandData.getDatabase(),
+                            packet.getName(),
+                            packet.getUser(),
+                            packet.getCategory(),
+                            packet.isEnsureGetValue()));
         }
     }
 
-    public static Bundle invoke(Context context, Integer userId, String category, String name) { return invoke(context, userId, category, name, null); }
-    public static Bundle invoke(Context context, Integer userId, String category, String name, String value) {
-        XLuaSettingPacket packet = new XLuaSettingPacket(userId, category, name, value);
-        return invoke(context, packet);
-    }
-
-    public static Bundle invoke(Context context, XLuaSettingPacket packet) {
+    public static Bundle invoke(Context context, LuaSettingPacket packet) {
         return XProxyContent.luaCall(
                         context,
                         "getSetting",

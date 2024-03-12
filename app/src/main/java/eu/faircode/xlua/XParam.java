@@ -561,8 +561,28 @@ public class XParam {
     }
 
     @SuppressWarnings("unused")
+    public String getSettingReMap(String name, String oldName) {
+        return getSettingReMap(name, oldName, null);
+    }
+
+    @SuppressWarnings("unused")
+    public String getSettingReMap(String name, String oldName, String defaultValue) {
+        String setting = getSetting(name);
+        if(setting == null && StringUtil.isValidString(oldName)) {
+            Log.w(TAG, "setting[" + name + "] was null trying old setting name [" + oldName + "]");
+            setting = getSetting(oldName);
+        }
+
+        if(setting == null)
+            return defaultValue;
+        else
+            return setting;
+    }
+
+    @SuppressWarnings("unused")
     public String getSetting(String name, String defaultValue) {
         String setting = getSetting(name);
+        //Shouldt we ingore if its a empty string :P what if the spoof value is empty
         return StringUtil.isValidString(setting) ? setting : defaultValue;
     }
 

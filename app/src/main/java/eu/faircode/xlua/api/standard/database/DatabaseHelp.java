@@ -3,19 +3,24 @@ package eu.faircode.xlua.api.standard.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteQuery;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
+import eu.faircode.xlua.api.settingsex.LuaSettingDefault;
 import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 import eu.faircode.xlua.api.standard.JsonHelper;
 import eu.faircode.xlua.utilities.CollectionUtil;
+import eu.faircode.xlua.utilities.StringUtil;
 
 public class DatabaseHelp {
     private static final String TAG = "XLua.DatabaseHelper";
@@ -35,6 +40,24 @@ public class DatabaseHelp {
 
 
     public static final int DB_FORCE_CHECK = -8;
+    public static final int DB_FORCE_SKIP_CHECK = -18;
+
+    public static boolean prepareDatabase(XDatabase db, String tableName, LinkedHashMap<String, String> columns) {
+        if(XDatabase.isReady(db))
+            return false;
+
+        if(!db.hasTable(tableName)) {
+            if(!db.hasTable(tableName)) {
+                warning(tableName, db, TAG_prepareTable, "Table is missing: " + tableName);
+                if(!db.createTable(columns, tableName)) {
+                    error(tableName, db, TAG_prepareTable, ERROR_TABLE);
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     public static boolean deleteItem(
             SqlQuerySnake query) {
@@ -323,6 +346,11 @@ public class DatabaseHelp {
             }
         }
 
+        if(itemCheckCount == DB_FORCE_SKIP_CHECK) {
+            info(tableName, db, TAG_prepareTable, "Its Ready to Go!");
+            return true;
+        }
+
         if(jsonName == null || (itemCheckCount < 1 && itemCheckCount != DB_FORCE_CHECK)) {
             //Check if Table Exist if the given data to check if NULL or below (1) assuming not (-8)
             return db.hasTable(tableName);
@@ -412,6 +440,7 @@ public class DatabaseHelp {
             return items;
         }
 
+        //Write lock and Read lock ?
         db.readLock();
 
         try {
@@ -428,7 +457,7 @@ public class DatabaseHelp {
                     List<ContentValues> listContent = item.createContentValuesList();
                     if(listContent != null) {
                         for(ContentValues c : listContent) {
-                            if(!db.insert(tableName, c)) {
+                            if(!db.insert(tableName, ensureProperContentValues(c, columns))) {
                                 error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
                                 continue;
                             }
@@ -445,27 +474,20 @@ public class DatabaseHelp {
 
                 if(itemCheckCount == DB_FORCE_CHECK) {
                     info(tableName, db, TAG_initDatabase, "Forcing Database Check on Generic Items");
-                    //Collection<TAs> genericItems = new ArrayList<>();
-
                     List<TAs> existingPropsCopy = new ArrayList<>(items);
                     int totalSize = 0;
                     int found = 0;
 
-                    for(TJSONFrom item : JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), jsonName, stopOnFirstJson, typeClassFrom
-                    )) {
+                    for(TJSONFrom item : JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), jsonName, stopOnFirstJson, typeClassFrom)) {
                         List<ContentValues> jItemCvList = item.createContentValuesList();
+                        if(!CollectionUtil.isValid(jItemCvList))
+                            continue;
+
                         totalSize += jItemCvList.size();
 
-                        //So now check the values of this specific group from the JSON file
-                        //Check each value exists on the property list
-                        //If so remove then restart check next property
-
-                        //hmm note we treat force flag differently , we dont need to look or if we do we look for everything attempt to insert missing no promises
-                        //Logs will display the size dif so dev check logs
-                        //how about we remove the gro
                         for(ContentValues cv : jItemCvList) {
                             TAs tCopy = typeClassAs.newInstance();
-                            tCopy.fromContentValues(cv);
+                            tCopy.fromContentValues(ensureProperContentValues(cv, columns));
 
                             boolean foundOrCreated = false;
                             for(int i = existingPropsCopy.size() - 1; i >= 0; i--) {
@@ -479,7 +501,7 @@ public class DatabaseHelp {
 
                             if (!foundOrCreated) {
                                 warning(tableName, db, TAG_initDatabase, "Missing Table Item=" + item);
-                                if(!db.insert(tableName, cv)) {
+                                if(!db.insert(tableName, ensureProperContentValues(cv, columns))) {
                                     error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
                                     continue;
                                 }
@@ -510,7 +532,15 @@ public class DatabaseHelp {
         }
 
     }
-    public static  <T extends IJsonSerial> Collection<T> initDatabase(
+
+    public static  <T extends IJsonSerial> Collection<T> getOrInitTable(
+            Context context,
+            XDatabase db,
+            String tableName,
+            Map<String, String> columns,
+            Class<T> typeClass) { return getOrInitTable(context, db, tableName, columns, null, false, typeClass, 0); }
+
+    public static  <T extends IJsonSerial> Collection<T> getOrInitTable(
             Context context,
             XDatabase db,
             String tableName,
@@ -539,12 +569,13 @@ public class DatabaseHelp {
             return items;
         }
 
-        Log.i(TAG, "Database is read=" + db + " table=" + tableName);
+        Log.i(TAG, "Database is ready=" + db + " table=" + tableName);
         if(!db.beginTransaction(true)) {
             error(tableName, db, TAG_initDatabase, ERROR_TRANSACTION);
             return items;
         }
 
+        boolean hasJsonLinked = StringUtil.isValidString(jsonName);
         db.readLock();
 
         try {
@@ -556,85 +587,89 @@ public class DatabaseHelp {
                     return items;
                 }
 
-                for(T item : JsonHelper.findJsonElementsFromAssets(
-                        XUtil.getApk(context),
-                        jsonName,
-                        stopOnFirstJson,
-                        typeClass
-                )) {
-                    if(!db.insert(tableName, item.createContentValues())) {
-                        error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
-                        continue;
-                    }
-
-                    items.add(item);
-                }
-            }else {
-                items = getFromDatabase(db, tableName, typeClass);
-                info(tableName, db, TAG_initDatabase, "itemCheckCount=" + itemCheckCount + " size=" + items.size());
-                if(itemCheckCount == DB_FORCE_CHECK) {
-                    //check if json not null
-                    info(tableName, db, TAG_initDatabase, "Forcing Database Check on Generic Items");
-                    Collection<T> genericItems = new ArrayList<>();
-
-                    for(T item : JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), jsonName,
-                            stopOnFirstJson,
-                            typeClass
-                    )) {
-                        boolean found = false;
-                        for(T dItem : items) {
-                            if(dItem.equals(item)) {
-                                found = true;
-                                genericItems.add(dItem);
-                                break;
-                            }
-                        }
-
-                        if(!found) {
-                            warning(tableName, db, TAG_initDatabase, "Missing Table Item=" + item);
-                            if(!db.insert(tableName, item.createContentValues())) {
-                                error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
-                                continue;
-                            }
-
-                            genericItems.add(item);
-                        }
-                    }
-
-                    db.setTransactionSuccessful();
-                    return genericItems;
-                }
-                else if(itemCheckCount > 0 && items.size() < itemCheckCount) {
-                    error(tableName, db, TAG_initDatabase, "Size is off, table size=" + items.size() + " hardcoded size=" + itemCheckCount);
-
-                    Collection<T> newItems = new ArrayList<>();
-
+                if(hasJsonLinked) {
                     for(T item : JsonHelper.findJsonElementsFromAssets(
                             XUtil.getApk(context),
                             jsonName,
                             stopOnFirstJson,
                             typeClass
                     )) {
-                        boolean found = false;
-                        for(T dItem : items) {
-                            if(dItem.equals(item)) {
-                                found = true;
-                                break;
-                            }
+                        if(!db.insert(tableName, ensureProperContentValues(item.createContentValues(), columns))) {
+                            error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
+                            continue;
                         }
 
-                        if(!found) {
-                            warning(tableName, db, TAG_initDatabase, "Missing Table Item=" + item);
-                            if(!db.insert(tableName, item.createContentValues())) {
-                                error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
-                                continue;
-                            }
-
-                            newItems.add(item);
-                        }
+                        items.add(item);
                     }
+                }
+            }else {
+                items = getFromDatabase(db, tableName, typeClass);
+                info(tableName, db, TAG_initDatabase, "itemCheckCount=" + itemCheckCount + " size=" + items.size());
+                if(hasJsonLinked) {
+                    if(itemCheckCount == DB_FORCE_CHECK) {
+                        //check if json not null
+                        info(tableName, db, TAG_initDatabase, "Forcing Database Check on Generic Items");
+                        Collection<T> genericItems = new ArrayList<>();
 
-                    items.addAll(newItems);
+                        for(T item : JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), jsonName,
+                                stopOnFirstJson,
+                                typeClass
+                        )) {
+                            boolean found = false;
+                            for(T dItem : items) {
+                                if(dItem.equals(item)) {
+                                    found = true;
+                                    genericItems.add(dItem);
+                                    break;
+                                }
+                            }
+
+                            if(!found) {
+                                warning(tableName, db, TAG_initDatabase, "Missing Table Item=" + item);
+                                if(!db.insert(tableName, ensureProperContentValues(item.createContentValues(), columns))) {
+                                    error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
+                                    continue;
+                                }
+
+                                genericItems.add(item);
+                            }
+                        }
+
+                        db.setTransactionSuccessful();
+                        return genericItems;
+                    }
+                    else if(itemCheckCount > 0 && items.size() < itemCheckCount) {
+                        error(tableName, db, TAG_initDatabase, "Size is off, table size=" + items.size() + " hardcoded size=" + itemCheckCount);
+
+                        Collection<T> newItems = new ArrayList<>();
+
+                        for(T item : JsonHelper.findJsonElementsFromAssets(
+                                XUtil.getApk(context),
+                                jsonName,
+                                stopOnFirstJson,
+                                typeClass
+                        )) {
+                            boolean found = false;
+                            for(T dItem : items) {
+                                if(dItem.equals(item)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if(!found) {
+                                warning(tableName, db, TAG_initDatabase, "Missing Table Item=" + item);
+                                if(!db.insert(tableName, ensureProperContentValues(item.createContentValues(), columns))) {
+                                    error(tableName, db, TAG_initDatabase, ERROR_INSERT + " item=" + item);
+                                    continue;
+                                }
+
+                                newItems.add(item);
+                            }
+                        }
+
+                        items.addAll(newItems);
+                    }
                 }
             }
 
@@ -642,7 +677,6 @@ public class DatabaseHelp {
                 error(tableName, db, TAG_initDatabase, "Returning EMPTY List from Database Entries!");
             else
                 info(tableName, db, TAG_initDatabase, "Finished Loading Database Items Count=" + items.size());
-
 
             db.setTransactionSuccessful();
             return items;
@@ -654,6 +688,15 @@ public class DatabaseHelp {
             db.endTransaction(true, false);
             db.readUnlock();
         }
+    }
+
+    public static ContentValues ensureProperContentValues(ContentValues cv, Map<String, String> columns) {
+        ContentValues copy = new ContentValues(cv);
+        for(String ck : cv.keySet())
+            if(!columns.containsKey(ck))
+                copy.remove(ck);
+
+        return copy;
     }
 
     public static <T extends IDBSerial> Collection<T> getFromDatabase(
@@ -707,7 +750,11 @@ public class DatabaseHelp {
 
     private static void doLog(StringBuilder sb, String tableName, XDatabase db, String methodName, String message) {
         sb.append("Database=");
-        sb.append(db);
+        sb.append(db.getPath());
+        sb.append("::");
+        sb.append(db.getName());
+
+
         sb.append(" table=");
         sb.append(tableName);
         if (methodName != null) {

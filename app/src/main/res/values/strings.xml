@@ -53,7 +53,31 @@
     <string name="menu_show_rev" translatable="false">Reverse Engineering</string>
     <string name="menu_show_byp" translatable="false">Bypass/Hide</string>
 
-    <string name="menu_props" translatable="false">Prop Values 2.2</string>
+    title_hook_script
+    <string name="title_hook_script" translatable="false">Lua script</string>
+    <string name="title_hook_collection" translatable="false">Collection</string>
+    <string name="title_hook_group" translatable="false">Group</string>
+    <string name="title_hook_name" translatable="false">Name</string>
+    <string name="title_hook_author" translatable="false">Author</string>
+    <string name="title_hook_version" translatable="false">Version</string>
+    <string name="title_hook_description" translatable="false">Description</string>
+    <string name="title_hook_enabled" translatable="false">Enabled</string>
+    <string name="title_hook_optional" translatable="false">Optional</string>
+    <string name="title_hook_usage" translatable="false">Usage</string>
+    <string name="title_hook_notify" translatable="false">Notify</string>
+    <string name="title_hook_class" translatable="false">Class</string>
+    <string name="title_hook_method" translatable="false">Method</string>
+    <string name="title_hook_params" translatable="false">Parameter types</string>
+    <string name="title_hook_return" translatable="false">Return type</string>
+    <string name="title_hook_minsdk" translatable="false">Min. SDK</string>
+    <string name="title_hook_maxsdk" translatable="false">Max. SDK</string>
+    <string name="title_hook_minapk" translatable="false">Min. APK</string>
+    <string name="title_hook_maxapk" translatable="false">Max. APK</string>
+    <string name="title_hook_exclude" translatable="false">Exclude packages</string>
+    <string name="title_hook_settings" translatable="false">Settings</string>
+
+    <string name="menu_props" translatable="false">Prop Values 2.8</string>
+    <string name="menu_settings" translatable="false">Setting Values</string>
     <string name="menu_configs" translatable="false">Config Editor</string>
     <string name="menu_dark" translatable="false">Dark Mode</string>
     <string name="menu_debug_logs" translatable="false">Debug Logs</string>

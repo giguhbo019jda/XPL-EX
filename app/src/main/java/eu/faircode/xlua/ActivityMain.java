@@ -237,6 +237,22 @@ public class ActivityMain extends ActivityBase {
             }
         }));
 
+        drawerArray.add(new DrawerItem(this, R.string.menu_debug_logs, isVerbose, new DrawerItem.IListener() {
+            @Override
+            public void onClick(DrawerItem item) {
+                setDebugState(item.isCheckable());
+                drawerArray.notifyDataSetChanged();//do we need this ?
+                //Hmm do note this is local context to the NON ROOT Hook on Settings :P
+                //Context may differ ?
+                //Hmm for now ignore it, the UI components at least can use this check
+                //We CAN send through the packet Debug Flag ?
+                //If different from last then replace else continue executing the Hook
+                //Actually we do need to make this a setting for the DATABASE since it will reset after restart
+                //Also default should be on (incase startup fails)
+            }
+        }));
+
+
         drawerArray.add(new DrawerItem(this, R.string.menu_props, new DrawerItem.IListener() {
             @Override
             public void onClick(DrawerItem item) {
@@ -259,18 +275,10 @@ public class ActivityMain extends ActivityBase {
             }
         }));
 
-        drawerArray.add(new DrawerItem(this, R.string.menu_debug_logs, isVerbose, new DrawerItem.IListener() {
+        drawerArray.add(new DrawerItem(this, R.string.menu_settings, new DrawerItem.IListener() {
             @Override
             public void onClick(DrawerItem item) {
-                setDebugState(item.isCheckable());
-                drawerArray.notifyDataSetChanged();//do we need this ?
-                //Hmm do note this is local context to the NON ROOT Hook on Settings :P
-                //Context may differ ?
-                //Hmm for now ignore it, the UI components at least can use this check
-                //We CAN send through the packet Debug Flag ?
-                //If different from last then replace else continue executing the Hook
-                //Actually we do need to make this a setting for the DATABASE since it will reset after restart
-                //Also default should be on (incase startup fails)
+                menuSettings();
             }
         }));
 
@@ -456,6 +464,12 @@ public class ActivityMain extends ActivityBase {
     private void menuDBs() { startActivity(new Intent(this, ActivityDatabase.class)); }
     private void menuCPU() { startActivity(new Intent(this, ActivityCpu.class)); }
     private void menuConfig() { startActivity(new Intent(this, ActivityConfig.class)); }
+    private void menuSettings() {
+        Intent settingIntent = new Intent(this, ActivitySettings.class);
+        settingIntent.putExtra("packageName", "Global");
+        startActivity(settingIntent);
+        //startActivity(new Intent(this, ActivitySettings.class));
+    }
 
 
     public void updateMenu(Menu menu) {

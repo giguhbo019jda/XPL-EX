@@ -39,7 +39,7 @@ public class GetAssignedHooksCommand extends QueryCommandHandler {
         String packageName = selection[0];
         int uid = Integer.parseInt(selection[1]);
 
-        List<String> collection = XLuaHookProvider.getCollections(db, XUtil.getUserId(uid));
+        List<String> collection = XLuaHookProvider.getCollections(commandData.getContext(), db, XUtil.getUserId(uid));
         SqlQuerySnake snake = SqlQuerySnake
                 .create(db, XLuaAssignment.Table.name)
                 .whereColumn("package", packageName)

@@ -20,14 +20,16 @@ import eu.faircode.xlua.AdapterConfig;
 import eu.faircode.xlua.api.config.XMockConfigSetting;
 import eu.faircode.xlua.api.config.XMockConfigConversions;
 import eu.faircode.xlua.api.config.XMockConfig;
+import eu.faircode.xlua.api.configs.MockConfig;
+import eu.faircode.xlua.api.settingsex.LuaSettingEx;
 
 public class FileDialogUtil {
     private static final String TAG = "XLua.FileDialogUtil";
 
-    public static XMockConfig readPhoneConfig(Context context, Uri selectedFileUri) {
+    public static MockConfig readPhoneConfig(Context context, Uri selectedFileUri) {
         String contents = readAllFile(context, selectedFileUri);
         try {
-            XMockConfig config = new XMockConfig();
+            MockConfig config = new MockConfig();
             config.fromJSONObject(new JSONObject(contents));
             return config;
         }catch (JSONException ex) {
@@ -35,6 +37,7 @@ public class FileDialogUtil {
             return null;
         }
     }
+
 
     public static String readAllFile(Context context, Uri selectedFileUri) {
         StringBuilder sb = new StringBuilder();
@@ -61,13 +64,13 @@ public class FileDialogUtil {
             DocumentFile newFile = pickedDir.createFile("application/json", fName + ".json");
             if (newFile != null) {
                 try (OutputStream out = context.getContentResolver().openOutputStream(newFile.getUri())) {
-                    List<XMockConfigSetting> settings = config.getEnabledSettings();
+                    List<LuaSettingEx> settings = config.getEnabledSettings();
                     if(settings == null || settings.isEmpty())
                         throw new IOException("Settings is Empty");
 
-                    XMockConfig mockConfig = new XMockConfig();
+                    MockConfig mockConfig = new MockConfig();
                     mockConfig.setName(fName);
-                    mockConfig.setSettings(XMockConfigConversions.listToHashMapSettings(settings, false));
+                    mockConfig.setSettings(settings);
 
                     byte[] bys = mockConfig.toJSON().getBytes();;
                     assert out != null;

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import eu.faircode.xlua.api.XProxyContent;
+import eu.faircode.xlua.api.configs.MockConfigDatabase;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
 import eu.faircode.xlua.api.xmock.database.XMockConfigDatabase;
@@ -24,7 +25,7 @@ public class GetMockConfigsCommand extends QueryCommandHandler {
     public Cursor handle(QueryPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
         return CursorUtil.toMatrixCursor(
-                XMockConfigDatabase.getMockConfigs(
+                MockConfigDatabase.getMockConfigs(
                         commandData.getContext(),
                         commandData.getDatabase()),
                 marshall, 0);

@@ -5,8 +5,11 @@ import android.os.Parcel;
 
 import androidx.annotation.NonNull;
 
+import eu.faircode.xlua.utilities.BundleUtil;
+
 public class XLuaSettingPacket extends XLuaLuaSetting {
     protected Boolean kill;
+    protected Boolean useDefaultOrGlobal;
 
     public XLuaSettingPacket() { }
     public XLuaSettingPacket(Bundle b) { fromBundle(b); }
@@ -29,6 +32,7 @@ public class XLuaSettingPacket extends XLuaLuaSetting {
     public Bundle toBundle() {
         Bundle b = super.toBundle();
         if(kill != null) b.putBoolean("kill", kill);
+        if(useDefaultOrGlobal != null) b.putBoolean("useDefaultOrGlobal", useDefaultOrGlobal);
         return b;
     }
 
@@ -37,7 +41,13 @@ public class XLuaSettingPacket extends XLuaLuaSetting {
         super.fromBundle(b);
         if(b != null) {
             if(b.containsKey("kill")) kill = b.getBoolean("kill");
+            kill = BundleUtil.readBoolean(b, "kill", false);
+            useDefaultOrGlobal = BundleUtil.readBoolean(b, "useDefaultOrGlobal", false);
         }
+    }
+
+    public void setAsDeletePacket() {
+        this.value = null;
     }
 
     @NonNull
@@ -47,6 +57,11 @@ public class XLuaSettingPacket extends XLuaLuaSetting {
         if(kill != null) {
             sb.append("\nkill=");
             sb.append(kill);
+        }
+
+        if(useDefaultOrGlobal != null) {
+            sb.append(" useDefaultOrGlobal=");
+            sb.append(useDefaultOrGlobal);
         }
 
         return sb.toString();

@@ -46,7 +46,7 @@ public class XLuaHookDatabase {
                 .whereColumn("id", id));
     }
 
-    public static boolean assignHooks(Context context, List<String> hookIds, String packageName, int uid, boolean delete, boolean kill, XDatabase db) throws Throwable {
+    public static boolean assignHooks(Context context, List<String> hookIds, String packageName, int uid, boolean delete, boolean kill, XDatabase db) {
         //Assign Hook(s) to a App (package name, uid)
         List<String> groups = new ArrayList<>();
         XLuaAssignmentDataHelper assignmentData = new XLuaAssignmentDataHelper(packageName, uid);

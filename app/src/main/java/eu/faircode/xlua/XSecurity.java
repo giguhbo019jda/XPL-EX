@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Process;
 import android.provider.Settings;
-import android.system.Os;
 import android.util.Log;
 
 import java.io.File;
@@ -15,7 +14,7 @@ import java.io.FileDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import eu.faircode.xlua.rootbox.xReflectUtils;
+import eu.faircode.xlua.rootbox.XReflectUtils;
 
 public class XSecurity {
     public static final String TAG = "XLua.XSecurity";
@@ -42,7 +41,7 @@ public class XSecurity {
             if(classExistsAndFunction(defSys, "getFileSystem")) {
                 try {
                     Log.i(TAG, "Getting [getFileSystem]");
-                    Method dSys = xReflectUtils.getMethodFor(defSys, "getFileSystem");
+                    Method dSys = XReflectUtils.getMethodFor(defSys, "getFileSystem");
                     Log.i(TAG, "Got method [getFileSystem]");
 
                     Log.i(TAG, "Invoking [getFileSystem]");
@@ -62,7 +61,7 @@ public class XSecurity {
             }
         }else {
             Log.i(TAG, "Getting 'fs' field in 'java.io.File");
-            Field fsField = xReflectUtils.getFieldFor(Field.class, "fs", true);
+            Field fsField = XReflectUtils.getFieldFor(Field.class, "fs", true);
             if(fsField == null) {
                 Log.e(TAG, "Failed to get 'fs' field for 'java.io.File'");
             }else {

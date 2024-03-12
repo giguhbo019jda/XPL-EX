@@ -329,6 +329,19 @@ public class XDatabase {
         }
     }
 
+    public static boolean isReady(XDatabase database, String tableName) {
+        boolean p1 = isReady(database);
+        if(!p1)
+            return false;
+
+        if(!database.hasTable(tableName)) {
+            Log.e(TAG, "null Database Table Does not exist, table=" + tableName + " db=" + database);
+            return false;
+        }
+
+        return true;
+    }
+
     public static boolean isReady(XDatabase database) {
         if(database == null) {
             Log.e(TAG, "null Database entry cannot check if [isReady] if Database object is null...");
@@ -357,7 +370,7 @@ public class XDatabase {
         for(Map.Entry<String, String> r : colms.entrySet()) {
             String l = r.getKey() + " " + r.getValue();
             mid.append(l);
-            if(i == 1) mid.append(" PRIMARY KEY");
+            //if(i == 1) mid.append(" PRIMARY KEY");
             if(sz != i)  mid.append(",");
             i++;
         }

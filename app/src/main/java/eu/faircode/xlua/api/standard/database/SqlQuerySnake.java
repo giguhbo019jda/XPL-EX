@@ -20,12 +20,18 @@ public class SqlQuerySnake extends SqlQueryBuilder {
 
     public static SqlQuerySnake create() { return new SqlQuerySnake();}
     public static SqlQuerySnake create(String tableName) { return new SqlQuerySnake(null, tableName); }
+    //public static SqlQuerySnake create(XDatabase db, String tableName)
     public static SqlQuerySnake create(XDatabase db, String tableName) {
         return new SqlQuerySnake(db, tableName);
     }
 
     public SqlQuerySnake() { super(); }
     public SqlQuerySnake(XDatabase db, String tableName) { super(db, tableName); }
+
+    public SqlQuerySnake setDatabase(XDatabase db) {
+        this.db = db;
+        return this;
+    }
 
     public SqlQuerySnake setSymbol(String symbol, String compareValue) {
         setSymbol(symbol, compareValue);
@@ -97,6 +103,11 @@ public class SqlQuerySnake extends SqlQueryBuilder {
         return onlyReturn;
     }
 
+    public SqlQuerySnake ensureDatabaseIsReady() {
+        canCompile = XDatabase.isReady(db);
+        return this;
+    }
+
     public boolean threwError() { return error != null; }
     public Exception getError() { return error; }
 
@@ -157,8 +168,59 @@ public class SqlQuerySnake extends SqlQueryBuilder {
         }
     }
 
-    public long queryGetFirstLong(String columnReturn, boolean cleanUpAfter) {
-        if(!canCompile) return 0;
+    public String queryGetFirstString(String columnReturn, boolean cleanUpAfter) { return queryGetFirstString(columnReturn, null, cleanUpAfter); }
+    public String queryGetFirstString(String columnReturn, String defaultValue, boolean cleanUpAfter) {
+        if(!canCompile) return defaultValue;
+        canCompile = false;
+
+        prepareReturn(columnReturn);
+        db.readLock();
+        Cursor c = query();
+        try {
+            if(c != null) {
+                if (c.moveToFirst())
+                    return c.getString(0);
+            }
+        }catch (Exception e) {
+            error = e;
+            Log.e(TAG, "Failed to query Cursor as String! From DB [" + db + "] from Table [" + tableName + "]\n" + e + "\n" + Log.getStackTraceString(e));
+        }finally {
+            db.readUnlock();
+            if(cleanUpAfter)
+                clean(c);
+        }
+
+        return defaultValue;
+    }
+
+    public int queryGetFirstInt(String columnReturn, boolean cleanUpAfter) { return queryGetFirstInt(columnReturn, 0, cleanUpAfter); }
+    public int queryGetFirstInt(String columnReturn, int defaultValue, boolean cleanUpAfter) {
+        if(!canCompile) return defaultValue;
+        canCompile = false;
+
+        prepareReturn(columnReturn);
+        db.readLock();
+        Cursor c = query();
+        try {
+            if(c != null) {
+                if (c.moveToFirst())
+                    return c.getInt(0);
+            }
+        }catch (Exception e) {
+            error = e;
+            Log.e(TAG, "Failed to query Cursor as Int! From DB [" + db + "] from Table [" + tableName + "]\n" + e + "\n" + Log.getStackTraceString(e));
+        }finally {
+            db.readUnlock();
+            if(cleanUpAfter)
+                clean(c);
+        }
+
+        return defaultValue;
+    }
+
+    public long queryGetFirstLong(String columnReturn, boolean cleanUpAfter) { return queryGetFirstLong(columnReturn, 0, cleanUpAfter); }
+    public long queryGetFirstLong(String columnReturn,long defaultValue, boolean cleanUpAfter) {
+        if(!canCompile) return defaultValue;
         canCompile = false;
 
         prepareReturn(columnReturn);
@@ -178,7 +240,7 @@ public class SqlQuerySnake extends SqlQueryBuilder {
                 clean(c);
         }
 
-        return 0;
+        return defaultValue;
     }
 
     public <T extends IDBSerial> T queryGetFirstAs(Class<T> typeClass, boolean cleanUpAfter) {
@@ -216,7 +278,7 @@ public class SqlQuerySnake extends SqlQueryBuilder {
 
     public <T extends IDBSerial> Collection<T> queryAs(Class<T> typeClass) { return queryAs(typeClass, false); }
     public <T extends IDBSerial> Collection<T> queryAs(Class<T> typeClass, boolean cleanUpAfter) {
-        if(!canCompile) return null;
+        if(!canCompile) return new ArrayList<>();
         canCompile = false;
 
         db.readLock();

@@ -7,7 +7,7 @@ import eu.faircode.xlua.utilities.RandomStringGenerator;
 public class RandomAndroidID implements IRandomizer {
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName());
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("unique.android.id");
     }
 
     @Override

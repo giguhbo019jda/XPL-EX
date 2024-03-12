@@ -16,7 +16,7 @@ import eu.faircode.xlua.api.xmock.provider.XMockPropertiesProvider;
 import eu.faircode.xlua.utilities.CursorUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 
-public class GetMockPropGroupsCommand extends QueryCommandHandler {
+/*public class GetMockPropGroupsCommand extends QueryCommandHandler {
     public static GetMockPropGroupsCommand create(boolean marshall) { return new GetMockPropGroupsCommand(marshall); };
 
     private boolean marshall;
@@ -58,4 +58,4 @@ public class GetMockPropGroupsCommand extends QueryCommandHandler {
                 context,
                 marshall ? "getMockPropGroups2" : "getMockPropGroups", snake.getSelectionCompareValues(), snake.getSelectionArgs());
     }
-}
+}*/

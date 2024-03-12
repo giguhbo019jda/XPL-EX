@@ -22,7 +22,7 @@ public class GetGroupsCommand extends CallCommandHandler {
         return BundleUtil.
                 createFromStringArray(
                         "groups",
-                        XGlobalCore.getGroups(commandData.getDatabase()));
+                        XGlobalCore.getGroups(commandData.getContext(), commandData.getDatabase()));
     }
 
     public static Bundle invoke(Context context) {

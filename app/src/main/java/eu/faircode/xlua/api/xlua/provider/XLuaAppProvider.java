@@ -19,6 +19,7 @@ import java.util.Map;
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobalCore;
+import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.settings.XLuaLuaSetting;
 
 import eu.faircode.xlua.XUtil;
@@ -28,10 +29,10 @@ import eu.faircode.xlua.api.hook.assignment.XLuaAssignmentWriter;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.api.app.XLuaApp;
 import eu.faircode.xlua.api.hook.XLuaHook;
+import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 
 public class XLuaAppProvider {
     private static final String TAG = "XLua.XAppProvider";
-
     public static int getVersion(Context context) throws Throwable {
         if (XposedUtil.isVirtualXposed()) {
             PackageInfo pi = context.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0);
@@ -40,21 +41,36 @@ public class XLuaAppProvider {
             return -55;
     }
 
-    public static void forceStop(Context context, String packageName, int userid) throws Throwable {
+    public static boolean forceStop(Context context, String packageName, int userid) { return forceStop(context, packageName, userid, null); }
+    public static boolean forceStop(Context context, String packageName, int userid, XResult res) {
+        if(packageName.equalsIgnoreCase(XLuaSettingsDatabase.GLOBAL_NAMESPACE)) {
+            XResult.logError(TAG, res, "Cannot Kill Global or UID: " + userid + " pgk=" + packageName);
+            return false;
+        }
+
         Log.i(TAG, "forceStop on package=" + packageName + " userid=" + userid);
-        // Access activity manager as system user
-        long identity = Binder.clearCallingIdentity();
         try {
-            // public void forceStopPackageAsUser(String packageName, int userId)
-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            Method mForceStop = am.getClass().getMethod("forceStopPackageAsUser", String.class, int.class);
-            mForceStop.invoke(am, packageName, userid);
-        } finally {
-            Binder.restoreCallingIdentity(identity);
+            // Access activity manager as system user
+            long identity = Binder.clearCallingIdentity();
+            try {
+                // public void forceStopPackageAsUser(String packageName, int userId)
+                ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                Method mForceStop = am.getClass().getMethod("forceStopPackageAsUser", String.class, int.class);
+                mForceStop.invoke(am, packageName, userid);
+                return true;
+            } catch (Exception e) {
+                XResult.logError(TAG, res, "Failed to kill user [forceStopPackageAsUser] user=" + userid + "pkg=" + packageName + " er=" + e);
+                return false;
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }catch (Exception e) {
+            XResult.logError(TAG, res, "Failed to kill [forceStopPackageAsUser] user=" + userid + "pkg=" + packageName + " er=" + e);
+            return false;
         }
     }
 
-    public static Map<String, XLuaApp> getApps(Context context, int userId, XDatabase db, boolean initForceToStop, boolean initSettings) {
+    public static Map<String, XLuaApp> getApps(Context context, XDatabase db, int userId, boolean initForceToStop, boolean initSettings) {
         Map<String, XLuaApp> apps = new HashMap<>();
 
         long identity = Binder.clearCallingIdentity();
@@ -101,7 +117,7 @@ public class XLuaAppProvider {
             initAppForceToStop(apps, db, userId);
 
         if(initSettings)
-            initAppDatabaseSettings(apps, db, userId);
+            initAppDatabaseSettings(context, db, apps, userId);
             //initAppDatabaseSettings(context, apps, db, userId);
 
         return apps;
@@ -141,7 +157,7 @@ public class XLuaAppProvider {
         }
     }
 
-    private static void initAppDatabaseSettings(Map<String, XLuaApp> apps, XDatabase db, int userid) {
+    private static void initAppDatabaseSettings(Context context, XDatabase db, Map<String, XLuaApp> apps, int userid) {
         int start = XUtil.getUserUid(userid, 0);
         int end = XUtil.getUserUid(userid, Process.LAST_APPLICATION_UID);
         SqlQuerySnake snake = SqlQuerySnake
@@ -150,7 +166,7 @@ public class XLuaAppProvider {
                 .whereColumn("uid", start, ">=")
                 .whereColumn("uid", end, "<=");
 
-        List<String> collections = XLuaHookProvider.getCollections(db, userid);
+        List<String> collections = XLuaHookProvider.getCollections(context, db, userid);
 
         db.readLock();
         Cursor c = snake.query();

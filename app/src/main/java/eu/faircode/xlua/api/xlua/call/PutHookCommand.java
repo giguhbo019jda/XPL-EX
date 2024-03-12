@@ -24,9 +24,9 @@ public class PutHookCommand extends CallCommandHandler {
         return BundleUtil.createResultStatus(
                 XLuaHookProvider.putHook(
                     commandData.getContext(),
+                    commandData.getDatabase(),
                     packet.getId(),
-                    packet.getDefinition(),
-                    commandData.getDatabase()));
+                    packet.getDefinition()));
     }
 
     public static Bundle invoke(Context context, String id, String definition) {

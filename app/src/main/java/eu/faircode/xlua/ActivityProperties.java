@@ -27,6 +27,12 @@ public class ActivityProperties extends ActivityBase {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentProps = new FragmentProperties();
 
+        // Create a bundle to pass data
+        String packageName = getIntent().getStringExtra("packageName");
+        Bundle args = new Bundle();
+        args.putString("packageName", packageName);  // Add the packageName to the bundle
+        fragmentProps.setArguments(args);  // Set the arguments to the fragment
+
         fragmentTransaction.replace(R.id.content_frame_properties, fragmentProps);
         fragmentTransaction.commit();
     }

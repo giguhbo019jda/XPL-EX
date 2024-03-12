@@ -6,7 +6,7 @@ import android.os.Bundle;
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
-import eu.faircode.xlua.api.cpu.XMockCpuConversions;
+import eu.faircode.xlua.api.cpu.MockCpuConversions;
 import eu.faircode.xlua.api.xmock.database.XMockCpuDatabase;
 
 public class GetMockCpusCommand extends CallCommandHandler {
@@ -20,7 +20,7 @@ public class GetMockCpusCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
-        return XMockCpuConversions.toBundleArray(
+        return MockCpuConversions.toBundleArray(
                 XMockCpuDatabase.getCpuMaps(
                         commandData.getContext(),
                         commandData.getDatabase()));

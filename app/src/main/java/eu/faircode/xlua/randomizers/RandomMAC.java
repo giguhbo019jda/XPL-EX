@@ -9,7 +9,8 @@ public class RandomMAC implements IRandomizer {
     public boolean isSetting(String setting) {
         return setting.equalsIgnoreCase(getSettingName()) ||
                 setting.equalsIgnoreCase("bluetooth.id") ||
-                setting.equalsIgnoreCase("net.bssid");
+                setting.equalsIgnoreCase("net.bssid") ||
+                setting.equalsIgnoreCase("unique.network.mac.address");
     }
 
     @Override

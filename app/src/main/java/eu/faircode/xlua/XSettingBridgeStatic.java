@@ -30,11 +30,13 @@ import eu.faircode.xlua.api.xlua.query.GetLogCommand;
 import eu.faircode.xlua.api.xlua.query.GetSettingsCommand;
 import eu.faircode.xlua.api.xmock.call.GetMockCpusCommand;
 import eu.faircode.xlua.api.xmock.call.GetMockPropValueCommand;
+import eu.faircode.xlua.api.xmock.call.KillAppCommand;
 import eu.faircode.xlua.api.xmock.call.PutGroupStateCommand;
 import eu.faircode.xlua.api.xmock.call.PutMockConfigCommand;
 import eu.faircode.xlua.api.xmock.call.PutMockCpuCommand;
 import eu.faircode.xlua.api.xmock.query.GetMockConfigsCommand;
-import eu.faircode.xlua.api.xmock.query.GetMockPropGroupsCommand;
+import eu.faircode.xlua.api.xmock.query.GetMockPropertiesCommand;
+import eu.faircode.xlua.api.xmock.query.GetMockSettingsCommand;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class XSettingBridgeStatic {
@@ -106,6 +108,11 @@ public class XSettingBridgeStatic {
         hs.put("getAssignedHooks", GetAssignedHooksCommand.create(false));
         hs.put("getAssignedHooks2", GetAssignedHooksCommand.create(true));
         hs.put("getLog", GetLogCommand.create());
+
+        hs.put("getMockSettings", GetMockSettingsCommand.create(false));
+        hs.put("getMockSettings2", GetMockSettingsCommand.create(true));
+
+
         return hs;
     }
 
@@ -113,8 +120,11 @@ public class XSettingBridgeStatic {
         HashMap<String, QueryCommandHandler> hs = new HashMap<>();
         hs.put("getMockConfigs", GetMockConfigsCommand.create(false));
         hs.put("getMockConfigs2", GetMockConfigsCommand.create(true));
-        hs.put("getMockPropGroups", GetMockPropGroupsCommand.create(false));
-        hs.put("getMockPropGroups2", GetMockPropGroupsCommand.create(true));
+
+        hs.put("getModifiedProperties", GetMockPropertiesCommand.create(false));
+        hs.put("getModifiedProperties2", GetMockPropertiesCommand.create(true));
+        //hs.put("getMockPropGroups", GetMockPropGroupsCommand.create(false));
+        //hs.put("getMockPropGroups2", GetMockPropGroupsCommand.create(true));
         return hs;
     }
 
@@ -130,6 +140,9 @@ public class XSettingBridgeStatic {
         hs.put("initApp", InitAppCommand.create());
         hs.put("clearApp", ClearAppCommand.create());
         hs.put("clearData", ClearDataCommand.create());
+
+        //hs.put("putSettings", PutSettingsCommand.create());
+
         return hs;
     }
 
@@ -144,6 +157,7 @@ public class XSettingBridgeStatic {
         //hs.put("getMockProps", GetMockPropsCommand.create());
         //hs.put("putMockProp", PutMockPropCommand.create());
         //hs.put("putMockProps", PutMockPropsCommand.create());
+        hs.put("killApp", KillAppCommand.create());
 
         hs.put("putMockConfig", PutMockConfigCommand.create());
         return hs;

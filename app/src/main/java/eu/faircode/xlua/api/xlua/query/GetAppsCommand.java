@@ -31,8 +31,8 @@ public class GetAppsCommand extends QueryCommandHandler {
         Map<String, XLuaApp> apps =
                 XLuaAppProvider.getApps(
                         commandData.getContext(),
-                        XUtil.getUserId(Binder.getCallingUid()),
                         commandData.getDatabase(),
+                        XUtil.getUserId(Binder.getCallingUid()),
                         true,
                         true);
         return CursorUtil.toMatrixCursor(

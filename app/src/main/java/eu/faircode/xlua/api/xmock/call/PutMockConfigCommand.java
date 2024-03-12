@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 import eu.faircode.xlua.api.XProxyContent;
+import eu.faircode.xlua.api.configs.MockConfig;
+import eu.faircode.xlua.api.configs.MockConfigDatabase;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
 import eu.faircode.xlua.api.config.XMockConfig;
@@ -20,15 +22,15 @@ public class PutMockConfigCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
-        XMockConfig config = commandData.read(XMockConfig.class);
+        MockConfig config = commandData.read(MockConfig.class);
         return BundleUtil.createResultStatus(
-                XMockConfigDatabase.putMockConfig(
+                MockConfigDatabase.putMockConfig(
                         commandData.getContext(),
                         config,
                         commandData.getDatabase()));
     }
 
-    public static Bundle invoke(Context context, XMockConfig packet) {
+    public static Bundle invoke(Context context, MockConfig packet) {
         return XProxyContent.mockCall(
                 context,
                 "putMockConfig",

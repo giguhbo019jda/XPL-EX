@@ -248,6 +248,8 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         final Map<String, String> settings = XLuaQuery.getGlobalSettings(context, uid);
         settings.putAll(XLuaQuery.getSettings(context, lpparam.packageName, uid));
 
+
+
         Log.i(TAG,"pkg [" + lpparam.packageName + "] settings=" + settings.size());
 
         Map<LuaScriptHolder, Prototype> scriptPrototype = new HashMap<>();

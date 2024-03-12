@@ -25,7 +25,7 @@ public class GetHooksCommand extends QueryCommandHandler {
         String[] selection = commandData.getSelection();
         boolean all = (selection != null && selection.length == 1 && "all".equals(selection[0]));
         return CursorUtil.toMatrixCursor(
-                XGlobalCore.getHooks(commandData.getDatabase(), all),
+                XGlobalCore.getHooks(commandData.getContext(), commandData.getDatabase(), all),
                 marshall,
                 XLuaHook.FLAG_WITH_LUA);
     }

@@ -7,10 +7,11 @@ import android.util.Log;
 import java.util.Collection;
 
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.api.cpu.XMockCpu;
-import eu.faircode.xlua.api.cpu.XMockCpuConversions;
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.cpu.MockCpu;
+import eu.faircode.xlua.api.cpu.MockCpuConversions;
 import eu.faircode.xlua.api.props.XMockProp;
-import eu.faircode.xlua.api.props.XMockPropSetting;
+import eu.faircode.xlua.api.props.XMockPropMapped;
 import eu.faircode.xlua.api.xmock.call.GetMockCpuCommand;
 import eu.faircode.xlua.api.xmock.call.GetMockCpusCommand;
 import eu.faircode.xlua.api.xmock.call.GetMockPropValueCommand;
@@ -37,23 +38,31 @@ public class XMockCall {
         return new XMockProp(bundle).getValue();
     }
 
-    public static Collection<XMockCpu> getCpuMaps(Context context) {
-        return XMockCpuConversions.fromBundleArray(
+    public static Collection<MockCpu> getCpuMaps(Context context) {
+        return MockCpuConversions.fromBundleArray(
                 GetMockCpusCommand.invoke(context));
     }
 
-    public static XMockCpu getSelectedMockCpu(Context context) {
-        return XMockCpuConversions.fromBundle(
+    public static MockCpu getSelectedMockCpu(Context context) {
+        return MockCpuConversions.fromBundle(
                 GetMockCpuCommand.invoke(context));
     }
 
-    public static boolean putMockCpu(Context context, XMockCpu mockCpu) {
-        return BundleUtil.readResultStatus(
-                PutMockCpuCommand.invoke(context, mockCpu));
+    public static XResult putMockCpu(Context context, MockCpu mockCpu) {
+        return XResult.from(PutMockCpuCommand.invoke(context, mockCpu));
+    }
+
+    //public static XResult setPropGroupState
+
+    public static XResult setGroupState(Context context, String packageName, String settingName, boolean enabled) {
+        //[prop maps] (property) => (setting)
+        //[prop sets] (property) => (hide/skip)
+        //Resolve prop setting, check if hidden or skip
+        return XResult.create();
     }
 
     public static boolean setPropGroupState(Context context, String settingName, boolean enabled) {
-        XMockPropSetting setting = new XMockPropSetting("global", settingName, enabled);
+        XMockPropMapped setting = new XMockPropMapped("global", settingName, enabled);
         return BundleUtil.readResultStatus(
                 PutGroupStateCommand.invoke(context, setting));
     }

@@ -12,7 +12,7 @@ public class RandomAdID implements IRandomizer {
 
     @Override
     public boolean isSetting(String setting) {
-        return setting.equalsIgnoreCase(getSettingName());
+        return setting.equalsIgnoreCase(getSettingName()) || setting.equalsIgnoreCase("unique.google.advertising.id");
     }
 
     @Override

@@ -143,8 +143,8 @@ public class BundleUtil {
         return bundle.getString(keyName, defaultValue);
     }
 
-    public static int readInt(Bundle bundle, String keyName) { return readInt(bundle, keyName, -5); }
-    public static int readInt(Bundle bundle, String keyName, int defaultValue) {
+    public static int readInteger(Bundle bundle, String keyName) { return readInteger(bundle, keyName, -5); }
+    public static int readInteger(Bundle bundle, String keyName, int defaultValue) {
         if(bundle == null) return defaultValue;
         if(!bundle.containsKey(keyName))
             return defaultValue;

@@ -42,23 +42,23 @@ public class XMockGroupConversions {
         return ps;
     }
 
-    public static List<XMockPropSetting> stringListToPropsList(ArrayList<String> props, String settingName, boolean isEnabled) {
-        List<XMockPropSetting> pSettings = new ArrayList<>();
+    public static List<XMockPropMapped> stringListToPropsList(ArrayList<String> props, String settingName, boolean isEnabled) {
+        List<XMockPropMapped> pSettings = new ArrayList<>();
         for(String s : props)
-            pSettings.add(new XMockPropSetting(s, settingName, isEnabled));
+            pSettings.add(new XMockPropMapped(s, settingName, isEnabled));
 
         return pSettings;
     }
 
-    public static ArrayList<String> propsListToStringList(Collection<XMockPropSetting> settings) {
+    public static ArrayList<String> propsListToStringList(Collection<XMockPropMapped> settings) {
         ArrayList<String> props = new ArrayList<>();
-        for(XMockPropSetting pSetting : settings)
+        for(XMockPropMapped pSetting : settings)
             props.add(pSetting.getPropertyName());
 
         return props;
     }
 
-    public static ArrayList<XMockPropSetting> getPropertiesFromJSON(JSONObject rootObject) {
+    public static ArrayList<XMockPropMapped> getPropertiesFromJSON(JSONObject rootObject) {
         try {
             String settingName = rootObject.getString("settingName");
             boolean isEnabled = JSONUtil.getBoolean(rootObject, "enabled", true);
@@ -70,11 +70,11 @@ public class XMockGroupConversions {
         return new ArrayList<>();
     }
 
-    public static ArrayList<XMockPropSetting> getPropertiesFromJSONArray(JSONArray jsonArray, String settingName, boolean enabled) {
-        ArrayList<XMockPropSetting> props = new ArrayList<>();
+    public static ArrayList<XMockPropMapped> getPropertiesFromJSONArray(JSONArray jsonArray, String settingName, boolean enabled) {
+        ArrayList<XMockPropMapped> props = new ArrayList<>();
         try {
             for(int i = 0; i < jsonArray.length(); i++)
-                props.add(new XMockPropSetting(jsonArray.getString(i), settingName));
+                props.add(new XMockPropMapped(jsonArray.getString(i), settingName));
 
             if(DebugUtil.isDebug())
                 Log.i(TAG, "[getPropertiesFromJSONArray] size=" + props.size());

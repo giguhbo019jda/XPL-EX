@@ -9,127 +9,92 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.cpu.XMockCpu;
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.cpu.MockCpu;
 import eu.faircode.xlua.api.xmock.database.XMockCpuDatabase;
-import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 
 public class XMockCpuProvider {
     private static final boolean makeSureOneSelected = false;
 
-    private static final List<XMockCpu> selectedMapObjects = new ArrayList<>();
-    private static final List<String> allMapNames = new ArrayList<>();
+    private static List<MockCpu> selectedMapsCache = new ArrayList<>();
+    private static List<String> mapNamesCache = new ArrayList<>();
 
     private static final Object lock = new Object();
 
     private static final String TAG = "XLua.XMockCpuApi";
 
-    public static boolean putCpuMap(XDatabase db, String cpuMapName, boolean selected) {
+    public static XResult putMockCpuMap(XDatabase db, String cpuName, boolean selected) {
+        XResult res = XResult.create().setMethodName("putMockCpuMap");
         synchronized (lock) {
             if(selected) {
-                if(selectedMapObjects.size() > 0) {
-                    if(makeSureOneSelected) {
-                        for(XMockCpu map : selectedMapObjects)
-                            map.setSelected(false);
-
-                        if(!XMockCpuDatabase.putCpuMaps(db, selectedMapObjects))
-                            return false;
-
-                        selectedMapObjects.clear();
-                        //we can work with content values like
-                        //createContentValues(QuerySnake)
-                        //  if(snake.onlyFields.contains(fieldName))
-                    }
-                }
-
-                XMockCpu map = XMockCpuDatabase.getMap(db, cpuMapName, true);
+                MockCpu map = XMockCpuDatabase.getMap(db, cpuName, true);
                 map.setSelected(true);
                 if(!XMockCpuDatabase.insertCpuMap(db, map))
-                    return false;
+                    return res.setFailed("Failed to set CPU map=[" + cpuName + "]");
 
-                selectedMapObjects.add(map);
-                return true;
+                selectedMapsCache.add(map);
             }else {
-                for(int i = 0; i < selectedMapObjects.size(); i++) {
-                    XMockCpu map = selectedMapObjects.get(i);
-                    if(map.getName().equals(cpuMapName)) {
+                for(int i = 0; i < selectedMapsCache.size(); i++) {
+                    MockCpu map = selectedMapsCache.get(i);
+                    if(map.getName().equalsIgnoreCase(cpuName)) {
                         map.setSelected(false);
                         if(!XMockCpuDatabase.insertCpuMap(db, map))
-                            return false;
+                            return res.setFailed("Failed to set CPU map=[" + cpuName + "]");
 
-                        selectedMapObjects.remove(map);
-                        return true;
+                        selectedMapsCache.remove(map);
+                        return res.setSucceeded();
                     }
                 }
 
-                XMockCpu map = XMockCpuDatabase.getMap(db, cpuMapName, true);
+                //If not in cache
+                MockCpu map = XMockCpuDatabase.getMap(db, cpuName, true);
                 map.setSelected(false);
-                return XMockCpuDatabase.insertCpuMap(db, map);
+                if(!XMockCpuDatabase.insertCpuMap(db, map))
+                    return res.setFailed("Failed to set CPU map out of cache=[" + cpuName + "]");
+
             }
+            return res.setSucceeded();
         }
     }
 
-    public static XMockCpu getSelectedCpuMap(Context context, XDatabase db) {
-        //synchronized (lock) {
-
-        //}
-        if (makeSureOneSelected && selectedMapObjects.size() > 0)
-            return selectedMapObjects.get(0);
-        else if (!makeSureOneSelected && selectedMapObjects.size() > 0) {
-            if (selectedMapObjects.size() == 1)
-                return selectedMapObjects.get(0);
-
-            return selectedMapObjects.get(ThreadLocalRandom.current().nextInt(0, selectedMapObjects.size()));
-        }
-
-        //Check cache first
-        if (allMapNames.size() == 0) {
+    public static MockCpu getSelectedCpuMap(Context context, XDatabase db) {
+        if(mapNamesCache.isEmpty()) {
             initCache(context, db);
-            if(allMapNames.isEmpty())
-                return XMockCpu.EMPTY_DEFAULT;
-
-        }else {
-            //Cache NOT empty but selected IS empty
-            //PS when cache is Init we make sure ONLY one is selected IF flag is SET
-            //So do not worry about the many that can be selected ?
-            //Sure , we can make it even better to constantly check but that can use a lot of resources so lets avoid ?
-            //Lets just leave it up to a 'update' function to 'update' cache
-
-            Log.i(TAG, "CPU Map is not selected Randomizing...");
-            String randomName = allMapNames.get(ThreadLocalRandom.current().nextInt(0, allMapNames.size()));
-            Log.i(TAG, "Random CPU Map Selected, name=" + randomName);
-            return XMockCpuDatabase.getMap(db, randomName, true);
+            if(mapNamesCache.isEmpty())
+                return MockCpu.EMPTY_DEFAULT;
         }
 
-        return getSelectedCpuMap(context, db);
+        synchronized (lock) {
+            if(selectedMapsCache.size() == 1)
+                return selectedMapsCache.get(0);
+            else if(selectedMapsCache.size() > 1) {
+                return selectedMapsCache.get(ThreadLocalRandom.current().nextInt(0, selectedMapsCache.size()));
+            }
+        }
+
+        String name = mapNamesCache.get(ThreadLocalRandom.current().nextInt(0, mapNamesCache.size()));
+        Log.i(TAG, "cpu map size selected is (0) selecting a Random Map, map=[" + name + "]");
+        return XMockCpuDatabase.getMap(db, name, true);
     }
 
     public static void initCache(Context context, XDatabase db) {
-        selectedMapObjects.clear();
-        allMapNames.clear();
-        //Here is the bug
-        Collection<XMockCpu> localMaps = XMockCpuDatabase.getCpuMaps(context, db);
-        Collection<XMockCpu> reset = new ArrayList<>();
-        if (localMaps.size() < XMockCpuDatabase.COUNT)
-            return;
-            //return MockCpu.EMPTY_DEFAULT;//Failed to init cache for some reason
+        synchronized (lock) {
+            if(mapNamesCache.isEmpty()) {
+                List<MockCpu> selected = new ArrayList<>();
+                List<String> allMaps = new ArrayList<>();
 
-        for (XMockCpu map : localMaps) {
-            if (map.getSelected()) {
-                if (selectedMapObjects.size() == 1 && makeSureOneSelected) {
-                    map.setSelected(false);
-                    reset.add(map);
-                } else {
-                    selectedMapObjects.add(map);
+                Collection<MockCpu> localMaps = XMockCpuDatabase.getCpuMaps(context, db);
+
+                for(MockCpu map : localMaps) {
+                    allMaps.add(map.getName());
+                    if(map.isSelected()) {
+                        selected.add(map);
+                    }
                 }
+
+                selectedMapsCache = selected;
+                mapNamesCache = allMaps;
             }
-
-            allMapNames.add(map.getName());
-        }
-
-        if (!reset.isEmpty()) {
-            Log.i(TAG, "Too many 'selected' CPU Maps, resetting them.. size=" + reset.size());
-            if (!DatabaseHelp.insertItems(db, XMockCpuDatabase.TABLE_NAME , reset))
-                Log.e(TAG, "Failed to Reset CPU Maps Selected .....");
         }
     }
 }

@@ -1,6 +1,7 @@
 package eu.faircode.xlua.api.xlua;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -13,12 +14,27 @@ import java.util.Map;
 import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.hook.XLuaHook;
+import eu.faircode.xlua.api.settingsex.LuaSettingsDatabase;
+import eu.faircode.xlua.api.xmock.database.XMockConfigDatabase;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
 
 public class XLuaUpdater {
     private static final String  TAG = "XLua.XLuaUpdater";
 
-    public static void checkForUpdate(XDatabase db) throws Throwable {
+
+    private static boolean check_1 = false;
+    public static void initDatabase(Context context, XDatabase db) {
+        if(!check_1)
+            check_1 = LuaSettingsDatabase.forceDatabaseCheck(context, db);
+
+        checkForUpdate(db);
+    }
+
+    public static void reset() {
+        check_1 = false;
+    }
+
+    public static void checkForUpdate(XDatabase db) {
         if(db == null || !db.isOpen(true)) {
             DatabasePathUtil.log("Failed to checkFor Update for Database", false);
             return;
