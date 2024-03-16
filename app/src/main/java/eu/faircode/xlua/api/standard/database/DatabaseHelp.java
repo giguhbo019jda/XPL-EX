@@ -40,16 +40,14 @@ public class DatabaseHelp {
     public static final int DB_FORCE_SKIP_CHECK = -18;
 
     public static boolean prepareDatabase(XDatabase db, String tableName, LinkedHashMap<String, String> columns) {
-        if(XDatabase.isReady(db))
+        if(!XDatabase.isReady(db))
             return false;
 
         if(!db.hasTable(tableName)) {
-            if(!db.hasTable(tableName)) {
-                warning(tableName, db, TAG_prepareTable, "Table is missing: " + tableName);
-                if(!db.createTable(columns, tableName)) {
-                    error(tableName, db, TAG_prepareTable, ERROR_TABLE);
-                    return false;
-                }
+            warning(tableName, db, TAG_prepareTable, "Table is missing: " + tableName);
+            if(!db.createTable(columns, tableName)) {
+                error(tableName, db, TAG_prepareTable, ERROR_TABLE);
+                return false;
             }
         }
 

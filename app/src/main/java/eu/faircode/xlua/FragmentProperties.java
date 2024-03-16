@@ -260,6 +260,8 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
                 data.theme = XLuaCall.getTheme(getContext());
 
 
+                Log.i(TAG, "Loading properties with application=" + application);
+
                 Collection<MockPropSetting> props = XMockQuery.getAllProperties(getContext(), application);
                 Collection<LuaSettingExtended> settings = new ArrayList<>(XMockQuery.getAllSettings(getContext(), true, application.getUid(), application.getPackageName()));
 

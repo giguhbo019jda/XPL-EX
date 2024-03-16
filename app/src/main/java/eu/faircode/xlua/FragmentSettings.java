@@ -182,6 +182,7 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
                 //have ability to go back and resume where we were last
                 //Save this instance jump there go back here if needed
                 Intent propsIntent = new Intent(v.getContext(), ActivityProperties.class);
+                Log.i(TAG, "opening props with package=" + application);
                 propsIntent.putExtra("packageName", application.getPackageName());
                 v.getContext().startActivity(propsIntent);
                 break;

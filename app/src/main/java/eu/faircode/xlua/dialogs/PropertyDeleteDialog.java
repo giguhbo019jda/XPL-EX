@@ -46,13 +46,18 @@ public class PropertyDeleteDialog extends AppCompatDialogFragment {
                 }).setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+                        //setting.isNullOrEmptyCode()
+
                         MockPropPacket packet = MockPropPacket.create(
                                 application.getUid(),
                                 application.getPackageName(),
                                 setting.getName(),
                                 setting.getSettingName(),
                                 null,
-                                MockPropPacket.CODE_DELETE_PROP_SETTING);
+                                MockPropPacket.CODE_DELETE_PROP_MAP_AND_SETTING);
+
+                        //CODE_DELETE_PROP_SETTING
 
                         Log.i(TAG, "Finishing Packet Build=" + packet);
                         listener.pushMockPropPacket(packet);

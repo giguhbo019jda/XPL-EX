@@ -138,6 +138,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
             LinearLayoutManager llm = new LinearLayoutManager(itemView.getContext());
             llm.setAutoMeasureEnabled(true);
             rvGroupProps.setLayoutManager(llm);
+            Log.i(TAG, "Creating the Adapter for property: application" + application);
             adapterProps = new AdapterProperty(fragmentManager, application);
             rvGroupProps.setAdapter(adapterProps);
         }
@@ -270,6 +271,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
 
     AdapterPropertiesGroup() { setHasStableIds(true); }
     AdapterPropertiesGroup(FragmentManager manager, AppGeneric application) {
+        Log.i(TAG, "Adapter Created application=" + application);
         setHasStableIds(true);
         this.fragmentManager = manager;
         this.application = application;

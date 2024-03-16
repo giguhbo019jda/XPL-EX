@@ -26,8 +26,7 @@ public class PutMockPropCommand extends CallCommandHandler {
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
         MockPropPacket packet = commandData.read(MockPropPacket.class);
-        if(packet == null)
-            return XResult.create().setMethodName("putMockProp").setFailed("Mock Prop packet is NULL").toBundle();
+        if(packet == null) return XResult.fromInvalidPacket(name, MockPropPacket.class).toBundle();
 
         packet.resolveUserID();
         packet.ensureCode(UserIdentityPacket.CODE_NULL_EMPTY);
@@ -40,6 +39,10 @@ public class PutMockPropCommand extends CallCommandHandler {
             case  MockPropPacket.CODE_DELETE_PROP_SETTING:
             case MockPropPacket.CODE_INSERT_UPDATE_PROP_SETTING:
                 return MockPropDatabase.putPropertySetting(commandData.getDatabase(), packet).toBundle();
+            case MockPropPacket.CODE_DELETE_PROP_MAP_AND_SETTING:
+                XResult res1 = MockPropProvider.putMockPropMap(commandData.getContext(), commandData.getDatabase(), packet);
+                XResult res2 =  MockPropDatabase.putPropertySetting(commandData.getDatabase(), packet);
+                return XResult.combine(res1, res2).toBundle();
         }
 
         return XResult.create().setMethodName("putMockProp")

@@ -147,7 +147,7 @@ public class MockPropSetting extends MockPropMap implements IJsonSerial, IDBQuer
     @Override
     public SqlQuerySnake createQuery(XDatabase db) {
         ensureIdentification();
-        return SqlQuerySnake.create(db, MockPropMap.Table.name)
+        return SqlQuerySnake.create(db, MockPropSetting.Table.name)
                 .whereColumn("user", this.user)
                 .whereColumn("category", this.category)
                 .whereColumn("name", this.name);

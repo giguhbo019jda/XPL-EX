@@ -20,6 +20,7 @@ public class MockPropPacket extends MockPropSetting {
     public static final int CODE_INSERT_UPDATE_PROP_MAP_AND_SETTING = 0x6;
     public static final int CODE_GET_ALL = 0x7;
     public static final int CODE_GET_MODIFIED = 0x8;
+    public static final int CODE_DELETE_PROP_MAP_AND_SETTING = 0x9;
 
     public static MockPropPacket create() { return new MockPropPacket(); }
     public static MockPropPacket create(MockPropSetting setting) { return create(setting, null); }
@@ -55,8 +56,8 @@ public class MockPropPacket extends MockPropSetting {
         setCode(code);
     }
 
-    public boolean isDeleteMap() { return isCodes(CODE_DELETE_PROP_MAP, CODE_DELETE_PROP_SETTING_AND_MAP); }
-    public boolean isDeleteSetting() { return isCodes(CODE_DELETE_PROP_SETTING, CODE_DELETE_PROP_SETTING_AND_MAP); }
+    public boolean isDeleteMap() { return isCodes(CODE_DELETE_PROP_MAP, CODE_DELETE_PROP_SETTING_AND_MAP, CODE_DELETE_PROP_MAP_AND_SETTING); }
+    public boolean isDeleteSetting() { return isCodes(CODE_DELETE_PROP_SETTING, CODE_DELETE_PROP_SETTING_AND_MAP, CODE_DELETE_PROP_MAP_AND_SETTING); }
     public boolean isGetAll() { return isCode(CODE_GET_ALL); }
     public boolean isGetModified() { return isCode(CODE_GET_MODIFIED); }
 

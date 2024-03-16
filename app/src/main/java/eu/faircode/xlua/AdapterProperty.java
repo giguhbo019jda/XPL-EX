@@ -1,6 +1,9 @@
 package eu.faircode.xlua;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -16,6 +19,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -31,8 +35,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.properties.MockPropPacket;
 import eu.faircode.xlua.api.properties.MockPropSetting;
 
+import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.api.xmock.XMockCall;
 import eu.faircode.xlua.dialogs.PropertyDeleteDialog;
 import eu.faircode.xlua.dialogs.SettingAddDialog;
 import eu.faircode.xlua.randomizers.GlobalRandoms;
@@ -48,6 +56,8 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
     private CharSequence query = null;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Object lock = new Object();
+
     private FragmentManager fragmentManager;
     private AppGeneric application;
 
@@ -91,7 +101,53 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
         @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
         @Override
         public void onCheckedChanged(final CompoundButton cButton, final boolean isChecked) {
+            final MockPropSetting setting = filtered.get(getAdapterPosition());
 
+            int valueNeeded = 0;
+            final int code = isChecked ? MockPropPacket.CODE_INSERT_UPDATE_PROP_SETTING : MockPropPacket.CODE_DELETE_PROP_SETTING;
+            //boolean hide = cbHide.isChecked();
+            //boolean skip = cbSkip.isChecked();
+
+            if(isChecked) {
+                switch (cButton.getId()) {
+                    case R.id.cbPropSkip: valueNeeded = MockPropPacket.PROP_SKIP; break;
+                    case R.id.cbPropHide: valueNeeded = MockPropPacket.PROP_HIDE; break;
+                    default: valueNeeded = MockPropPacket.PROP_NULL; break;
+                }
+            }
+
+            Log.i(TAG, "CheckBox Invoked code =" + code + " valueNeeded=" + valueNeeded + " application=" + application);
+
+            final MockPropPacket packet = MockPropPacket.create(application.getUid(), application.getPackageName(), setting.getName(), null, valueNeeded, code);
+            final Context context = cButton.getContext();
+
+            Log.i(TAG, "Packet Created for Property: packet=" + packet);
+
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (lock) {
+                        final XResult ret = XMockCall.putMockProp(context, packet);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @SuppressLint("NotifyDataSetChanged")
+                            @Override
+                            public void run() {
+                                if(ret.succeeded()) {
+                                    //cvSetting.setCardBackgroundColor(XUtil.resolveColor(context, R.attr.cardForegroundColor));
+                                    //modified.remove(setting);
+                                    setting.setValue(packet.getValue());
+                                }
+
+                                Toast.makeText(context, ret.getResultMessage(), Toast.LENGTH_SHORT).show();
+                                notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }
+            });
+
+
+            notifyDataSetChanged();
         }
 
         @SuppressLint("NonConstantResourceId")
@@ -119,6 +175,7 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
 
     AdapterProperty() { setHasStableIds(true); }
     AdapterProperty(FragmentManager manager, AppGeneric application) {
+        Log.i(TAG, "Within Adapter for Property , application=" + application);
         setHasStableIds(true);
         this.fragmentManager = manager;
         this.application = application;

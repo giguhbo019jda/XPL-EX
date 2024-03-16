@@ -221,7 +221,7 @@ public class UserIdentityPacket implements IJsonSerial, IUserPacket {
     @Override
     public Bundle toBundle() {
         Bundle b = new Bundle();
-        if(useUserIdentity) { writePacketHeaderBundle(b); } return b;
+        if(useUserIdentity) { writePacketUserBundle(b); } return b;
     }
 
     @Override

@@ -42,10 +42,13 @@ public class MockPropProvider {
 
     public static XResult putMockPropMap(Context context, XDatabase db, MockPropPacket packet) {
         initCache(context, db);
+        Log.i(TAG, "Before Mapped Properties=" + mappedProperties.size());
+
+
         XResult res = MockPropDatabase.putSettingMapForProperty(db, packet);
         if(res.succeeded() && !packet.isDeleteMap()) { synchronized (lock) { mappedProperties.put(packet.getName(), packet.createMap()); } }
         else if(res.succeeded()) { synchronized (lock) { mappedProperties.remove(packet.getName()); } }
-        Log.i(TAG, "mock prop map insert result=" + res.getMessage());
+        Log.i(TAG, "mock prop map insert result=" + res.getMessage() + " mapped properties after=" + mappedProperties.size());
         return res;
     }
 
