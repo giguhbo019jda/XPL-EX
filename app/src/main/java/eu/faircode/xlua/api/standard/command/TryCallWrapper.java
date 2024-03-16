@@ -12,24 +12,16 @@ import eu.faircode.xlua.api.standard.CallCommandHandler;
 public class TryCallWrapper implements Callable<Bundle> {
     private static final String TAG = "XLua.TryCallWrapper";
 
-    private CallPacket packet;
-    private String packageName;
-    private CallCommandHandler handle;
+    private final CallPacket packet;
+    private final CallCommandHandler handle;
 
     private boolean isRunning = false;
-    //private boolean hasException = false;
     private Throwable exception;
 
     public static TryCallWrapper create(CallPacket packet, CallCommandHandler handler) { return new TryCallWrapper(packet, handler); }
 
     public TryCallWrapper(CallPacket packet, CallCommandHandler handle) {
         this.packet = packet;
-        this.handle = handle;
-    }
-;
-    public TryCallWrapper(CallPacket packet, String packageName, CallCommandHandler handle) {
-        this.packet = packet;
-        this.packageName = packageName;
         this.handle = handle;
     }
 
@@ -41,7 +33,7 @@ public class TryCallWrapper implements Callable<Bundle> {
             return handle.handle(packet);
         }catch (Throwable e) {
             exception = e;
-            Log.e(TAG, "Call Error: \n" + e + "\n" + Log.getStackTraceString(e));
+            Log.e(TAG, "Call Error: packet=" + packet + " handler=" + handle.getName() + " \n" + e + "\n" + Log.getStackTraceString(e));
             XposedBridge.log("Call Error");
             return null;
         }finally {

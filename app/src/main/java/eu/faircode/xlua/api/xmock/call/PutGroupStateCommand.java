@@ -4,10 +4,9 @@ import android.content.Context;
 import android.os.Bundle;
 
 import eu.faircode.xlua.api.XProxyContent;
-import eu.faircode.xlua.api.props.XMockPropMapped;
+import eu.faircode.xlua.api.properties.MockPropMap;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
-import eu.faircode.xlua.api.xmock.provider.XMockPropertiesProvider;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class PutGroupStateCommand extends CallCommandHandler {
@@ -22,12 +21,14 @@ public class PutGroupStateCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
-        XMockPropMapped packet = commandData.read(XMockPropMapped.class);
+        /*MockPropMap packet = commandData.read(MockPropMap.class);
         return BundleUtil.createResultStatus(
-                XMockPropertiesProvider.setGroupState(commandData.getContext(), commandData.getDatabase(), packet));
+                XMockPropertiesProvider.setGroupState(commandData.getContext(), commandData.getDatabase(), packet));*/
+
+        return null;
     }
 
-    public static Bundle invoke(Context context, XMockPropMapped settingPacket) {
+    public static Bundle invoke(Context context, MockPropMap settingPacket) {
         return XProxyContent.mockCall(
                 context,
                 "putGroupState", settingPacket.toBundle());

@@ -18,6 +18,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,8 +32,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.api.properties.MockPropSetting;
-import eu.faircode.xlua.api.props.XMockPropGroup;
-import eu.faircode.xlua.api.settings.XMockMappedSetting;
+
+import eu.faircode.xlua.dialogs.PropertyDeleteDialog;
+import eu.faircode.xlua.dialogs.SettingAddDialog;
 import eu.faircode.xlua.randomizers.GlobalRandoms;
 import eu.faircode.xlua.randomizers.IRandomizer;
 
@@ -44,14 +48,19 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
     private CharSequence query = null;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private FragmentManager fragmentManager;
+    private AppGeneric application;
 
     public class ViewHolder extends RecyclerView.ViewHolder
-            implements CompoundButton.OnCheckedChangeListener {
+            implements CompoundButton.OnCheckedChangeListener, View.OnLongClickListener {
 
         final View itemView;
         final TextView tvPropName;
         final CheckBox cbHide;
         final CheckBox cbSkip;
+
+        final ConstraintLayout constraintLayout;
+        final CardView cardView;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -60,16 +69,23 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
             tvPropName = itemView.findViewById(R.id.tvPropPropertyName);
             cbHide = itemView.findViewById(R.id.cbPropHide);
             cbSkip = itemView.findViewById(R.id.cbPropSkip);
+
+            constraintLayout = itemView.findViewById(R.id.clPropertiesPropPropLayout);
+            cardView = itemView.findViewById(R.id.cvPropertyProp);
         }
 
         private void unWire() {
             cbHide.setOnCheckedChangeListener(null);
             cbSkip.setOnCheckedChangeListener(null);
+            constraintLayout.setOnLongClickListener(null);
+            cardView.setOnLongClickListener(null);
         }
 
         private void wire() {
             cbHide.setOnCheckedChangeListener(this);
             cbSkip.setOnCheckedChangeListener(this);
+            constraintLayout.setOnLongClickListener(this);
+            cardView.setOnLongClickListener(this);
         }
 
         @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
@@ -77,9 +93,36 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
         public void onCheckedChanged(final CompoundButton cButton, final boolean isChecked) {
 
         }
+
+        @SuppressLint("NonConstantResourceId")
+        @Override
+        public boolean onLongClick(View v) {
+            int code = v.getId();
+            Log.i(TAG, "onLongClick=" + code);
+
+            MockPropSetting setting = filtered.get(getAdapterPosition());
+
+            switch (code) {
+                case R.id.cvPropertyProp:
+                case R.id.clPropertiesPropPropLayout:
+                    PropertyDeleteDialog setDialog = new PropertyDeleteDialog();
+                    assert fragmentManager != null;
+                    setDialog.addApplication(application);
+                    setDialog.addSetting(setting);
+                    setDialog.show(fragmentManager, "Delete Property");
+                    break;
+            }
+
+            return false;
+        }
     }
 
     AdapterProperty() { setHasStableIds(true); }
+    AdapterProperty(FragmentManager manager, AppGeneric application) {
+        setHasStableIds(true);
+        this.fragmentManager = manager;
+        this.application = application;
+    }
 
     void set(List<MockPropSetting> properties) {
         this.dataChanged = true;
@@ -171,7 +214,6 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
             MockPropSetting s1 = prev.get(oldItemPosition);
             MockPropSetting s2 = next.get(newItemPosition);
-
             return s1.getName().equalsIgnoreCase(s2.getName());
         }
     }

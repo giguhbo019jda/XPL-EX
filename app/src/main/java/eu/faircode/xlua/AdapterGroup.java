@@ -44,7 +44,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.api.hook.XLuaHook;
 
 import eu.faircode.xlua.api.app.XLuaApp;
@@ -94,7 +94,7 @@ public class AdapterGroup extends RecyclerView.Adapter<AdapterGroup.ViewHolder> 
             switch (view.getId()) {
                 case R.id.ivException:
                     StringBuilder sb = new StringBuilder();
-                    for (XLuaAssignment assignment : app.getAssignments(group.name))
+                    for (LuaAssignment assignment : app.getAssignments(group.name))
                         if (assignment.getHook().getGroup().equals(group.name))
                             if (assignment.getException() != null) {
                                 sb.append("<b>");
@@ -162,7 +162,7 @@ public class AdapterGroup extends RecyclerView.Adapter<AdapterGroup.ViewHolder> 
         }
 
         for (String groupId : map.keySet()) {
-            for (XLuaAssignment assignment : app.getAssignments())
+            for (LuaAssignment assignment : app.getAssignments())
                 if (assignment.getHook().getGroup().equals(groupId)) {
                     Group group = map.get(groupId);
                     if (assignment.getException() != null)

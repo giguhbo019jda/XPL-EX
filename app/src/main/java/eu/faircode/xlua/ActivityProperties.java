@@ -1,21 +1,36 @@
 package eu.faircode.xlua;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-public class ActivityProperties extends ActivityBase {
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.properties.MockPropPacket;
+import eu.faircode.xlua.api.xmock.XMockCall;
+import eu.faircode.xlua.dialogs.IPropertyDialogListener;
+
+public class ActivityProperties extends ActivityBase implements IPropertyDialogListener {
     private static final String TAG = "XLua.ActivityProperties";
     private FragmentProperties fragmentProps;
     private Menu menu = null;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Object lock = new Object();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,5 +128,28 @@ public class ActivityProperties extends ActivityBase {
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
         //return false;
+    }
+
+    @Override
+    public void pushMockPropPacket(final MockPropPacket setting) {
+        final Context context = getApplicationContext();
+        Log.i(TAG, "Packet being sent to bridge =" + setting);
+
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    final XResult ret = XMockCall.putMockProp(context, setting);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @SuppressLint("NotifyDataSetChanged")
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, ret.getResultMessage(), Toast.LENGTH_SHORT).show();
+                            fragmentProps.loadData();
+                        }
+                    });
+                }
+            }
+        });
     }
 }

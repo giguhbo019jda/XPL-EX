@@ -26,18 +26,7 @@ public class GetMockCpuCommand extends CallCommandHandler {
                     XMockCpuProvider.getSelectedCpuMap(
                             commandData.getContext(),
                             commandData.getDatabase()), true);
-        }else {
-            /*return BundleUtil.createFromISerial(
-                    XMockCpuProvider.getSelectedCpuMap(
-                            commandData.getContext(),
-                            commandData.getDatabase()), true);
-
-            return BundleUtil.createFromISerial(
-                    XMockPropDatabase.getMockProp(
-                            commandData.getDatabase(),
-                            packet.getName()), true);*/
         }
-
         return null;
     }
 

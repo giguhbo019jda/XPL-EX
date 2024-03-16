@@ -88,9 +88,6 @@ public class XUtil {
     }
 
     public static int getUserId(int uid) {
-        if(uid < 1)
-            return 0;
-
         try {
             // public static final int getUserId(int uid)
             Method method = UserHandle.class.getDeclaredMethod("getUserId", int.class);
@@ -162,7 +159,7 @@ public class XUtil {
             PackageManager pm = context.getPackageManager();
             Resources resources = pm.getResourcesForApplication(BuildConfig.APPLICATION_ID);
             NotificationChannel channel = new NotificationChannel(
-                    XGlobalCore.cChannelName, resources.getString(R.string.channel_privacy), NotificationManager.IMPORTANCE_HIGH);
+                    XGlobals.cChannelName, resources.getString(R.string.channel_privacy), NotificationManager.IMPORTANCE_HIGH);
             /*NotificationChannel channel = new NotificationChannel(
                     XProvider.cChannelName, resources.getString(R.string.channel_privacy), NotificationManager.IMPORTANCE_HIGH);*/
             channel.setSound(null, Notification.AUDIO_ATTRIBUTES_DEFAULT);

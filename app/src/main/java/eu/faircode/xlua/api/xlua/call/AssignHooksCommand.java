@@ -6,10 +6,12 @@ import android.os.Bundle;
 import java.util.List;
 
 import eu.faircode.xlua.api.XProxyContent;
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.app.LuaSimplePacket;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
 import eu.faircode.xlua.api.xlua.database.XLuaHookDatabase;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignmentPacket;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class AssignHooksCommand extends CallCommandHandler {
@@ -22,35 +24,15 @@ public class AssignHooksCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
-        XLuaAssignmentPacket com = commandData.read(XLuaAssignmentPacket.class);
-        return BundleUtil.createResultStatus(XLuaHookDatabase.assignHooks(
+        LuaAssignmentPacket packet = commandData.read(LuaAssignmentPacket.class);
+        if(packet == null) return XResult.fromInvalidPacket(name, LuaSimplePacket.class).toBundle();
+        return XLuaHookDatabase.assignHooks(
                 commandData.getContext(),
-                com.hookIds,
-                com.packageName,
-                com.uid,
-                com.delete,
-                com.kill,
-                commandData.getDatabase()));
+                commandData.getDatabase(),
+                packet).toBundle();
     }
 
-    public static Bundle invoke(Context context, Bundle args) {
-        return XProxyContent.luaCall(
-                context,
-                "assignHooks",
-                args);
-    }
-
-    public static Bundle invoke(Context context, List<String> hookIds, String packageName, Integer uid, Boolean delete, Boolean kill) {
-        XLuaAssignmentPacket packet = new XLuaAssignmentPacket();
-        packet.hookIds = hookIds;
-        packet.packageName = packageName;
-        packet.uid = uid;
-        packet.delete = delete;
-        packet.kill = kill;
-        return invoke(context, packet);
-    }
-
-    public static Bundle invoke(Context context, XLuaAssignmentPacket packet) {
+    public static Bundle invoke(Context context, LuaAssignmentPacket packet) {
         return XProxyContent.luaCall(
                 context,
                 "assignHooks",

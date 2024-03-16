@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class TextDividerItemDecoration extends RecyclerView.ItemDecoration {
+    //Shitty expiremnt class for Dividers on RecyclerViews
     public enum TextVerticalAlignment {
         TOP, CENTER, BOTTOM
     }

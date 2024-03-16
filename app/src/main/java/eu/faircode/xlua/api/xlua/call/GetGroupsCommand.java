@@ -3,7 +3,7 @@ package eu.faircode.xlua.api.xlua.call;
 import android.content.Context;
 import android.os.Bundle;
 
-import eu.faircode.xlua.XGlobalCore;
+import eu.faircode.xlua.XGlobals;
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
@@ -22,7 +22,7 @@ public class GetGroupsCommand extends CallCommandHandler {
         return BundleUtil.
                 createFromStringArray(
                         "groups",
-                        XGlobalCore.getGroups(commandData.getContext(), commandData.getDatabase()));
+                        XGlobals.getGroups(commandData.getContext(), commandData.getDatabase()));
     }
 
     public static Bundle invoke(Context context) {

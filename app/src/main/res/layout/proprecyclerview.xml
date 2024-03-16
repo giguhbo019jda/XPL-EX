@@ -16,6 +16,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/flPropertiesAddMapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/flPropertiesMainButton"
+        app:layout_constraintEnd_toEndOf="@+id/flPropertiesMainButton"
+        app:layout_constraintStart_toStartOf="@+id/flPropertiesMainButton"
+        app:srcCompat="@drawable/ic_remix_add_fill" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/flPropertiesMainButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_remix_ancient_gate_fill" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cvAppInfoSettings"
         android:layout_width="match_parent"
@@ -105,9 +128,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:nestedScrollingEnabled="true"
+            android:paddingTop="0dp"
             android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="vertical"
-            android:paddingTop="0dp"/>
+            android:scrollbars="vertical" />
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <View

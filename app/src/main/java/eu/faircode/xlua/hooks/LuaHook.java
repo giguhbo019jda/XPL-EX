@@ -20,10 +20,14 @@ public class LuaHook extends VarArgFunction {
     private static final String TAG = "XLua.LuaHook";
     private Context context;
     private Map<String, String> settings;
+    private Map<String, Integer> propSettings;
+    private String key;
 
-    LuaHook(Context context, Map<String, String> settings) {
+    LuaHook(Context context, Map<String, String> settings, Map<String, Integer> propSettings, String key) {
         this.context = context;
         this.settings = settings;
+        this.propSettings = propSettings;
+        this.key = key;
     }
 
     @Override
@@ -50,10 +54,10 @@ public class LuaHook extends VarArgFunction {
 
             private void execute(String when, MethodHookParam param) {
                 //I dont think this shit is invoked..
-                Log.i(TAG, "Dynamic invoke " + param.method);
+                //Log.i(TAG, "Dynamic invoke " + param.method);
                 List<LuaValue> values = new ArrayList<>();
                 values.add(LuaValue.valueOf(when));
-                values.add(CoerceJavaToLua.coerce(new XParam(context, param, settings)));
+                values.add(CoerceJavaToLua.coerce(new XParam(context, param, settings, propSettings, key)));
                 for (int i = 0; i < xargs.size(); i++)
                     values.add(xargs.get(i));
                 fun.invoke(values.toArray(new LuaValue[0]));

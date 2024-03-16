@@ -81,8 +81,10 @@
   { "settingName": "bluetooth.soc", "propNames": [ "vendor.bluetooth.soc" ] },
 
   //Unique Identifiers
-  { "settingName": "unique.serial.no", "propNames": [ "ro.serialno", "ro.boot.serialno" ] },
+  { "settingName": "unique.serial.no", "propNames": [ "ro.serialno", "ro.boot.serialno", "ril.serialnumber", "gsm.sn1", "sys.serialnumber" ] },
   { "settingName": "unique.gsm.imei", "propNames": [ "persist.radio.imei1", "getprop ro.ril.oem.imei1" ] },
+
+
 
   //Zone Settings (Time, Date, Region, Language)
   { "settingName": "zone.timezone.id", "propNames": [ "persist.sys.timezone" ] },

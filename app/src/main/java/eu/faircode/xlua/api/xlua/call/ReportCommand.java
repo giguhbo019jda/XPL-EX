@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import eu.faircode.xlua.BuildConfig;
-import eu.faircode.xlua.XGlobalCore;
+import eu.faircode.xlua.XGlobals;
 import eu.faircode.xlua.XNotify;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.XProxyContent;
@@ -44,7 +44,7 @@ public class ReportCommand extends CallCommandHandler {
 
         Log.i(TAG, report + " exc=" + report.getFullException());
 
-        XLuaHook hook = XGlobalCore.getHook(report.hookId);
+        XLuaHook hook = XGlobals.getHook(report.hookId);
 
         long used = XLuaHookDatabase.report(report, hook, commandData.getDatabase());
 

@@ -13,11 +13,12 @@ public class MockPropDatabase {
     private static final String TAG = "XLua.MockPropDatabase";
     private static final String JSON = "propmaps.json";
 
-    public static XResult putPropertySetting(XDatabase db, MockPropSetting setting) {
+    public static XResult putPropertySetting(XDatabase db, MockPropPacket packet) { return putPropertySetting(db, packet.createSetting(), packet.isDeleteSetting()); }
+    public static XResult putPropertySetting(XDatabase db, MockPropSetting setting, boolean delete) {
         return XResult.create()
                 .setMethodName("putMockPropSetting")
                 .setExtra(setting.toString())
-                .setResult(setting.isDelete() ?
+                .setResult(delete ?
                         DatabaseHelp.deleteItem(setting.createQuery(db)) :
                         DatabaseHelp.insertItem(db, MockPropSetting.Table.name, setting,
                                 DatabaseHelp.prepareDatabase(db, MockPropSetting.Table.name, MockPropSetting.Table.columns)));
@@ -42,11 +43,12 @@ public class MockPropDatabase {
                 .queryAs(MockPropSetting.class, true);
     }
 
-    public static XResult putSettingMapForProperty(XDatabase db, MockPropMap mapSetting) {
+    public static XResult putSettingMapForProperty(XDatabase db, MockPropPacket packet) { return putSettingMapForProperty(db, packet.createMap(), packet.isDeleteMap()); }
+    public static XResult putSettingMapForProperty(XDatabase db, MockPropMap mapSetting, boolean delete) {
         return XResult.create()
                 .setMethodName("putMockPropMap")
                 .setExtra(mapSetting.toString())
-                .setResult(mapSetting.settingName == null ?
+                .setResult(delete ?
                         DatabaseHelp.deleteItem(mapSetting.createQuery(db)) :
                         DatabaseHelp.insertItem(db, MockPropMap.Table.name, mapSetting,
                                 DatabaseHelp.prepareDatabase(db, MockPropMap.Table.name, MockPropMap.Table.columns)));

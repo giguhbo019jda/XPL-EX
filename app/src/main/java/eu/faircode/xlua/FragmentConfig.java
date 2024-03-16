@@ -42,17 +42,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
+import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.configs.MockConfig;
-import eu.faircode.xlua.api.properties.MockPropConversions;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.configs.MockConfigPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.api.xmock.XMockCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
-import eu.faircode.xlua.api.xmock.call.PutMockConfigCommand;
-import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.FileDialogUtil;
 
-public class FragmentConfig extends Fragment implements View.OnClickListener, View.OnLongClickListener {
+public class  FragmentConfig extends Fragment implements View.OnClickListener, View.OnLongClickListener {
     private final static String TAG = "XLua.FragmentConfig";
+    private static final int PICK_FILE_REQUEST_CODE = 1; // This is a request code you define to identify your request
+    private static final int PICK_FOLDER_RESULT_CODE = 2;
 
     private AdapterConfig rvConfigAdapter;
     private Spinner spConfigSelection;
@@ -64,30 +65,15 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
 
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefresh;
-
     private RecyclerView rvSettings;
 
-    private TextView tvPackageName;
-    private TextView tvPackageUid;
-    private TextView tvPackageFull;
-    private ImageView ivPackageIcon;
-
-    private static final int PICK_FILE_REQUEST_CODE = 1; // This is a request code you define to identify your request
-    private static final int PICK_FOLDER_RESULT_CODE = 2;
-
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private AppGeneric application;
 
-    public View onCreateView(
-            final @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        if(DebugUtil.isDebug())
-            Log.i(TAG, "FragmentConfig.onCreateView Enter");
+    public View onCreateView(final @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.i(TAG, "FragmentConfig.onCreateView Enter");
 
         final View main = inflater.inflate(R.layout.configeditor, container, false);
-
-        //Buttons
         flMain = main.findViewById(R.id.flActionConfigOptions);
         flSave = main.findViewById(R.id.flActionConfigSave);
         flImport = main.findViewById(R.id.flActionConfigImport);
@@ -96,15 +82,6 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
 
         progressBar = main.findViewById(R.id.pbConfigs);
         swipeRefresh = main.findViewById(R.id.swipeRefreshConfigs);
-
-        tvPackageName = main.findViewById(R.id.tvConfigsPackageName);
-        tvPackageUid = main.findViewById(R.id.tvCongisPackageUid);
-        tvPackageFull = main.findViewById(R.id.tvConfigsPackageFull);
-        ivPackageIcon = main.findViewById(R.id.ivConfigsAppIcon);
-
-        application = AppGeneric.from(getArguments(), getContext());
-        Log.i(TAG, "Application Object Created=" + application);
-
 
         fabOpen = AnimationUtils.loadAnimation
                 (getContext(),R.anim.rotate_open_anim_one);
@@ -117,44 +94,45 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
 
         rvSettings = main.findViewById(R.id.rvConfigSettings);
 
-        //Buttons
-        initDropDown(main);
-        initRefresh(main);
-        initRecyclerView(main);
+        TextView tvPackageName = main.findViewById(R.id.tvConfigsPackageName);
+        TextView tvPackageUid = main.findViewById(R.id.tvCongisPackageUid);
+        TextView tvPackageFull = main.findViewById(R.id.tvConfigsPackageFull);
+        ImageView ivPackageIcon = main.findViewById(R.id.ivConfigsAppIcon);
 
-        rvSettings.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                // If scrolling up, show the FAB; if scrolling down, hide the FAB
-                if (dy > 0 && flMain.isShown()) {
-                    flMain.hide();
-                } else if (dy < 0 && !flMain.isShown()) {
-                    flMain.show();
-                }
-            }
-        });
+        application = AppGeneric.from(getArguments(), getContext());
+        Log.i(TAG, "Application Object Created=" + application);
 
         tvPackageName.setText(application.getName());
         tvPackageFull.setText(application.getPackageName());
         tvPackageUid.setText(String.valueOf(application.getUid()));
         application.initIcon(ivPackageIcon, Objects.requireNonNull(getContext()));
 
+        initDropDown(main);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() { loadData(); }
+        });
+        initRecyclerView(main);
+
+        rvSettings.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0 && flMain.isShown()) {
+                    if(isActionOpen) invokeFloatingAction();
+                    flMain.hide();
+                } else if (dy < 0 && !flMain.isShown()) flMain.show();
+            }
+        });
+
         wire();
         return main;
     }
 
-    public void setVisibility(boolean clicked) {
-        int state = clicked ? View.INVISIBLE : View.VISIBLE;
-        flApply.setVisibility(state);
-        flSave.setVisibility(state);
-        flImport.setVisibility(state);
-        flExport.setVisibility(state);
-    }
-
-    public void setAnimation(boolean clicked) {
-        if(!clicked) {
+    private void invokeFloatingAction() {
+        isActionOpen = !isActionOpen;
+        //Start the Animation
+        if(isActionOpen) {
             flExport.startAnimation(fromBottom);
             flImport.setAnimation(fromBottom);
             flSave.setAnimation(fromBottom);
@@ -166,6 +144,199 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
             flSave.setAnimation(toBottom);
             flApply.setAnimation(toBottom);
             flMain.setAnimation(fabClose);
+        }
+
+        //Set the Visibility
+        int visibility = isActionOpen ? View.VISIBLE : View.INVISIBLE;
+        flApply.setVisibility(visibility);
+        flSave.setVisibility(visibility);
+        flImport.setVisibility(visibility);
+        flExport.setVisibility(visibility);
+
+        //Set to be clickable or not
+        flApply.setLongClickable(isActionOpen);
+        flApply.setClickable(isActionOpen);
+        flSave.setLongClickable(isActionOpen);
+        flSave.setClickable(isActionOpen);
+        flImport.setLongClickable(isActionOpen);
+        flImport.setClickable(isActionOpen);
+        flExport.setLongClickable(isActionOpen);
+        flExport.setClickable(isActionOpen);
+    }
+
+    public void wire() {
+        flSave.setOnClickListener(this);
+        flApply.setOnClickListener(this);
+        flExport.setOnClickListener(this);
+        flImport.setOnClickListener(this);
+        flMain.setOnClickListener(this);
+
+        flSave.setOnLongClickListener(this);
+        flApply.setOnLongClickListener(this);
+        flExport.setOnLongClickListener(this);
+        flImport.setOnLongClickListener(this);
+    }
+
+    public void pushConfig(MockConfig config) {
+        Log.i(TAG, "[pushConfig] config=" + config);
+        spConfigs.add(config);
+        spConfigs.notifyDataSetChanged();
+    }
+
+    public void pushConfigs(List<MockConfig> configs) {
+        Log.i(TAG, "[pushConfigs] configs size=" + configs.size());
+        spConfigs.clear();
+        spConfigs.addAll(configs);
+        spConfigs.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onResume() { super.onResume();  loadData(); }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public void onClick(View v) {
+        int code = v.getId();
+        Log.i(TAG, "onClick=" + code);
+
+        switch (code) {
+            case R.id.flActionConfigApply:
+                Log.i(TAG, "Applying Settings from config=" + rvConfigAdapter.getConfigName());
+
+                swipeRefresh.setRefreshing(true);
+                progressBar.setVisibility(View.VISIBLE);
+                rvConfigAdapter.applyConfig(getContext());
+                swipeRefresh.setRefreshing(false);
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Finished Applying Settings!", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.flActionConfigSave:
+                final MockConfigPacket packet = MockConfigPacket.create(rvConfigAdapter.getConfigName(), rvConfigAdapter.getEnabledSettings());
+                packet.setCode(MockConfigPacket.CODE_INSERT_UPDATE_CONFIG);
+                //config.setSettings(XMockConfigConversions.listToHashMapSettings(settings, false));
+                //config.orderSettings(true);
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        final XResult ret = XMockCall.putMockConfig(getContext(), packet);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @SuppressLint("NotifyDataSetChanged")
+                            @Override
+                            public void run() {
+                                Toast.makeText(getContext(), ret.getResultMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+                break;
+            case R.id.flActionConfigExport:
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                try {
+                    startActivityForResult(intent, PICK_FOLDER_RESULT_CODE);
+                } catch (Exception e) {
+                    Log.e(TAG, "Open Directory Error: " + e);
+                    Toast.makeText(getContext(), "An error occurred while opening the directory picker.", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.flActionConfigImport:
+                Intent intent2 = new Intent(Intent.ACTION_GET_CONTENT);
+                intent2.setType("*/*"); // Use "image/*" for images, "application/pdf" for PDF, etc.
+                intent2.addCategory(Intent.CATEGORY_OPENABLE);
+                try {
+                    startActivityForResult(Intent.createChooser(intent2, "Select a file"), PICK_FILE_REQUEST_CODE);
+                } catch (Exception e) {
+                    Log.e(TAG, "Open File Error: " + e);
+                    Toast.makeText(getContext(), "An error occurred while opening target Config File.", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.flActionConfigOptions:
+                invokeFloatingAction();
+                break;
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onLongClick(View v) {
+        int code = v.getId();
+        Log.i(TAG, "onLongClick=" + code);
+        switch (code) {
+            case R.id.flActionConfigApply:
+                Toast.makeText(getContext(), "Apply Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigSave:
+                Toast.makeText(getContext(), "Save Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigExport:
+                Toast.makeText(getContext(), "Export Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigImport:
+                Toast.makeText(getContext(), "Import Config", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flActionConfigOptions:
+                Toast.makeText(getContext(), "Options", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        return true;
+    }
+
+    @SuppressLint("WrongConstant")
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(data == null)
+            return;
+
+        Uri selectedFileUri = data.getData();
+        if(selectedFileUri == null || resultCode != Activity.RESULT_OK)
+            return;
+
+        switch (requestCode) {
+            case PICK_FILE_REQUEST_CODE:
+                String mimeType = Objects.requireNonNull(getContext()).getContentResolver().getType(selectedFileUri);
+                if ("application/json".equals(mimeType) || "text/plain".equals(mimeType)) {
+                    final MockConfig config = FileDialogUtil.readPhoneConfig(getContext(), selectedFileUri);
+                    if(config == null)
+                        Toast.makeText(getContext(), "Failed Read Config File: " + selectedFileUri.getPath(), Toast.LENGTH_SHORT).show();
+                    else {
+                        String configName = config.getName();
+                        for(int i = 0; i < spConfigs.getCount(); i++) {
+                            MockConfig conf = spConfigs.getItem(i);
+                            assert conf != null;
+                            if(configName.equals(conf.getName())) {
+                                configName += "-" + ThreadLocalRandom.current().nextInt(10000,999999999);
+                                config.setName(configName);
+                                break;
+                            }
+                        }
+
+                        pushConfig(config);
+                        Toast.makeText(getContext(), "Read Config: " + configName, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "File type for Parsing is not Supported: " + mimeType, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case PICK_FOLDER_RESULT_CODE:
+                final int takeFlags = data.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                Objects.requireNonNull(getContext()).getContentResolver().takePersistableUriPermission(selectedFileUri, takeFlags);
+
+                if(!FileDialogUtil.saveConfigSettings(getContext(), selectedFileUri, rvConfigAdapter))
+                    Toast.makeText(getContext(), "Failed to Save File: " + rvConfigAdapter.getConfigName(), Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(getContext(), "Saved File: " + rvConfigAdapter.getConfigName(), Toast.LENGTH_SHORT).show();
+
+                break;
         }
     }
 
@@ -207,15 +378,6 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
         });
     }
 
-    private void initRefresh(final View view) {
-        //int colorAccent = XUtil.resolveColor(Objects.requireNonNull(getContext()), R.attr.colorAccent);
-        //swipeRefresh.setColorSchemeColors(colorAccent, colorAccent, colorAccent);
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() { loadData(); }
-        });
-    }
-
     public void initRecyclerView(View view) {
         if(DebugUtil.isDebug())
             Log.i(TAG, "Created Configs Drop Down, Getting Rotate View For Config Settings, Fragment Config");
@@ -224,7 +386,7 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
         rvSettings.setHasFixedSize(false);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity()) {
             @Override
-            public boolean onRequestChildFocus(RecyclerView parent, RecyclerView.State state, View child, View focused) {
+            public boolean onRequestChildFocus(@NonNull RecyclerView parent, @NonNull RecyclerView.State state, @NonNull View child, View focused) {
                 return true;
             }
         };
@@ -234,255 +396,46 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
 
         llm.setAutoMeasureEnabled(true);
         rvSettings.setLayoutManager(llm);
-        rvConfigAdapter = new AdapterConfig();
+        rvConfigAdapter = new AdapterConfig(application);
         rvSettings.setAdapter(rvConfigAdapter);
-
         if(DebugUtil.isDebug())
             Log.i(TAG, "Created the Layout for Config Settings, Fragment Config, leaving now...");
     }
 
-    public void pushConfig(MockConfig config) {
-        spConfigs.add(config);
-        spConfigs.notifyDataSetChanged();
-    }
-
-    public void pushConfigs(List<MockConfig> configs) {
-        if(DebugUtil.isDebug())
-            Log.i(TAG, "[pushConfigs] configs size=" + configs.size());
-
-        spConfigs.clear();
-        spConfigs.addAll(configs);
-        spConfigs.notifyDataSetChanged(); // Ensure this is here
-    }
-
-    public void wire() {
-        flSave.setOnClickListener(this);
-        flApply.setOnClickListener(this);
-        flExport.setOnClickListener(this);
-        flImport.setOnClickListener(this);
-        flMain.setOnClickListener(this);
-
-
-        flSave.setOnLongClickListener(this);
-        flApply.setOnLongClickListener(this);
-        flExport.setOnLongClickListener(this);
-        flImport.setOnLongClickListener(this);
-    }
-
-    @SuppressLint("WrongConstant")
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(data == null)
-            return;
-
-        Uri selectedFileUri = data.getData();
-        if(selectedFileUri == null || resultCode != Activity.RESULT_OK)
-            return;
-
-        switch (requestCode) {
-            case PICK_FILE_REQUEST_CODE:
-                String mimeType = Objects.requireNonNull(getContext()).getContentResolver().getType(selectedFileUri);
-                if ("application/json".equals(mimeType) || "text/plain".equals(mimeType)) {
-                    final MockConfig config = FileDialogUtil.readPhoneConfig(getContext(), selectedFileUri);
-                    if(config == null)
-                        Toast.makeText(getContext(), "Failed Read Config File: " + selectedFileUri.getPath(), Toast.LENGTH_SHORT).show();
-                    else {
-                        String configName = config.getName();
-                        for(int i = 0; i < spConfigs.getCount(); i++) {
-                            MockConfig conf = spConfigs.getItem(i);
-                            if(configName.equals(conf.getName())) {
-                                configName += "-" + ThreadLocalRandom.current().nextInt(10000,999999999);
-                                config.setName(configName);
-                                break;
-                            }
-                        }
-
-                        pushConfig(config);
-                        Toast.makeText(getContext(), "Read Config: " + configName, Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getContext(), "File type for Parsing is not Supported: " + mimeType, Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case PICK_FOLDER_RESULT_CODE:
-                final int takeFlags = data.getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-                Objects.requireNonNull(getContext()).getContentResolver().takePersistableUriPermission(selectedFileUri, takeFlags);
-
-                if(!FileDialogUtil.saveConfigSettings(getContext(), selectedFileUri, rvConfigAdapter))
-                    Toast.makeText(getContext(), "Failed to Save File: " + rvConfigAdapter.getConfigName(), Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(getContext(), "Saved File: " + rvConfigAdapter.getConfigName(), Toast.LENGTH_SHORT).show();
-
-                break;
-        }
-    }
-
-    @Override
-    public void onResume() { super.onResume();  loadData(); }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public void onClick(View v) {
-        int code = v.getId();
-        Log.i(TAG, "onClick=" + code);
-
-        switch (code) {
-            case R.id.flActionConfigApply:
-                if(DebugUtil.isDebug())
-                    Log.i(TAG, "Applying Settings from config=" + rvConfigAdapter.getConfigName());
-
-                rvConfigAdapter.applyConfig(getContext(), null);
-                Toast.makeText(getContext(), "Finished Applying Settings!", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.flActionConfigSave:
-                String name = rvConfigAdapter.getConfigName();
-                List<LuaSettingEx> settings = rvConfigAdapter.getEnabledSettings();
-
-                final MockConfig config = new MockConfig();
-                config.setName(name);
-                config.setSettings(settings);
-                //config.setSettings(XMockConfigConversions.listToHashMapSettings(settings, false));
-                //config.orderSettings(true);
-
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        //polish this
-                        final Bundle ret = PutMockConfigCommand.invoke(getContext(), config);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @SuppressLint("NotifyDataSetChanged")
-                            @Override
-                            public void run() {
-                                String messageResult = BundleUtil.readResultStatusMessage(ret);
-                                Toast.makeText(getContext(), messageResult, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                });
-                break;
-            case R.id.flActionConfigExport:
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-                try {
-                    startActivityForResult(intent, PICK_FOLDER_RESULT_CODE);
-                } catch (Exception e) {
-                    Log.i(TAG, "Open Directory Error: " + e);
-                    Toast.makeText(getContext(), "An error occurred while opening the directory picker.", Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.flActionConfigImport:
-                Intent intent2 = new Intent(Intent.ACTION_GET_CONTENT);
-                intent2.setType("*/*"); // Use "image/*" for images, "application/pdf" for PDF, etc.
-                intent2.addCategory(Intent.CATEGORY_OPENABLE);
-
-                try {
-                    startActivityForResult(Intent.createChooser(intent2, "Select a file"), PICK_FILE_REQUEST_CODE);
-                } catch (Exception e) {
-                    Log.i(TAG, "Open File Error: " + e);
-                    Toast.makeText(getContext(), "An error occurred while opening target Config File.", Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.flActionConfigOptions:
-                setAnimation(isActionOpen);
-                setVisibility(isActionOpen);
-                isActionOpen = !isActionOpen;
-                break;
-        }
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onLongClick(View v) {
-        int code = v.getId();
-        Log.i(TAG, "onLongClick=" + code);
-        switch (code) {
-            case R.id.flActionConfigApply:
-                Toast.makeText(getContext(), "Apply Config", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.flActionConfigSave:
-                Toast.makeText(getContext(), "Save Config", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.flActionConfigExport:
-                Toast.makeText(getContext(), "Export Config", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.flActionConfigImport:
-                Toast.makeText(getContext(), "Import Config", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.flActionConfigOptions:
-                Toast.makeText(getContext(), "Options", Toast.LENGTH_SHORT).show();
-                break;
-        }
-
-        return true;
-    }
-
     private void loadData() {
         Log.i(TAG, "Starting data loader");
-        LoaderManager manager = getActivity().getSupportLoaderManager();
+        LoaderManager manager = Objects.requireNonNull(getActivity()).getSupportLoaderManager();
         manager.restartLoader(ActivityMain.LOADER_DATA, new Bundle(), dataLoaderCallbacks).forceLoad();
     }
 
-    LoaderManager.LoaderCallbacks dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<PropsDataHolder>() {
+    LoaderManager.LoaderCallbacks<PropsDataHolder> dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<PropsDataHolder>() {
+        @NonNull
         @Override
-        public Loader<PropsDataHolder> onCreateLoader(int id, Bundle args) {
-            return new ConfigsDataLoader(getContext()).setApp(application);
-        }
+        public Loader<PropsDataHolder> onCreateLoader(int id, Bundle args) { return new ConfigsDataLoader(getContext()); }
 
         @Override
-        public void onLoadFinished(Loader<PropsDataHolder> loader, PropsDataHolder data) {
+        public void onLoadFinished(@NonNull Loader<PropsDataHolder> loader, PropsDataHolder data) {
             Log.i(TAG, "onLoadFinished");
             if(data.exception == null) {
                 ActivityBase activity = (ActivityBase) getActivity();
+                assert activity != null;
                 if (!data.theme.equals(activity.getThemeName()))
                     activity.recreate();
 
-                /*Collections.sort(data.propGroups, new Comparator<MockPropGroupHolder>() {
-                    @Override
-                    public int compare(MockPropGroupHolder o1, MockPropGroupHolder o2) {
-                        return o1.getSettingName().compareToIgnoreCase(o2.getSettingName());
-                    }
-                });*/
-
-                //rvPropsAdapter.set(data.propGroups, application);
-
-                //if(rvConfigAdapter.getItemCount() < 1) {
-                //    pushConfigs(data.configs);
-                    //rvConfigAdapter.set(data.configs.get(0));
-                //}
                 pushConfigs(data.configs);
-
                 swipeRefresh.setRefreshing(false);
                 progressBar.setVisibility(View.GONE);
             }else {
                 Log.e(TAG, Log.getStackTraceString(data.exception));
-                Snackbar.make(getView(), data.exception.toString(), Snackbar.LENGTH_LONG).show();
+                Snackbar.make(Objects.requireNonNull(getView()), data.exception.toString(), Snackbar.LENGTH_LONG).show();
             }
         }
 
         @Override
-        public void onLoaderReset(Loader<PropsDataHolder> loader) {
-            // Do nothing
-        }
+        public void onLoaderReset(@NonNull Loader<PropsDataHolder> loader) { }
     };
 
     private static class ConfigsDataLoader extends AsyncTaskLoader<PropsDataHolder> {
-        private AppGeneric application;
-        public ConfigsDataLoader setApp(AppGeneric application) {
-            this.application = application;
-            return this;
-        }
-
         ConfigsDataLoader(Context context) {
             super(context);
             setUpdateThrottle(1000);
@@ -496,12 +449,12 @@ public class FragmentConfig extends Fragment implements View.OnClickListener, Vi
             try {
                 Log.i(TAG, "Getting cursor");
                 data.theme = XLuaCall.getTheme(getContext());
-                data.configs = new ArrayList<>(XMockQuery.getConfigs(getContext(), true, true));
+                data.configs = new ArrayList<>(XMockQuery.getConfigs(getContext()));
                 Log.i(TAG, "configs from cursor=" + data.configs.size());
             }catch (Throwable ex) {
                 data.configs.clear();
                 data.exception = ex;
-                Log.e(TAG, ex.getMessage());
+                Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
             }
 
             Log.i(TAG, "DataLoader Props Finished=" + data.configs.size());

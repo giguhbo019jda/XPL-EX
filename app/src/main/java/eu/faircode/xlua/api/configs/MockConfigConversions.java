@@ -7,19 +7,17 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
 
 public class MockConfigConversions {
     private static final String TAG = "XLua.MockConfigConversions";
 
-    public static void writeSettingsToJSON(JSONObject obj, List<LuaSettingEx> settings) {
+    public static void writeSettingsToJSON(JSONObject obj, List<LuaSettingExtended> settings) {
         try {
             JSONObject settingsObj = new JSONObject();
-            for(LuaSettingEx setting : settings)
+            for(LuaSettingExtended setting : settings)
                 settingsObj.put(setting.getName(), setting.getValue());
 
             obj.put("settings", settingsObj);
@@ -28,7 +26,7 @@ public class MockConfigConversions {
         }
     }
 
-    public static String getSettingsToJSONObjectString(List<LuaSettingEx> settings) {
+    public static String getSettingsToJSONObjectString(List<LuaSettingExtended> settings) {
         try {
             return getSettingsToJSONObject(settings).toString(2);
         }catch (JSONException ex) {
@@ -37,10 +35,10 @@ public class MockConfigConversions {
         }
     }
 
-    public static JSONObject getSettingsToJSONObject(List<LuaSettingEx> settings) {
+    public static JSONObject getSettingsToJSONObject(List<LuaSettingExtended> settings) {
         JSONObject settingsObj = new JSONObject();
         try {
-            for(LuaSettingEx setting : settings)
+            for(LuaSettingExtended setting : settings)
                 settingsObj.put(setting.getName(), setting.getValue());
 
             return settingsObj;
@@ -50,7 +48,7 @@ public class MockConfigConversions {
         }
     }
 
-    public static List<LuaSettingEx> readSettingsFromJSON(String jsonText, boolean isRootObject) {
+    public static List<LuaSettingExtended> readSettingsFromJSON(String jsonText, boolean isRootObject) {
         try {
             return readSettingsFromJSON(new JSONObject(jsonText), isRootObject);
         }catch (JSONException ex) {
@@ -59,8 +57,8 @@ public class MockConfigConversions {
         }
     }
 
-    public static List<LuaSettingEx> readSettingsFromJSON(JSONObject obj, boolean isRootObject) {
-        List<LuaSettingEx> settingsList = new ArrayList<>();
+    public static List<LuaSettingExtended> readSettingsFromJSON(JSONObject obj, boolean isRootObject) {
+        List<LuaSettingExtended> settingsList = new ArrayList<>();
         try {
             JSONObject baseObj = obj;
             Iterator<String> keys = null;
@@ -74,7 +72,7 @@ public class MockConfigConversions {
             while (keys.hasNext()) {
                 String key = keys.next();
                 String value = baseObj.getString(key);
-                LuaSettingEx setting = new LuaSettingEx();
+                LuaSettingExtended setting = new LuaSettingExtended();
                 setting.setName(key);
                 setting.setValue(value);
                 settingsList.add(setting);

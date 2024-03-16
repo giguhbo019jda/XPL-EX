@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -16,22 +15,25 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import eu.faircode.xlua.api.config.XMockConfig;
-import eu.faircode.xlua.api.config.XMockConfigConversions;
-import eu.faircode.xlua.api.config.XMockSettingsConversions;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.CollectionUtil;
 import eu.faircode.xlua.utilities.CursorUtil;
 
-public class MockConfig implements IJsonSerial, Parcelable {
-    protected String name;
-    protected List<LuaSettingEx> settings;
+public class MockConfig extends UserIdentityPacket implements IJsonSerial, Parcelable {
+    public static MockConfig create(MockConfigPacket packet) { return new MockConfig(packet); }
+    public static MockConfig create(String name, List<LuaSettingExtended> settings) {  return new MockConfig(name, settings); }
 
-    public MockConfig() { }
+    protected String name;
+    protected List<LuaSettingExtended> settings;
+
+    public MockConfig(MockConfigPacket packet) { this(packet.getName(), packet.getSettings()); }
+    public MockConfig() { setUseUserIdentity(false); }
     public MockConfig(Parcel in) { fromParcel(in); }
-    public MockConfig(String name, List<LuaSettingEx> settings) {
+    public MockConfig(String name, List<LuaSettingExtended> settings) {
+        this();
         setName(name);
         setSettings(settings);
     }
@@ -39,15 +41,15 @@ public class MockConfig implements IJsonSerial, Parcelable {
     public String getName() { return name; }
     public MockConfig setName(String name) {  if(name != null) this.name = name; return  this; }
 
-    public List<LuaSettingEx> getSettings() { return settings; }
-    public MockConfig setSettings(List<LuaSettingEx> settings) { if(settings != null) this.settings = settings; return this; }
+    public List<LuaSettingExtended> getSettings() { return settings; }
+    public MockConfig setSettings(List<LuaSettingExtended> settings) { if(settings != null) this.settings = settings; return this; }
 
-    public void addSetting(LuaSettingEx setting) {
+    public void addSetting(LuaSettingExtended setting) {
         if(settings == null)
             settings = new ArrayList<>();
 
         if(!settings.isEmpty()) {
-            for(LuaSettingEx set : settings) {
+            for(LuaSettingExtended set : settings) {
                 if(set.getName().equalsIgnoreCase(setting.getName()))
                     return;
             }
@@ -56,10 +58,10 @@ public class MockConfig implements IJsonSerial, Parcelable {
         settings.add(setting);
     }
 
-    public void pairSettingMaps(List<LuaSettingEx> settings) {
+    public void pairSettingMaps(List<LuaSettingExtended> settings) {
         if(!CollectionUtil.isValid(this.settings) && !CollectionUtil.isValid(settings)) {
-            for(LuaSettingEx localSet : this.settings) {
-                for(LuaSettingEx set : settings) {
+            for(LuaSettingExtended localSet : this.settings) {
+                for(LuaSettingExtended set : settings) {
                     if(set.getName().equalsIgnoreCase(localSet.getName()))
                         localSet.setDescription(set.getDescription());
                 }
@@ -105,8 +107,10 @@ public class MockConfig implements IJsonSerial, Parcelable {
 
     @Override
     public void fromJSONObject(JSONObject obj) throws JSONException {
-        this.name = obj.getString("name");
-        this.settings = MockConfigConversions.readSettingsFromJSON(obj, false);
+        if(obj != null) {
+            this.name = obj.getString("name");
+            this.settings = MockConfigConversions.readSettingsFromJSON(obj, false);
+        }
     }
 
     @Override
@@ -135,8 +139,10 @@ public class MockConfig implements IJsonSerial, Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(MockConfigConversions.getSettingsToJSONObjectString(settings));
+        if(dest != null) {
+            dest.writeString(name);
+            dest.writeString(MockConfigConversions.getSettingsToJSONObjectString(settings));
+        }
     }
 
     @Override

@@ -3,19 +3,16 @@ package eu.faircode.xlua.api.standard.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteQuery;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
-import eu.faircode.xlua.api.settingsex.LuaSettingDefault;
 import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 import eu.faircode.xlua.api.standard.JsonHelper;
@@ -80,7 +77,21 @@ public class DatabaseHelp {
         return deleteItem(db, tableName, query.getSelectionCompareValues(), query.getSelectionArgs());
     }
 
+
     public static boolean deleteItem(
+            XDatabase db,
+            String tableName,
+            String[] selectionArgs,
+            String argValues) {
+
+        return internalDeleteItem(db, tableName, selectionArgs, argValues) ||
+                SqlQuerySnake.create(db, tableName)
+                .setSelectionArgs(selectionArgs)
+                .setCompareArgs(argValues)
+                .exists();
+    }
+
+    private static boolean internalDeleteItem(
             XDatabase db,
             String tableName,
             String[] selectionArgs,

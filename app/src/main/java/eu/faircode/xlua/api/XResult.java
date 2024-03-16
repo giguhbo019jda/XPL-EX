@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import eu.faircode.xlua.DebugUtil;
+import eu.faircode.xlua.utilities.DateTimeUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class XResult {
@@ -39,6 +40,12 @@ public class XResult {
         }
     }
 
+    public static XResult fromInvalidPacket(String commandName, Class<?> clazz) {
+        return XResult.create()
+                .setMethodName(commandName)
+                .setFailed("Reading Packet Data Failed! (Packet is NULL). Packet Class=" + clazz.getName());
+    }
+
     public static Bundle generate(boolean status, String message) { return generate(status, message, null, null); }
     public static Bundle generate(boolean status, String message, String method) { return generate(status, message, method, null); }
     public static Bundle generate(boolean status, String message, String method, String error) { return generate(status ? STATUS_SUCCESS : STATUS_FAILED, message, method, error); }
@@ -58,12 +65,56 @@ public class XResult {
         return b;
     }
 
+    public static XResult combine(XResult a, XResult b) {
+        if(a == null && b != null)
+            return b;
+        if(b == null && a != null)
+            return a;
+        if(a == null && b == null)
+            return XResult.create().setFailed("No Message");
+
+        XResult res = XResult.create();
+        res.methodName = new StringBuilder()
+                .append(" (a)=")
+                .append(a.methodName)
+                .append(" (b)=")
+                .append(b.methodName).toString();
+
+        res.extra = new StringBuilder()
+                .append(" (a)=")
+                .append(a.extra)
+                .append(" (b)=")
+                .append(b.extra).toString();
+
+        res.message = new StringBuilder()
+                .append(" (a)=")
+                .append(a.message)
+                .append(" (b)=")
+                .append(b.message).toString();
+
+        if(a.succeeded() && b.succeeded())
+            return res.setSucceeded();
+        else if(a.failed() && b.failed())
+            return res.setFailed("(a) & (b) Task Failed!\n" + new StringBuilder()
+                    .append(" (a)=")
+                    .append(a.errorMessage)
+                    .append(" (b)=")
+                    .append(b.errorMessage).toString());
+        else {
+            if(a.failed())
+                return res.setFailed("(a) task failed! " + a.errorMessage);
+            else return res.setFailed("(b) task failed! " + b.errorMessage);
+        }
+    }
+
     private String message;
     private StringBuilder errorMessage = new StringBuilder();
     private String methodName;
     private String extra;
     private int code;
     private String rawMessage;
+
+    private StringBuilder logs = new StringBuilder();
 
     public XResult() { }
 
@@ -174,6 +225,22 @@ public class XResult {
         this.code = STATUS_SUCCESS;
         if(StringUtil.isValidString(message))
             this.message = message;
+
+        return this;
+    }
+
+    public XResult log(String message, String tag) {
+        if(message != null) {
+            this.logs.append(message);
+            if(tag != null)
+                Log.i(tag, message);
+        }
+        return this;
+    }
+
+    public XResult log(String message) {
+        if(message != null)
+            this.logs.append(message);
 
         return this;
     }

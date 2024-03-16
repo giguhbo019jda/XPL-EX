@@ -1,20 +1,36 @@
 package eu.faircode.xlua;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-public class ActivitySettings extends ActivityBase  {
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.settings.LuaSettingPacket;
+import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.dialogs.ISettingDialogListener;
+
+public class ActivitySettings extends ActivityBase implements ISettingDialogListener {
     private static final String TAG = "XLua.ActivitySettings";
     private FragmentSettings fragmentSettings;
     private Menu menu = null;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Object lock = new Object();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,5 +119,28 @@ public class ActivitySettings extends ActivityBase  {
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
         //return false;
+    }
+
+    @Override
+    public void pushSettingPacket(final LuaSettingPacket packet) {
+        final Context context = getApplicationContext();
+        Log.i(TAG, "Packet being sent to bridge =" + packet);
+
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    final XResult ret = XLuaCall.sendMockSetting(context, packet);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @SuppressLint("NotifyDataSetChanged")
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, ret.getResultMessage(), Toast.LENGTH_SHORT).show();
+                            fragmentSettings.loadData();
+                        }
+                    });
+                }
+            }
+        });
     }
 }

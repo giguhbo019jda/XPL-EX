@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,8 +38,8 @@ import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.properties.MockPropGroupHolder;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
-import eu.faircode.xlua.api.settingsex.LuaSettingPacket;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
+import eu.faircode.xlua.api.settings.LuaSettingPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.randomizers.GlobalRandoms;
 import eu.faircode.xlua.randomizers.IRandomizer;
@@ -52,7 +53,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     private List<MockPropGroupHolder> filtered = new ArrayList<>();
     private final HashMap<String, Boolean> expanded = new HashMap<>();
 
-    private final HashMap<LuaSettingEx, String> modified = new HashMap<>();
+    private final HashMap<LuaSettingExtended, String> modified = new HashMap<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final Object lock = new Object();
@@ -60,6 +61,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     private boolean dataChanged = false;
     private CharSequence query = null;
 
+    private FragmentManager fragmentManager;
     private AppGeneric application;
 
     public class ViewHolder extends RecyclerView.ViewHolder
@@ -136,7 +138,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
             LinearLayoutManager llm = new LinearLayoutManager(itemView.getContext());
             llm.setAutoMeasureEnabled(true);
             rvGroupProps.setLayoutManager(llm);
-            adapterProps = new AdapterProperty();
+            adapterProps = new AdapterProperty(fragmentManager, application);
             rvGroupProps.setAdapter(adapterProps);
         }
 
@@ -197,13 +199,15 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
             }
         }
 
-        public void sendSetting(final Context context, final LuaSettingEx setting, boolean deleteSetting, boolean forceKill) {
-            final LuaSettingPacket packet = setting.generatePacket(deleteSetting, forceKill, application.getPackageName());
+        public void sendSetting(final Context context, final LuaSettingExtended setting, boolean deleteSetting, boolean forceKill) {
+            final LuaSettingPacket packet = LuaSettingPacket.create(setting, LuaSettingPacket.getCodeInsertOrDelete(deleteSetting), forceKill)
+                            .copyIdentification(application);
+
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     synchronized (lock) {
-                        final XResult ret = XLuaCall.putSetting(context, packet);
+                        final XResult ret = XLuaCall.sendSetting(context, packet);
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @SuppressLint("NotifyDataSetChanged")
                             @Override
@@ -265,15 +269,18 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     }
 
     AdapterPropertiesGroup() { setHasStableIds(true); }
-    void set(List<MockPropGroupHolder> groups, AppGeneric application) {
+    AdapterPropertiesGroup(FragmentManager manager, AppGeneric application) {
+        setHasStableIds(true);
+        this.fragmentManager = manager;
+        this.application = application;
+    }
+
+    void set(List<MockPropGroupHolder> groups) {
         this.dataChanged = true;
         this.groups.clear();
         this.groups.addAll(groups);
-        this.application = application;
 
-        if(DebugUtil.isDebug())
-            Log.i(TAG, "Internal Count=" + this.groups.size());
-
+        Log.i(TAG, "Internal Count=" + this.groups.size());
         getFilter().filter(query);
     }
 

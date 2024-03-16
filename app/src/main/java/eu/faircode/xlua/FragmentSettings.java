@@ -4,11 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -41,11 +38,13 @@ import java.util.List;
 import java.util.Objects;
 
 import eu.faircode.xlua.api.XResult;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.api.xmock.call.KillAppCommand;
+import eu.faircode.xlua.dialogs.SettingAddDialog;
 import eu.faircode.xlua.utilities.CollectionUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
@@ -72,12 +71,12 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
 
     private AppGeneric application;
 
-    FloatingActionButton floatingActionOne, floatingActionTwo, floatingActionThree;
-    Animation fabOpen, fabClose, fromBottom, toBottom;
-    boolean isActionOpen = false;
+    private FloatingActionButton floatingActionOne, floatingActionTwo, floatingActionThree;
+    private Animation fabOpen, fabClose, fromBottom, toBottom;
+    private boolean isActionOpen = false;
 
-    boolean isViewOpen = true;
-    int lastHeight = 0;
+    private boolean isViewOpen = true;
+    private int lastHeight = 0;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View main = inflater.inflate(R.layout.settingrecyclerview, container, false);
@@ -117,31 +116,15 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
         toBottom = AnimationUtils.loadAnimation
                 (getContext(),R.anim.to_bottom_anim_one);
 
-        /*floatingActionOne.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //animateFab();
-                Log.e(TAG, "I am opening the action bar=" + isActionOpen);
-                onButtonActionClick();
-            }
-        });
-        floatingActionTwo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDialog();
-                //animateFab();
-                //Toast.makeText(AnimateFABActivity.this,
-                //        "camera click", Toast.LENGTH_SHORT).show();
-            }
-        });*/
-
         rvSettings.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
                 // If scrolling up, show the FAB; if scrolling down, hide the FAB
                 if (dy > 0 && floatingActionOne.isShown()) {
+                    if(isActionOpen)
+                        invokeFloatingAction();
+
                     floatingActionOne.hide();
                 } else if (dy < 0 && !floatingActionOne.isShown()) {
                     floatingActionOne.show();
@@ -208,20 +191,42 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
                 v.getContext().startActivity(configIntent);
                 break;
             case R.id.flSettingsButtonOne:
-                setAnimation(isActionOpen);
-                setVisibility(isActionOpen);
-                isActionOpen = !isActionOpen;
+                invokeFloatingAction();
                 break;
             case R.id.flSettingsButtonTwo:
                 //
                 break;
             case R.id.flSettingsButtonThree:
-                SettingDialog setDialog = new SettingDialog();
+                SettingAddDialog setDialog = new SettingAddDialog();
                 assert getFragmentManager() != null;
+                setDialog.setApplication(application);
                 setDialog.show(getFragmentManager(), "Add Setting");
                 break;
         }
 
+    }
+
+    private void invokeFloatingAction() {
+        isActionOpen = !isActionOpen;
+        //Start the Animation
+        if(isActionOpen) {
+            floatingActionThree.startAnimation(fromBottom);
+            floatingActionTwo.startAnimation(fromBottom);
+            floatingActionOne.startAnimation(fabOpen);
+        }else {
+            floatingActionThree.startAnimation(toBottom);
+            floatingActionTwo.startAnimation(toBottom);
+            floatingActionOne.startAnimation(fabClose);
+        }
+
+        //Set the Visibility
+        int visibility = isActionOpen ? View.VISIBLE : View.INVISIBLE;
+        floatingActionTwo.setVisibility(visibility);
+        floatingActionThree.setVisibility(visibility);
+
+        //Set to be clickable or not
+        floatingActionThree.setLongClickable(isActionOpen);
+        floatingActionThree.setClickable(isActionOpen);
     }
 
     private void wire() {
@@ -238,28 +243,6 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
     void updateExpanded() {
         isViewOpen = !isViewOpen;
         ViewUtil.setViewsVisibility(ivExpander, isViewOpen, btProperties, btConfigs, btKill);
-    }
-
-    public void setVisibility(boolean clicked) {
-        if(!clicked) {
-            floatingActionTwo.setVisibility(View.VISIBLE);
-            floatingActionThree.setVisibility(View.VISIBLE);
-        }else {
-            floatingActionTwo.setVisibility(View.INVISIBLE);
-            floatingActionThree.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    public void setAnimation(boolean clicked) {
-        if(!clicked) {
-            floatingActionThree.startAnimation(fromBottom);
-            floatingActionTwo.startAnimation(fromBottom);
-            floatingActionOne.startAnimation(fabOpen);
-        }else {
-            floatingActionThree.startAnimation(toBottom);
-            floatingActionTwo.startAnimation(toBottom);
-            floatingActionOne.startAnimation(fabClose);
-        }
     }
 
     @Override
@@ -305,11 +288,11 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
 
         llm.setAutoMeasureEnabled(true);
         rvSettings.setLayoutManager(llm);
-        rvAdapter = new AdapterSetting();
+        rvAdapter = new AdapterSetting(getFragmentManager());
         rvSettings.setAdapter(rvAdapter);
     }
 
-    private void loadData() {
+    public void loadData() {
         Log.i(TAG, "Starting data loader");
         LoaderManager manager = getActivity().getSupportLoaderManager();
         manager.restartLoader(ActivityMain.LOADER_DATA, new Bundle(), dataLoaderCallbacks).forceLoad();
@@ -330,9 +313,9 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
                     activity.recreate();
 
                 if(CollectionUtil.isValid(data.settings)) {
-                    Collections.sort(data.settings, new Comparator<LuaSettingEx>() {
+                    Collections.sort(data.settings, new Comparator<LuaSettingExtended>() {
                         @Override
-                        public int compare(LuaSettingEx o1, LuaSettingEx o2) {
+                        public int compare(LuaSettingExtended o1, LuaSettingExtended o2) {
                             if(o1 == null && o2 == null || o1.getName() == null || o2.getName() == null)
                                 return 0;
 
@@ -376,7 +359,7 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
             try {
                 data.theme = XLuaCall.getTheme(getContext());
                 Log.i(TAG, "Getting settings for=" + application);
-                data.settings = new ArrayList<>(XMockQuery.getAllSettings(getContext(), true, XLuaSettingsDatabase.GLOBAL_USER, application.getPackageName()));
+                data.settings = new ArrayList<>(XMockQuery.getAllSettings(getContext(), application));
                 Log.i(TAG, "settings from cursor=" + data.settings.size());
             }catch (Throwable ex) {
                 data.settings.clear();
@@ -391,7 +374,7 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
 
     private static class SettingsDataHolder {
         String theme;
-        List<LuaSettingEx> settings = new ArrayList<>();
+        List<LuaSettingExtended> settings = new ArrayList<>();
         Throwable exception = null;
     }
 }

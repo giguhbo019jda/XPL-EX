@@ -9,8 +9,6 @@ import java.util.Map;
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.standard.interfaces.ISettingsConfig;
-import eu.faircode.xlua.api.settings.XLuaSettingPacket;
-import eu.faircode.xlua.api.settings.XLuaLuaSetting;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class XMockConfigProvider {
@@ -40,13 +38,13 @@ public class XMockConfigProvider {
                 if(!StringUtil.isValidString(v))
                     continue;
 
-                XLuaLuaSetting setting = new XLuaSettingPacket(userId, packageName, n, v);
-                if(!db.insert(XLuaLuaSetting.Table.name, setting.createContentValues())) {
-                    Log.e(TAG, "Failed to insert setting: name=" + n + " value=" + v);
-                    failed++;
-                }else {
-                    inserted++;
-                }
+                //XLuaLuaSetting setting = new XLuaSettingPacket(userId, packageName, n, v);
+                //if(!db.insert(XLuaLuaSetting.Table.name, setting.createContentValues())) {
+                //    Log.e(TAG, "Failed to insert setting: name=" + n + " value=" + v);
+                //    failed++;
+                //}else {
+                //    inserted++;
+                //}
             }
 
             db.setTransactionSuccessful();

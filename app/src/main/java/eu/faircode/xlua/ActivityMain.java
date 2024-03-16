@@ -57,6 +57,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 
@@ -466,7 +467,7 @@ public class ActivityMain extends ActivityBase {
     private void menuConfig() { startActivity(new Intent(this, ActivityConfig.class)); }
     private void menuSettings() {
         Intent settingIntent = new Intent(this, ActivitySettings.class);
-        settingIntent.putExtra("packageName", "Global");
+        settingIntent.putExtra("packageName", UserIdentityPacket.GLOBAL_NAMESPACE);
         startActivity(settingIntent);
         //startActivity(new Intent(this, ActivitySettings.class));
     }

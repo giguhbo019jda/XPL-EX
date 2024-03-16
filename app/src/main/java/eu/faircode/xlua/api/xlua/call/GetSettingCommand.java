@@ -6,12 +6,10 @@ import android.util.Log;
 
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.api.XProxyContent;
-import eu.faircode.xlua.api.settingsex.LuaSettingPacket;
-import eu.faircode.xlua.api.settingsex.LuaSettingsDatabase;
+import eu.faircode.xlua.api.settings.LuaSettingPacket;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
-import eu.faircode.xlua.api.settings.XLuaSettingPacket;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 
@@ -26,6 +24,7 @@ public class GetSettingCommand extends CallCommandHandler {
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
         LuaSettingPacket packet = commandData.read(LuaSettingPacket.class);
+        packet.resolveUserID();
 
         if(BuildConfig.DEBUG)
             Log.i("XLua.GetSettingCommand", "handler packet=" + packet);
@@ -38,13 +37,10 @@ public class GetSettingCommand extends CallCommandHandler {
                     packet.getCategory()).toBundle();
         }else {
             return BundleUtil.createSingleString("value",
-                    LuaSettingsDatabase.getSettingValueEx(
+                    LuaSettingsDatabase.getSettingValue(
                             commandData.getContext(),
                             commandData.getDatabase(),
-                            packet.getName(),
-                            packet.getUser(),
-                            packet.getCategory(),
-                            packet.isEnsureGetValue()));
+                            packet));
         }
     }
 

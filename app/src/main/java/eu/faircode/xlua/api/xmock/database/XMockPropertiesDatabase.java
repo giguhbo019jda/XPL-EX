@@ -5,11 +5,10 @@ import android.content.Context;
 import java.util.Collection;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.props.XMockPropGroup;
-import eu.faircode.xlua.api.props.XMockPropMapped;
+
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 
-public class XMockPropertiesDatabase {
+/*public class XMockPropertiesDatabase {
     private static final String TAG = "XLua.XMockPropertiesDatabase";
     private static final String JSON = "propmaps.json";
 
@@ -28,4 +27,4 @@ public class XMockPropertiesDatabase {
                 XMockPropMapped.class,
                 true);
     }
-}
+}*/

@@ -10,11 +10,11 @@ import java.util.List;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
 import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.api.hook.group.XLuaGroup;
 import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 
 public class XReport implements IDBSerial {
     public String hookId;
@@ -69,7 +69,7 @@ public class XReport implements IDBSerial {
 
     public boolean getNotify(XDatabase db) {
         if(notify == null)
-            notify = XLuaSettingsDatabase.getSettingBoolean(null, db, "notify", getUserId(), packageName);
+            notify = LuaSettingsDatabase.getSettingBoolean(null, db, "notify", getUserId(), packageName);
 
         return notify;
     }

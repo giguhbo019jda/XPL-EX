@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -16,17 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.config.XMockConfig;
-import eu.faircode.xlua.api.props.XMockGroupConversions;
-import eu.faircode.xlua.api.props.XMockPropMapped;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.api.standard.interfaces.IDBQuery;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
-import eu.faircode.xlua.api.xlua.XLuaCall;
-import eu.faircode.xlua.utilities.CursorUtil;
-import eu.faircode.xlua.utilities.JSONUtil;
-import eu.faircode.xlua.utilities.ParcelUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class MockPropGroupHolder implements IJsonSerial, IDBQuery {
@@ -35,7 +27,7 @@ public class MockPropGroupHolder implements IJsonSerial, IDBQuery {
     protected String settingName;
     protected String value;
     protected String description;
-    protected LuaSettingEx luaSetting;
+    protected LuaSettingExtended luaSetting;
     protected List<MockPropSetting> properties;
 
     public MockPropGroupHolder() {  }
@@ -45,8 +37,8 @@ public class MockPropGroupHolder implements IJsonSerial, IDBQuery {
         setProperties(properties);
     }
 
-    public LuaSettingEx getSetting() { return luaSetting; }
-    public MockPropGroupHolder setSetting(LuaSettingEx setting) { if(setting != null) this.luaSetting = setting; return this; }
+    public LuaSettingExtended getSetting() { return luaSetting; }
+    public MockPropGroupHolder setSetting(LuaSettingExtended setting) { if(setting != null) this.luaSetting = setting; return this; }
 
     public String getDescription() { return description; }
     public MockPropGroupHolder setDescription(String description) { if(description != null) this.description = description; return this; }

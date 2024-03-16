@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.api.hook.assignment.XLuaAssignmentBase;
 import eu.faircode.xlua.api.standard.interfaces.IListener;
 
@@ -21,7 +21,7 @@ public class XLuaAppBase {
     protected Boolean persistent;
     protected Boolean system;
     protected Boolean forceStop = true;
-    protected List<XLuaAssignment> assignments;
+    protected List<LuaAssignment> assignments;
     //secret key implement here
 
     private IListener listener = null;
@@ -76,27 +76,27 @@ public class XLuaAppBase {
         return this;
     }
 
-    public Collection<XLuaAssignment> getAssignments() { return this.assignments; }
-    public Collection<XLuaAssignment> getAssignments(String group) {
+    public Collection<LuaAssignment> getAssignments() { return this.assignments; }
+    public Collection<LuaAssignment> getAssignments(String group) {
         if (group == null)
             return assignments;
 
-        Collection<XLuaAssignment> filtered = new ArrayList<>();
-        for (XLuaAssignment assignment : assignments)
+        Collection<LuaAssignment> filtered = new ArrayList<>();
+        for (LuaAssignment assignment : assignments)
             if (group.equals(assignment.getHook().getGroup()))
                 filtered.add(assignment);
 
         return filtered;
     }
 
-    public XLuaAssignment getAssignmentAt(int index) {
+    public LuaAssignment getAssignmentAt(int index) {
         if(this.assignments.size() <= index)
             return null;
 
         return this.assignments.get(index);
     }
 
-    public int assignmentIndex(XLuaAssignment assignment) {
+    public int assignmentIndex(LuaAssignment assignment) {
         if(assignment != null)
             return this.assignments.indexOf(assignment);
 
@@ -107,17 +107,17 @@ public class XLuaAppBase {
         return this.assignments.contains(assignment);
     }
 
-    public XLuaAppBase removeAssignment(XLuaAssignment assignment) {
+    public XLuaAppBase removeAssignment(LuaAssignment assignment) {
         if(assignment != null) this.assignments.remove(assignment);
         return this;
     }
 
-    public XLuaAppBase addAssignment(XLuaAssignment assignment) {
+    public XLuaAppBase addAssignment(LuaAssignment assignment) {
         if(assignment != null) this.assignments.add(assignment);
         return this;
     }
 
-    public XLuaAppBase setAssignments(Collection<XLuaAssignment> assignments) {
+    public XLuaAppBase setAssignments(Collection<LuaAssignment> assignments) {
         if(assignments != null) this.assignments = new ArrayList<>(assignments);
         return this;
     }

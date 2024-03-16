@@ -14,6 +14,13 @@ import eu.faircode.xlua.utilities.MockUtils;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class ShellIntercept {
+
+    //Network + Bluetooth hooks
+    //DNS info hooks
+    //Google Instance IC as Game ID
+    //
+
+
     private static final String TAG = "XLua.ShellIntercept";
 
     public static String interceptOne(String command, Context context) {
@@ -62,9 +69,9 @@ public class ShellIntercept {
 
             //XMockCall.getPropertyValue(getApplicationContext(), property, getPackageName(), 0);
             //fakeValue = MockUtils.filterProperty(propValue, XMockCall.getMockProps(context));
-            fakeValue = XMockCall.getPropertyValue(context, propValue);// work on this
-            if(fakeValue.equalsIgnoreCase(MockUtils.NOT_BLACKLISTED))
-                return null;
+           // fakeValue = XMockCall.getPropertyValue(context, propValue);// work on this
+            //if(fakeValue.equalsIgnoreCase(MockUtils.NOT_BLACKLISTED))
+            //    return null;//fixx
         }
         else if(lowered.contains(propFile)) {
             //propname=value

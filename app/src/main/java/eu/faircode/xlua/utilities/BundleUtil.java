@@ -9,6 +9,13 @@ import java.util.List;
 import eu.faircode.xlua.api.standard.interfaces.ISerial;
 
 public class BundleUtil {
+
+    public static Bundle combineBundles(Bundle a, Bundle b) {
+        //Bundle main = new Bundle();
+        //for( a.keySet())
+        return null;
+    }
+
     public static Boolean readBoolean(Bundle b, String keyName) { return readBoolean(b, keyName, null); }
     public static Boolean readBoolean(Bundle b, String keyName,  Boolean defaultValue) {
         if(!b.containsKey(keyName))

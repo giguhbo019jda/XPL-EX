@@ -1,14 +1,13 @@
 package eu.faircode.xlua.utilities;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
 
 public class SettingUtil {
-    private static final List<String> allUpperNames = Arrays.asList("drm", "gsf", "lcc", "meid", "imei", "bssid", "ssid", "esim", "sim", "sku", "lac", "cid", "msin", "mnc", "mcc", "adb", "os", "utc", "abi", "gps", "dns", "vm", "id", "gsm", "cpu", "gpu", "fp", "rom", "nfc", "soc", "url", "dev", "sdk", "iso");
+    private static final List<String> allUpperNames = Arrays.asList("sms", "icc", "no", "sys", "isp", "cid", "lac", "mac", "net", "ad", "drm", "gsf", "lcc", "meid", "imei", "bssid", "ssid", "esim", "sim", "sku", "lac", "cid", "msin", "mnc", "mcc", "adb", "os", "utc", "abi", "gps", "dns", "vm", "id", "gsm", "cpu", "gpu", "fp", "rom", "nfc", "soc", "url", "dev", "sdk", "iso");
 
     public static String cleanSettingName(String settingName) {
         if(!StringUtil.isValidString(settingName))
@@ -43,7 +42,7 @@ public class SettingUtil {
         return name.toString().trim();
     }
 
-    public static void updateSetting(LuaSettingEx setting, String newValue, HashMap<LuaSettingEx, String> modified) {
+    public static void updateSetting(LuaSettingExtended setting, String newValue, HashMap<LuaSettingExtended, String> modified) {
         String originalValue = modified.get(setting);
         if(originalValue == null) {
             if((setting.getValue() != null && newValue != null) && !newValue.equalsIgnoreCase(setting.getValue())) {

@@ -27,7 +27,7 @@ public class XLuaHook extends XLuaHookBase implements IJsonSerial, Parcelable {
 
     public HookDatabaseEntry toHookDatabase() {
         try {
-            XLuaHookPacket packet = new XLuaHookPacket(getId(), toJSON());
+            LuaHookPacket packet = new LuaHookPacket(getId(), toJSON());
             return packet;
         }catch (Exception e) {
             Log.e(TAG, "Error converting xHook to Hook Packet! e=" + e + "\n" + Log.getStackTraceString(e));

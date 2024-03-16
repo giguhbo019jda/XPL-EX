@@ -65,15 +65,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import eu.faircode.xlua.api.XResult;
-import eu.faircode.xlua.api.settingsex.LuaSettingPacket;
+import eu.faircode.xlua.api.settings.LuaSettingPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.standard.interfaces.IListener;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.api.hook.XLuaHook;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignmentPacket;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
 
 import eu.faircode.xlua.api.app.XLuaApp;
-import eu.faircode.xlua.api.xmock.XMockCall;
 
 public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> implements Filterable {
     private static final String TAG = "XLua.App";
@@ -305,7 +304,7 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
                         public void run() {
                             LuaSettingPacket packet = LuaSettingPacket.create("forcestop", Boolean.toString(app.getForceStop()));
                             packet.setCategory(app.getPackageName());
-                            final XResult ret = XLuaCall.putSetting(compoundButton.getContext(), packet);
+                            final XResult ret = XLuaCall.sendSetting(compoundButton.getContext(), packet);
 
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @SuppressLint("NotifyDataSetChanged")
@@ -341,16 +340,16 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
                         (groupName == null || groupName.equals(hook.getGroup()))) {
                     hookIds.add(hook.getId());
                     if (assign)
-                        app.addAssignment(new XLuaAssignment(hook));
+                        app.addAssignment(new LuaAssignment(hook));
                     else
-                        app.removeAssignment(new XLuaAssignment(hook));
+                        app.removeAssignment(new LuaAssignment(hook));
                 }
 
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     XLuaCall.assignHooks(
-                            context, hookIds, pkgName, app.getUid(), !assign, app.getForceStop());
+                            context,app.getUid(), pkgName, hookIds, !assign, app.getForceStop());
                 }
             });
         }
@@ -468,13 +467,13 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
         //This is just the restrict button if im not mistaken
         //Note this button will only be visible when specific group is selected
         //final List<Bundle> actions = new ArrayList<>();
-        final List<XLuaAssignmentPacket> actions = new ArrayList<>();
+        final List<LuaAssignmentPacket> actions = new ArrayList<>();
 
         boolean revert = false;
         for (XLuaApp app : filtered)
             for (XLuaHook hook : hooks)
                 if (group == null || group.equals(hook.getGroup())) {
-                    XLuaAssignment assignment = new XLuaAssignment(hook);
+                    LuaAssignment assignment = new LuaAssignment(hook);
                     if (app.hasAssignment(assignment)) {
                         revert = true;
                         break;
@@ -488,7 +487,7 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
             for (XLuaHook hook : hooks)
                 if (hook.isAvailable(app.getPackageName(), this.collection) &&
                         (group == null || group.equals(hook.getGroup()))) {
-                    XLuaAssignment assignment = new XLuaAssignment(hook);
+                    LuaAssignment assignment = new LuaAssignment(hook);
                     if (revert) {
                         if (app.hasAssignment(assignment)) {
                             hookIds.add(hook.getId());
@@ -504,12 +503,12 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
 
             if (hookIds.size() > 0) {
                 Log.i(TAG, "Applying " + group + "=" + hookIds.size() + "=" + revert + " package=" + app.getPackageName());
-                XLuaAssignmentPacket packet = new XLuaAssignmentPacket();
-                packet.hookIds = hookIds;
-                packet.packageName = app.getPackageName();
-                packet.uid = app.getUid();
-                packet.delete = revert;
-                packet.kill = app.getForceStop();
+                LuaAssignmentPacket packet = new LuaAssignmentPacket();
+                packet.setHookIds(hookIds);
+                packet.setCategory(app.getPackageName());
+                packet.setUser(app.getUid());
+                packet.setIsDelete(revert);
+                packet.setKill(app.getForceStop());
                 actions.add(packet);
             }
         }
@@ -519,7 +518,7 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                for (XLuaAssignmentPacket packet : actions)
+                for (LuaAssignmentPacket packet : actions)
                     XLuaCall.assignHooks(context, packet);
             }
         });
@@ -682,13 +681,13 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
                     app1.getAssignments(group).size() != app2.getAssignments(group).size())
                 return false;
 
-            for (XLuaAssignment a1 : app1.getAssignments(group)) {
+            for (LuaAssignment a1 : app1.getAssignments(group)) {
                 //Hmmm make sure this still works
                 int i2 = app2.assignmentIndex(a1); // by hookid
                 if (i2 < 0)
                     return false;
 
-                XLuaAssignment a2 = app2.getAssignmentAt(i2);
+                LuaAssignment a2 = app2.getAssignmentAt(i2);
                 if (a1.getInstalled() != a2.getInstalled() ||
                         a1.getUsed() != a2.getUsed() ||
                         a1.getRestricted() != a2.getRestricted())

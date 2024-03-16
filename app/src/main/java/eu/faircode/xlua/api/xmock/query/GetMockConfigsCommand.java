@@ -8,16 +8,16 @@ import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.configs.MockConfigDatabase;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
-import eu.faircode.xlua.api.xmock.database.XMockConfigDatabase;
 import eu.faircode.xlua.utilities.CursorUtil;
 
 public class GetMockConfigsCommand extends QueryCommandHandler {
     public static GetMockConfigsCommand create(boolean marshall) { return new GetMockConfigsCommand(marshall); };
 
-    private boolean marshall;
+    @SuppressWarnings("unused")
+    public GetMockConfigsCommand() { this(false); }
     public GetMockConfigsCommand(boolean marshall) {
-        this.name = marshall ? "getMockConfigs2" : "getMockConfigs";
         this.marshall = marshall;
+        this.name = marshall ? "getMockConfigs2" : "getMockConfigs";
         this.requiresPermissionCheck = false;
     }
 
@@ -25,9 +25,7 @@ public class GetMockConfigsCommand extends QueryCommandHandler {
     public Cursor handle(QueryPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
         return CursorUtil.toMatrixCursor(
-                MockConfigDatabase.getMockConfigs(
-                        commandData.getContext(),
-                        commandData.getDatabase()),
+                MockConfigDatabase.getMockConfigs(commandData.getContext(), commandData.getDatabase()),
                 marshall, 0);
     }
 

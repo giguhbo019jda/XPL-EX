@@ -59,7 +59,7 @@
     <string name="title_hook_group" translatable="false">Group</string>
     <string name="title_hook_name" translatable="false">Name</string>
     <string name="title_hook_author" translatable="false">Author</string>
-    <string name="title_hook_version" translatable="false">Version</string>
+    <string name="title_hook_version">Version</string>
     <string name="title_hook_description" translatable="false">Description</string>
     <string name="title_hook_enabled" translatable="false">Enabled</string>
     <string name="title_hook_optional" translatable="false">Optional</string>

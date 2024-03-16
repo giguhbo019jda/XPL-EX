@@ -6,14 +6,19 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.XSecurity;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
+import eu.faircode.xlua.utilities.DatabasePathUtil;
+import eu.faircode.xlua.utilities.ReflectUtil;
 
 public abstract class QueryCommandHandler {
     public String name;
     public String parent;
     public boolean requiresPermissionCheck;
+    public boolean marshall;
 
     public QueryCommandHandler() { }
     public QueryCommandHandler(String name, boolean requirePermissionCheck) {
@@ -28,6 +33,11 @@ public abstract class QueryCommandHandler {
         if(!requiresPermissionCheck) XSecurity.checkCaller(context);
     }
     public String getName() { return name; }
+
+    public void setAsMarshallCommand() {
+        name += "2";
+        marshall = true;
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

@@ -1,31 +1,29 @@
 package eu.faircode.xlua;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -38,13 +36,14 @@ import java.util.Objects;
 import eu.faircode.xlua.api.properties.MockPropConversions;
 import eu.faircode.xlua.api.properties.MockPropGroupHolder;
 import eu.faircode.xlua.api.properties.MockPropSetting;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
 import eu.faircode.xlua.api.xlua.XLuaCall;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 import eu.faircode.xlua.api.xmock.XMockQuery;
-import eu.faircode.xlua.api.props.XMockPropGroup;
+import eu.faircode.xlua.dialogs.PropertyAddDialog;
+import eu.faircode.xlua.dialogs.SettingAddDialog;
 
-public class FragmentProperties extends Fragment {
+public class FragmentProperties extends Fragment implements View.OnClickListener {
     private final static String TAG = "XLua.FragmentProperties";
 
     private ProgressBar progressBar;
@@ -61,10 +60,12 @@ public class FragmentProperties extends Fragment {
 
     private ImageView ivAppIcon;
 
+    private FloatingActionButton flMain, flAdd;
+    private Animation fabOpen, fabClose, fromBottom, toBottom;
+    private boolean isActionOpen = false;
+
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View main = inflater.inflate(R.layout.proprecyclerview, container, false);
-        initRefresh(main);
-        initRecyclerView(main);
 
         application = AppGeneric.from(getArguments(), getContext());
         Log.i(TAG, "Application Object Created=" + application);
@@ -74,13 +75,57 @@ public class FragmentProperties extends Fragment {
         tvPackageUid = main.findViewById(R.id.tvPropertiesPackageUid);
         ivAppIcon = main.findViewById(R.id.ivPropertiesAppIcon);
 
+        initRefresh(main);
+        initRecyclerView(main);
 
         tvPackageName.setText(application.getName());
         tvPackage.setText(application.getPackageName());
         tvPackageUid.setText(String.valueOf(application.getUid()));
         application.initIcon(ivAppIcon, Objects.requireNonNull(getContext()));
 
+        flMain = main.findViewById(R.id.flPropertiesMainButton);
+        flAdd = main.findViewById(R.id.flPropertiesAddMapButton);
+
+        fabOpen = AnimationUtils.loadAnimation (getContext(),R.anim.rotate_open_anim_one);
+        fabClose = AnimationUtils.loadAnimation (getContext(),R.anim.rotate_close_anim_one);
+        fromBottom = AnimationUtils.loadAnimation (getContext(),R.anim.from_bottom_anim_one);
+        toBottom = AnimationUtils.loadAnimation (getContext(),R.anim.to_bottom_anim_one);
+
+        rvPropGroups.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                // If scrolling up, show the FAB; if scrolling down, hide the FAB
+                if (dy > 0 && flMain.isShown()) {
+                    if(isActionOpen)
+                        invokeFloatingAction();
+
+                    flMain.hide();
+                } else if (dy < 0 && !flMain.isShown())
+                    flMain.show();
+            }
+        });
+
+        wire();
         return main;
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        Log.i(TAG, " onClick id=" + id);
+
+        switch (id) {
+            case R.id.flPropertiesMainButton:
+                invokeFloatingAction();
+                break;
+            case R.id.flPropertiesAddMapButton:
+                PropertyAddDialog setDialog = new PropertyAddDialog();
+                assert getFragmentManager() != null;
+                setDialog.show(getFragmentManager(), "Add Property");
+                break;
+        }
     }
 
     @Override
@@ -89,14 +134,39 @@ public class FragmentProperties extends Fragment {
         loadData();
     }
 
-    public void filter(String query) {
-        if (rvPropsAdapter != null)
-            rvPropsAdapter.getFilter().filter(query);
-    }
-
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    private void invokeFloatingAction() {
+        isActionOpen = !isActionOpen;
+        //Start the Animation
+        if(isActionOpen) {
+            flAdd.startAnimation(fromBottom);
+            flMain.startAnimation(fabOpen);
+        }else {
+            flAdd.startAnimation(toBottom);
+            flMain.startAnimation(fabClose);
+        }
+
+        //Set the Visibility
+        int visibility = isActionOpen ? View.VISIBLE : View.INVISIBLE;
+        flAdd.setVisibility(visibility);
+
+        //Set to be clickable or not
+        flAdd.setLongClickable(isActionOpen);
+        flAdd.setClickable(isActionOpen);
+    }
+
+    private void wire() {
+        flMain.setOnClickListener(this);
+        flAdd.setOnClickListener(this);
+    }
+
+    public void filter(String query) {
+        if (rvPropsAdapter != null)
+            rvPropsAdapter.getFilter().filter(query);
     }
 
     private void initRefresh(final View view) {
@@ -123,11 +193,11 @@ public class FragmentProperties extends Fragment {
 
         llm.setAutoMeasureEnabled(true);
         rvPropGroups.setLayoutManager(llm);
-        rvPropsAdapter = new AdapterPropertiesGroup();
+        rvPropsAdapter = new AdapterPropertiesGroup(getFragmentManager(), application);
         rvPropGroups.setAdapter(rvPropsAdapter);
     }
 
-    private void loadData() {
+    public void loadData() {
         Log.i(TAG, "Starting data loader");
         LoaderManager manager = getActivity().getSupportLoaderManager();
         manager.restartLoader(ActivityMain.LOADER_DATA, new Bundle(), dataLoaderCallbacks).forceLoad();
@@ -154,7 +224,7 @@ public class FragmentProperties extends Fragment {
                     }
                 });
 
-                rvPropsAdapter.set(data.propGroups, application);
+                rvPropsAdapter.set(data.propGroups);
                 swipeRefresh.setRefreshing(false);
                 progressBar.setVisibility(View.GONE);
             }else {
@@ -188,8 +258,12 @@ public class FragmentProperties extends Fragment {
             PropsDataHolder data = new PropsDataHolder();
             try {
                 data.theme = XLuaCall.getTheme(getContext());
-                Collection<MockPropSetting> props = XMockQuery.getAllProperties(getContext(), application.getPackageName());
-                Collection<LuaSettingEx> settings = new ArrayList<>(XMockQuery.getAllSettings(getContext(), true, XLuaSettingsDatabase.GLOBAL_USER, application.getPackageName()));
+
+
+                Collection<MockPropSetting> props = XMockQuery.getAllProperties(getContext(), application);
+                Collection<LuaSettingExtended> settings = new ArrayList<>(XMockQuery.getAllSettings(getContext(), true, application.getUid(), application.getPackageName()));
+
+
                 Log.i(TAG, "props size=" + props.size() + " settings size=" + settings.size());
                 data.propGroups = new ArrayList<>(MockPropConversions.createHolders(getContext(), props, settings));
                 Log.i(TAG, "prop groups from cursor=" + data.propGroups.size());

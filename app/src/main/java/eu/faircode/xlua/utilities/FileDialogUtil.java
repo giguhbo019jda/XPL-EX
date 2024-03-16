@@ -17,11 +17,8 @@ import java.io.OutputStream;
 import java.util.List;
 
 import eu.faircode.xlua.AdapterConfig;
-import eu.faircode.xlua.api.config.XMockConfigSetting;
-import eu.faircode.xlua.api.config.XMockConfigConversions;
-import eu.faircode.xlua.api.config.XMockConfig;
 import eu.faircode.xlua.api.configs.MockConfig;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
 
 public class FileDialogUtil {
     private static final String TAG = "XLua.FileDialogUtil";
@@ -64,7 +61,7 @@ public class FileDialogUtil {
             DocumentFile newFile = pickedDir.createFile("application/json", fName + ".json");
             if (newFile != null) {
                 try (OutputStream out = context.getContentResolver().openOutputStream(newFile.getUri())) {
-                    List<LuaSettingEx> settings = config.getEnabledSettings();
+                    List<LuaSettingExtended> settings = config.getEnabledSettings();
                     if(settings == null || settings.isEmpty())
                         throw new IOException("Settings is Empty");
 

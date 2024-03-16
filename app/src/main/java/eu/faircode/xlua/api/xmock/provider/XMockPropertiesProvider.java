@@ -10,16 +10,12 @@ import java.util.Map;
 
 import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.props.XMockProp;
-import eu.faircode.xlua.api.props.XMockPropGroup;
-import eu.faircode.xlua.api.props.XMockPropMapped;
+
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
-import eu.faircode.xlua.api.xmock.database.XMockPropertiesDatabase;
 import eu.faircode.xlua.utilities.MockUtils;
 import eu.faircode.xlua.utilities.StringUtil;
 
-public class XMockPropertiesProvider {
+/*public class XMockPropertiesProvider {
     private static final String TAG = "XLua.XMockPropertiesProvider";
 
     private static Map<String, XMockPropGroup> groups = new HashMap<>();
@@ -200,4 +196,4 @@ public class XMockPropertiesProvider {
 
         return groups.values();
     }
-}
+}*/

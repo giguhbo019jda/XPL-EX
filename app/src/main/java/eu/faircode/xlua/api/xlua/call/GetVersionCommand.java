@@ -20,11 +20,8 @@ public class GetVersionCommand extends CallCommandHandler {
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
         int res = XLuaAppProvider.getVersion(commandData.getContext());
-        if(res == -55)
-            return null;
-
-        return BundleUtil.
-                createSingleInt("version", res);
+        if(res == -55) return null;
+        return BundleUtil.createSingleInt("version", res);
     }
 
     public static Bundle invoke(Context context) {

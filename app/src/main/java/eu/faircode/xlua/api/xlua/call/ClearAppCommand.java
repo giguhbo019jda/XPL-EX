@@ -4,15 +4,14 @@ import android.content.Context;
 import android.os.Bundle;
 
 import eu.faircode.xlua.api.XProxyContent;
+import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
-import eu.faircode.xlua.api.xlua.database.XLuaAppDatabase;
-import eu.faircode.xlua.api.app.XLuaAppPacket;
-import eu.faircode.xlua.utilities.BundleUtil;
+import eu.faircode.xlua.api.xlua.database.LuaAppDatabase;
+import eu.faircode.xlua.api.app.LuaSimplePacket;
 
 public class ClearAppCommand extends CallCommandHandler {
     public static ClearAppCommand create() { return new ClearAppCommand(); };
-
     public ClearAppCommand() {
         name = "clearApp";
         requiresPermissionCheck = true;
@@ -21,26 +20,16 @@ public class ClearAppCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
-        XLuaAppPacket packet = commandData.read(XLuaAppPacket.class);
-        return BundleUtil.createResultStatus(
-                XLuaAppDatabase.clearApp(
-                        commandData.getContext(),
-                        packet.packageName,
-                        packet.uid,
-                        packet.settings,
-                        packet.kill,
-                        commandData.getDatabase()));
+        LuaSimplePacket packet = commandData.read(LuaSimplePacket.class);
+        if(packet == null) return XResult.fromInvalidPacket(name, LuaSimplePacket.class).toBundle();
+        return XResult.create()
+                .setMethodName("clearApp")
+                .setExtra(packet.toString())
+                .setResult(LuaAppDatabase.clearApp(
+                        commandData.getContext(), commandData.getDatabase(), packet)).toBundle();
     }
 
-    public static Bundle invoke(Context context, String packageName, Integer uid, Boolean full) {
-        XLuaAppPacket packet = new XLuaAppPacket();
-        packet.packageName = packageName;
-        packet.uid = uid;
-        packet.settings = full;
-        return invoke(context, packet);
-    }
-
-    public static Bundle invoke(Context context, XLuaAppPacket packet) {
+    public static Bundle invoke(Context context, LuaSimplePacket packet) {
         return XProxyContent.luaCall(
                 context,
                 "clearApp",

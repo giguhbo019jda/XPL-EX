@@ -16,25 +16,34 @@ import de.robv.android.xposed.XposedBridge;
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.XGlobalCore;
+import eu.faircode.xlua.XGlobals;
 import eu.faircode.xlua.XUiGroup;
-import eu.faircode.xlua.api.settingsex.LuaSettingsDatabase;
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.hook.LuaHookPacket;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 
 import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.api.xlua.call.GetVersionCommand;
 import eu.faircode.xlua.api.xlua.database.XLuaHookDatabase;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
+import eu.faircode.xlua.utilities.StringUtil;
 
 public class XLuaHookProvider {
     private static final String TAG = "XLua.XHookProvider";
 
     public static List<String> getCollections(Context context, XDatabase db, int userId) {
-        String value = LuaSettingsDatabase.getSettingValue(context, db, "collection",  userId, XLuaSettingsDatabase.GLOBAL_NAMESPACE);
+        //check this
+        String value = LuaSettingsDatabase.getSettingValue(context, db, "collection",  userId, UserIdentityPacket.GLOBAL_NAMESPACE);
         List<String> result = new ArrayList<>();
 
         if(DebugUtil.isDebug())
             Log.i(TAG, "collection=" + value);
+
+        if(!StringUtil.isValidString(value)) {
+            value = LuaSettingsDatabase.DEFAULT_COLLECTIONS;
+            LuaSettingsDatabase.putSetting(context, db, "collection", value);
+        }
 
         if(value.contains(",")) Collections.addAll(result, value.split(","));
         else result.add(value);
@@ -45,11 +54,11 @@ public class XLuaHookProvider {
         return result;
     }
 
-    public static boolean putHook(Context context, XDatabase database, String id, String definition) throws Throwable {
-        if (id == null) {
-            Log.e("XHookIO.Convert", "ID Missing from Hook!");
-            return false;
-        }
+    public static XResult putHook(Context context, XDatabase database, LuaHookPacket packet) throws Throwable { return putHook(context, database, packet.getId(), packet.getDefinition());  }
+    public static XResult putHook(Context context, XDatabase database, String id, String definition) throws Throwable {
+        XResult res = XResult.create().setMethodName("putHook").setExtra("id=" + id);
+        if (!StringUtil.isValidString(id))
+            return res.appendErrorMessage("ID Missing from Hook!", TAG).setFailed();
 
         XLuaHook hook = null;
         if(definition != null) {
@@ -60,15 +69,12 @@ public class XLuaHookProvider {
         if(hook != null) {
             hook.validate();
             if(!id.equals(hook.getId())) {
-                Log.e(TAG, "ID Mismatch: Given=" + id + "  Parsed=" + hook.getId());
-                return false;
+                return res.appendErrorMessage("ID Mismatch: Given=" + id + "  Parsed=" + hook.getId(), TAG).setFailed();
             }
         }
 
-        if(!XGlobalCore.updateHookCache(context, hook, id)) {
-            Log.e(TAG, "Failed at Updating Hook Cache, id=" + id);
-            return false;
-        }
+        if(!XGlobals.updateHookCache(context, hook, id))
+            return res.appendErrorMessage("Failed at Updating Hook Cache, id=" + id, TAG).setFailed();
 
         return XLuaHookDatabase.updateHook(database, hook, id);
     }

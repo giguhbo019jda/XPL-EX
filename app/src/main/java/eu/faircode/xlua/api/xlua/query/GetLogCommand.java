@@ -8,7 +8,7 @@ import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 
 public class GetLogCommand extends QueryCommandHandler {
@@ -32,7 +32,7 @@ public class GetLogCommand extends QueryCommandHandler {
         int end = XUtil.getUserUid(userid, Process.LAST_APPLICATION_UID);
 
         SqlQuerySnake snake = SqlQuerySnake
-                .create(db, XLuaAssignment.Table.name)
+                .create(db, LuaAssignment.Table.name)
                 .onlyReturnColumns("package", "uid", "hook", "used", "old", "new")
                 .whereColumn("restricted", "1")
                 .whereColumn("uid", start, ">=")

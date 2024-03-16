@@ -3,23 +3,15 @@ package eu.faircode.xlua.api.xlua.query;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.util.Log;
-
-import java.util.Map;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.XProxyContent;
-import eu.faircode.xlua.api.settings.XMockMappedSetting;
-import eu.faircode.xlua.api.settingsex.LuaSetting;
-import eu.faircode.xlua.api.settingsex.LuaSettingPacket;
+import eu.faircode.xlua.api.settings.LuaSetting;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 
-import eu.faircode.xlua.api.settings.XLuaLuaSetting;
-import eu.faircode.xlua.api.xmock.provider.XMockSettingsProvider;
-import eu.faircode.xlua.utilities.CursorUtil;
 
 
 public class GetSettingsCommand extends QueryCommandHandler {

@@ -60,7 +60,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xlua.XLuaQuery;
 import eu.faircode.xlua.api.hook.HookDatabaseEntry;
-import eu.faircode.xlua.api.hook.XLuaHookPacket;
+import eu.faircode.xlua.api.hook.LuaHookPacket;
 import eu.faircode.xlua.api.xlua.call.PutHookCommand;
 import eu.faircode.xlua.utilities.CollectionUtil;
 
@@ -298,7 +298,7 @@ public class FragmentMain extends Fragment {
                         if(entry == null)
                             continue;
 
-                        PutHookCommand.invoke(getContext(), (XLuaHookPacket)entry);
+                        PutHookCommand.invoke(getContext(), (LuaHookPacket)entry);
                     }
                 }
 

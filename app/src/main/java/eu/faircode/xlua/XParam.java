@@ -65,6 +65,8 @@ public class XParam {
     private final Class<?>[] paramTypes;
     private final Class<?> returnType;
     private final Map<String, String> settings;
+    private final Map<String, Integer> propSettings;
+    private final String key;
 
     private static final Map<Object, Map<String, Object>> nv = new WeakHashMap<>();
 
@@ -72,20 +74,24 @@ public class XParam {
     public XParam(
             Context context,
             Field field,
-            Map<String, String> settings) {
+            Map<String, String> settings, Map<String, Integer> propSettings, String key) {
         this.context = context;
         this.field = field;
         this.param = null;
         this.paramTypes = null;
         this.returnType = field.getType();
         this.settings = settings;
+        this.propSettings = propSettings;
+        this.key = key;
     }
 
     // Method param
     public XParam(
             Context context,
             XC_MethodHook.MethodHookParam param,
-            Map<String, String> settings) {
+            Map<String, String> settings,
+            Map<String, Integer> propSettings,
+            String key) {
         this.context = context;
         this.field = null;
         this.param = param;
@@ -97,6 +103,8 @@ public class XParam {
             this.returnType = ((Method) param.method).getReturnType();
         }
         this.settings = settings;
+        this.propSettings = propSettings;
+        this.key = key;
     }
 
     //
@@ -115,7 +123,8 @@ public class XParam {
             Log.i(TAG, "Filtering Property=" + property);
 
         //we can also use the local cached settings
-        return XMockCall.getPropertyValue(getApplicationContext(), property, getPackageName(), 0);
+        //return XMockCall.getPropertyValue(getApplicationContext(), property, getPackageName(), 0);
+        return null;
     }
 
     @SuppressWarnings("unused")

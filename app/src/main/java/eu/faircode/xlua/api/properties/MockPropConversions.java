@@ -10,16 +10,25 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.api.settingsex.LuaSettingEx;
-import eu.faircode.xlua.api.xlua.XLuaCall;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 
 public class MockPropConversions {
     private static final String TAG = "XLua.MockPropConversions";
 
-    public static Collection<MockPropGroupHolder> createHolders(Context context, Collection<MockPropSetting> properties, Collection<LuaSettingEx> settings) {
+    public static Map<String, Integer> toMap(Collection<MockPropSetting> settings) {
+        Map<String, Integer> settingsMap = new HashMap<>();
+        for(MockPropSetting s : settings)
+            settingsMap.put(s.getName(), s.getValue());
+
+        return settingsMap;
+    }
+
+    public static Collection<MockPropGroupHolder> createHolders(Context context, Collection<MockPropSetting> properties, Collection<LuaSettingExtended> settings) {
         Log.i(TAG, " properties returned =" + properties.size());
 
         HashMap<String, MockPropGroupHolder> groups = new HashMap<>();
@@ -36,7 +45,7 @@ public class MockPropConversions {
                 if(DebugUtil.isDebug())
                     Log.i(TAG, "Group does not exist=" + holder + " property=" + prop);
 
-                for(LuaSettingEx setting : settings) {
+                for(LuaSettingExtended setting : settings) {
                     if(setting.getName().equalsIgnoreCase(sName)) {
                         holder.setDescription(setting.getDescription());
                         holder.setValue(setting.getValue());
@@ -66,7 +75,7 @@ public class MockPropConversions {
     public static ArrayList<MockPropSetting> getPropertiesFromJSON(JSONObject rootObject) {
         try {
             String settingName = rootObject.getString("settingName");
-            return getPropertiesFromJSONArray(rootObject.getJSONArray("propNames"), settingName, XLuaSettingsDatabase.GLOBAL_USER, XLuaSettingsDatabase.GLOBAL_NAMESPACE);
+            return getPropertiesFromJSONArray(rootObject.getJSONArray("propNames"), settingName, UserIdentityPacket.GLOBAL_USER, UserIdentityPacket.GLOBAL_NAMESPACE);
         }catch (JSONException ex) {
             Log.e(TAG, "JSON getJSONArray(propNames) or getString(settingName) failed: " + ex);
         }
@@ -78,7 +87,7 @@ public class MockPropConversions {
         ArrayList<MockPropSetting> props = new ArrayList<>();
         try {
             for(int i = 0; i < jsonArray.length(); i++)
-                props.add(new MockPropSetting(jsonArray.getString(i), settingName, userId, packageName, MockPropSetting.PROP_NULL));
+                props.add(MockPropSetting.create(userId, packageName, jsonArray.getString(i), settingName, MockPropSetting.PROP_NULL));
 
             if(DebugUtil.isDebug())
                 Log.i(TAG, "[getPropertiesFromJSONArray] size=" + props.size());

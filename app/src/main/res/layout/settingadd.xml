@@ -7,26 +7,44 @@
     android:padding="16dp">
 
     <EditText
-        android:id="@+id/etSettingName"
+        android:id="@+id/etAddSettingSettingName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Name"/>
 
     <EditText
-        android:id="@+id/etSettingDescription"
+        android:id="@+id/etAddSettingSettingValue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Description"
-        android:layout_below="@id/etSettingName"
+        android:layout_below="@+id/etAddSettingSettingName"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="0dp"
+        android:hint="Value"
         tools:layout_editor_absoluteX="16dp" />
 
     <EditText
-        android:id="@+id/etSettingValue"
+        android:id="@+id/etAddSettingSettingDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Value"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/etSettingDescription"
+        android:layout_below="@id/etAddSettingSettingValue"
+        android:layout_marginTop="-3dp"
+        android:hint="Description"
         tools:layout_editor_absoluteX="16dp" />
+
+    <CheckBox
+        android:id="@+id/cbAddSettingSettingAddCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etAddSettingSettingDescription"
+        android:checked="true"
+        android:text="Create Setting" />
+
+    <CheckBox
+        android:id="@+id/cbAddSettingDefaultSettingAddCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cbAddSettingSettingAddCheck"
+        android:checked="true"
+        android:text="Create Default Map Setting" />
 
 </RelativeLayout >

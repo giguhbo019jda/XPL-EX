@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -93,6 +94,16 @@ public class SqlQuerySnake extends SqlQueryBuilder {
         return this;
     }
 
+    public SqlQuerySnake setSelectionArgs(String[] args) {
+        compareValues.addAll(Arrays.asList(args));
+        return this;
+    }
+
+    public SqlQuerySnake setCompareArgs(String compareString) {
+        selectionArgsBuilder.append(compareString);
+        return this;
+    }
+
     public XDatabase getDatabase() { return db; }
     public String getOrderBy() { return orderOrFieldName; }
 
@@ -110,6 +121,24 @@ public class SqlQuerySnake extends SqlQueryBuilder {
 
     public boolean threwError() { return error != null; }
     public Exception getError() { return error; }
+
+    public boolean exists() {
+        if(!canCompile) return false;
+        canCompile = false;
+
+        db.readLock();
+        Cursor c = query();
+        try {
+            if(c == null) return false;
+            return c.moveToFirst();
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to query Cursor for Check if Exists! From DB [" + db + "] from Table [" + tableName + "]\n" + e + "\n" + Log.getStackTraceString(e));
+            return false;
+        } finally {
+            db.readUnlock();
+            clean(c);
+        }
+    }
 
     public Collection<String> queryAsStringList(String columnReturn, boolean cleanUpAfter) {
         if(!canCompile) return null;

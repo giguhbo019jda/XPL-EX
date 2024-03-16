@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import eu.faircode.xlua.api.config.XMockConfig;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 
 public class CursorUtil {

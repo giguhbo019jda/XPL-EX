@@ -40,7 +40,7 @@ public class XNotify {
             if (main != null) {
                 int flags = (Build.VERSION.SDK_INT > Build.VERSION_CODES.R ? 0x04000000 : 0);
                 main.putExtra(ActivityMain.EXTRA_SEARCH_PACKAGE, report.packageName);
-                PendingIntent pi = PendingIntent.getActivity(context, report.uid, main, flags);
+                @SuppressLint("WrongConstant") PendingIntent pi = PendingIntent.getActivity(context, report.uid, main, flags);
                 builder.setContentIntent(pi);
             }
 
@@ -85,7 +85,7 @@ public class XNotify {
             if (main != null) {
                 int flags = (Build.VERSION.SDK_INT > Build.VERSION_CODES.R ? 0x04000000 : 0);
                 main.putExtra(ActivityMain.EXTRA_SEARCH_PACKAGE, report.packageName);
-                PendingIntent pi = PendingIntent.getActivity(context, report.uid, main, flags);
+                @SuppressLint("WrongConstant") PendingIntent pi = PendingIntent.getActivity(context, report.uid, main, flags);
                 builder.setContentIntent(pi);
             }
 

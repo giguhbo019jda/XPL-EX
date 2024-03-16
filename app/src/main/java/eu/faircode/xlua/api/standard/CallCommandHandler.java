@@ -27,6 +27,7 @@ public abstract class CallCommandHandler {
         if(BuildConfig.DEBUG) Log.i("XLua.Command Handler", " command=" + this.name);
         if(!requiresPermissionCheck) XSecurity.checkCaller(context);
     }
+
     public String getName() { return name; }
 
     @Override

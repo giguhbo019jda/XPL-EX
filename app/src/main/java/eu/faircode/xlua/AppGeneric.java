@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -16,13 +15,11 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 
-import java.util.ArrayList;
-
-import eu.faircode.xlua.api.app.XLuaApp;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class AppGeneric {
+    public static final AppGeneric DEFAULT = new AppGeneric(null, null);
     private static final String TAG = "XLua.AppGeneric";
 
     private int icon;
@@ -37,26 +34,21 @@ public class AppGeneric {
         return new AppGeneric(b.getString("packageName"), context);
     }
 
-
     public AppGeneric(String packageName, Context context) {
-        if(!StringUtil.isValidString(packageName) ||  packageName.equalsIgnoreCase("global")) {
-            this.name = "Global";
-            this.packageName = "Global";
+        if(context == null || !StringUtil.isValidString(packageName) ||  packageName.equalsIgnoreCase("global")) {
+            this.name = UserIdentityPacket.GLOBAL_NAMESPACE;
+            this.packageName = UserIdentityPacket.GLOBAL_NAMESPACE;
             this.uid = 0;
             this.icon = -1;
         }else {
             try {
-                Log.i(TAG, "Grabbing app info: " + packageName);
                 this.packageName = packageName;
                 PackageManager packageManager = context.getPackageManager();
                 ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-                Log.i(TAG, "Getting ICON");
                 this.icon = appInfo.icon;
-                Log.i(TAG, "Grabbed ICON=" + this.icon);
                 this.uid = appInfo.uid;
                 this.name = (String) packageManager.getApplicationLabel(appInfo);
                 //this.name = appInfo.loadLabel(packageManager);
-                // Get the application icon
                 //Drawable appIcon = pm.getApplicationIcon(appInfo);
             }catch (Exception e) {
                 Log.e(TAG, "Failed to grab Application Info: " + packageName + " " + e);

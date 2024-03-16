@@ -4,7 +4,7 @@
   { "name": "device.manufacturer", "description": "Device Manufacturer Name", "value": "OnePlus" },
   { "name": "device.nick.name", "description": "Device Special name or Nick name", "value": "OnePlus7ProNR" },
   { "name": "device.model", "description": "Device Model Identifier", "value": "GM1920" },
-  { "name": "device.codename", "description": "Device Codename (usally is food)", "value": "guacamoles" },
+  { "name": "device.codename", "description": "Device Codename (usually is food) or something fun", "value": "guacamoles" },
   { "name": "device.bootloader", "description": "Bootloader name", "value": "G1HZK00500" },
   { "name": "device.boot.mode", "description": "Boot Mode", "value": "normal" },
 
@@ -37,7 +37,7 @@
   { "name": "java.vm.name", "description": "Java Virtual Machine Name", "value": "Dalvik"},
 
   //Android Kernel Default Settings
-  { "name": "android.kernel.name", "description": "Kernel Kind Name (Linux, Unix...)", "value": "Linux" },
+  { "name": "android.kernel.sys.name", "description": "Kernel Kind Name (Linux, Unix...)", "value": "Linux" },
   { "name": "android.kernel.version", "description": "Kernel Version Info long", "value": "SMP PREEMPT Tue Oct 3 17:44:36 IDT 2023" },
   { "name": "android.kernel.release", "description": "Kernel Release Number", "value": "4.14.326" },
   { "name": "android.kernel.node.name", "description": "Kernel Build nodename (localhost)", "value": "localhost" },
@@ -53,6 +53,7 @@
   { "name": "cpu.base.band", "description": "CPU Band Name", "value": "mdm" },
   { "name": "cpu.hardware.name", "description": "Like Manufacturer name of Hardware CPU", "value": "qcom" },
   { "name": "cpu.soc.model", "description": "Model Name of SOC", "value": "SM8150" },
+  { "name": "cpu.soc.manufacturer", "description": "Manufacturer", "value": "Qualcomm" },
   { "name": "cpu.processor.count", "description": "The Amount of Processors in the CPU", "value": "8" },
 
   //Android GPU Default Settings
@@ -102,7 +103,6 @@
   { "name": "unique.gsf.id", "description": "Google Services Framework ID", "value": "FMZIYEVGXZDCENRO" },
   { "name": "unique.network.ssid", "description": "Wifi SSID", "value": "Starbucks Free-Wifi" },
 
-
   //Zone Default Settings (Time, Date, Region, Language)
   { "name": "zone.timezone.id", "description": "TimeZone ID (Atlantic/Reykjavik)", "value": "Atlantic/Reykjavik" },
   { "name": "zone.country.iso", "description": "Country ISO3 ID", "value": "IS" },
@@ -137,6 +137,7 @@
   { "name": "gsm.phone.type", "description": "GSM=(1) CDMA=(2) NONE=(0) SIP=(3)", "value": "1" },
   { "name": "gsm.sim.type", "description": "LOCAL_SIM=(0) REMOTE_SIM=(1)", "value": "0" },
   { "name": "gsm.sim.state", "description": "State of the SIM Card (SIM_STATE_READY)", "value": "READY" },
+  { "name": "gsm.sim.state.number", "description": "State of the SIM Card (SIM_STATE_READY) Number", "value": "5" },
   { "name": "gsm.data.state", "description": "Current data connection state (cellular)", "value": "2" },
   { "name": "gsm.sim.card.id", "description": "The card ID of the SIM card which contains the subscription.", "value": "8457894" },
 

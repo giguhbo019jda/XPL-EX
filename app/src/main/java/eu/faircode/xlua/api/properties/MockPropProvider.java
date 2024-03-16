@@ -8,38 +8,57 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
-import eu.faircode.xlua.api.xmock.provider.XMockSettingsProvider;
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.settings.LuaSettingDefault;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
+import eu.faircode.xlua.api.standard.database.DatabaseHelp;
+import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.utilities.CollectionUtil;
 import eu.faircode.xlua.utilities.MockUtils;
 
 public class MockPropProvider {
     private static String TAG = "XLua.MockPropProvider";
 
-    //KEY=(Property Name)
+    //KEY=(Property Name) VALUE=Setting it points too
     private static HashMap<String, MockPropMap> mappedProperties = new HashMap<>();
     private static final Object lock = new Object();
 
-    public static String getPropertyValue(Context context, XDatabase db, String propertyName,  int userId, String packageName) {
+    /*public static String getPropertyValue(Context context, XDatabase db, String propertyName,  int user, String packageName) {
         MockPropMap map = mappedProperties.get(propertyName);
         if(map == null)
             return MockUtils.NOT_BLACKLISTED;
 
         String sName = map.getSettingName();
-        String value = XLuaSettingsDatabase.getSettingValue(context, db, sName, userId, packageName);
-        if(value == null)
-            value = XMockSettingsProvider.getDefaultSettingValue(context, db, sName);
+        String value = LuaSettingsDatabase.getSettingValue(context, db, sName, user, packageName);
+        //if(value == null)
+        //    value = XMockSettingsProvider.getDefaultSettingValue(context, db, sName);
+        //fix
 
         if(value == null)
             return MockUtils.NOT_BLACKLISTED;
 
         return value;
+    }*/
+
+    public static XResult putMockPropMap(Context context, XDatabase db, MockPropPacket packet) {
+        initCache(context, db);
+        XResult res = MockPropDatabase.putSettingMapForProperty(db, packet);
+        if(res.succeeded() && !packet.isDeleteMap()) { synchronized (lock) { mappedProperties.put(packet.getName(), packet.createMap()); } }
+        else if(res.succeeded()) { synchronized (lock) { mappedProperties.remove(packet.getName()); } }
+        Log.i(TAG, "mock prop map insert result=" + res.getMessage());
+        return res;
     }
 
-    public static Collection<MockPropSetting> getSettingsForPackage(Context context, XDatabase db, int userId, String packageName, boolean getAll) {
-        Log.i(TAG, "[getSettingsForPackage] db=" + db.getName() + " user=" + userId + " pkg=" + packageName + " all=" + getAll);
+    public static Collection<MockPropSetting> getSettingsForPackage(Context context, XDatabase db, int user, String packageName, boolean getAll) { return getSettingsForPackage(context, db, MockPropPacket.createQueryRequest(user, packageName, getAll));  }
+    public static Collection<MockPropSetting> getSettingsForPackage(Context context, XDatabase db, MockPropPacket packet) {
+        Log.i(TAG, "Entering [getSettingsForPackage] packet=" + packet);
+        int user = packet.getUser();
+        String packageName = packet.getCategory();
+        boolean getAll = packet.isGetAll();
+
+        Log.i(TAG, "[getSettingsForPackage] db=" + db.getName() + " user=" + user + " pkg=" + packageName + " all=" + getAll);
         initCache(context, db);
-        Collection<MockPropSetting> userSettings = MockPropDatabase.getPropertySettingsForUser(db, userId, packageName);
+        Collection<MockPropSetting> userSettings = MockPropDatabase.getPropertySettingsForUser(db, user, packageName);
         Log.i(TAG, "user settings=" + userSettings.size());
         if(!getAll)
             return userSettings;
@@ -52,16 +71,14 @@ public class MockPropProvider {
 
         Log.i(TAG, "user settings (2) =" + users.size() + " mapped properties=" + mappedProperties.size());
 
-        for(Map.Entry<String, MockPropMap> e : mappedProperties.entrySet()) {
-            String k = e.getKey();
-            MockPropMap m = e.getValue();
-            if(!users.containsKey(k)) {
-                Log.d(TAG, "mock map before to user [" + k + "] = " + m);
-                MockPropSetting ss = MockPropSetting.create(k, m.getSettingName(), userId, packageName, MockPropSetting.PROP_NULL);
-                Log.d(TAG, "ss from [MockPropSetting.create] = " + ss);
-                users.put(k, ss);
-            }else {
-                Log.w(TAG, "user settings contains=" + k + " map=" + m);
+        synchronized (lock) {
+            for(Map.Entry<String, MockPropMap> e : mappedProperties.entrySet()) {
+                String k = e.getKey();
+                MockPropMap m = e.getValue();
+                if(!users.containsKey(k)) {
+                    MockPropSetting mSetting = MockPropSetting.create(user, packageName,  k, m.getSettingName(), MockPropSetting.PROP_NULL);
+                    users.put(k, mSetting);
+                }
             }
         }
 

@@ -1,11 +1,10 @@
-package eu.faircode.xlua.api.xmock.database;
+/*package eu.faircode.xlua.api.xmock.database;
 
 import android.content.Context;
 
 import java.util.Collection;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.config.XMockConfig;
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 import eu.faircode.xlua.utilities.StringUtil;
 
@@ -61,3 +60,4 @@ public class XMockConfigDatabase {
                 DatabaseHelp.DB_FORCE_CHECK);
     }
 }
+*/

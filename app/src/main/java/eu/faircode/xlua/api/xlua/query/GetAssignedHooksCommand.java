@@ -7,21 +7,21 @@ import android.database.MatrixCursor;
 import java.util.List;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.XGlobalCore;
+import eu.faircode.xlua.XGlobals;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
 
 public class GetAssignedHooksCommand extends QueryCommandHandler {
     public static GetAssignedHooksCommand create(boolean marshall) { return new GetAssignedHooksCommand(marshall); };
 
-    private boolean marshall;
+    public GetAssignedHooksCommand() { this(false); }
     public GetAssignedHooksCommand(boolean marshall) {
-        name = marshall ? "getAssignedHooks" : "getAssignedHooks2";
+        name = marshall ? "getAssignedHooks2" : "getAssignedHooks";
         this.marshall = marshall;
         requiresPermissionCheck = false;
     }
@@ -41,7 +41,7 @@ public class GetAssignedHooksCommand extends QueryCommandHandler {
 
         List<String> collection = XLuaHookProvider.getCollections(commandData.getContext(), db, XUtil.getUserId(uid));
         SqlQuerySnake snake = SqlQuerySnake
-                .create(db, XLuaAssignment.Table.name)
+                .create(db, LuaAssignment.Table.name)
                 .whereColumn("package", packageName)
                 .whereColumn("uid", uid)
                 .onlyReturnColumns("hook", "used")
@@ -55,7 +55,7 @@ public class GetAssignedHooksCommand extends QueryCommandHandler {
             while (c.moveToNext()) {
                 String hook_id = c.getString(colHook);
                 String used = c.getString(colUsed);
-                XGlobalCore.writeHookFromCache(result, hook_id, used, packageName, collection, marshall);
+                XGlobals.writeHookFromCache(result, hook_id, used, packageName, collection, marshall);
             }
         }finally {
             snake.clean(c);

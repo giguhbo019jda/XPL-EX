@@ -17,7 +17,7 @@ import java.util.List;
 import eu.faircode.xlua.api.standard.interfaces.IDBSerial;
 import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 import eu.faircode.xlua.api.standard.interfaces.ISerial;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 
 public class XLuaApp extends XLuaAppBase implements ISerial, IDBSerial, IJsonSerial, Parcelable {
     public XLuaApp() { }
@@ -57,7 +57,7 @@ public class XLuaApp extends XLuaAppBase implements ISerial, IDBSerial, IJsonSer
         this.persistent = (in.readByte() != 0);
         this.system = (in.readByte() != 0);
         this.forceStop = (in.readByte() != 0);
-        this.assignments = in.createTypedArrayList(XLuaAssignment.CREATOR);
+        this.assignments = in.createTypedArrayList(LuaAssignment.CREATOR);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class XLuaApp extends XLuaAppBase implements ISerial, IDBSerial, IJsonSer
         jRoot.put("forcestop", this.forceStop);
 
         JSONArray jAssignments = new JSONArray();
-        for (XLuaAssignment assignment : this.assignments)
+        for (LuaAssignment assignment : this.assignments)
             jAssignments.put(assignment.toJSONObject());
         jRoot.put("assignments", jAssignments);
 
@@ -112,7 +112,7 @@ public class XLuaApp extends XLuaAppBase implements ISerial, IDBSerial, IJsonSer
         this.assignments = new ArrayList<>();
         JSONArray jAssignment = obj.getJSONArray("assignments");
         for (int i = 0; i < jAssignment.length(); i++) {
-            XLuaAssignment assignment = new XLuaAssignment();
+            LuaAssignment assignment = new LuaAssignment();
             assignment.fromJSONObject((JSONObject) jAssignment.get(i));
             this.assignments.add(assignment);
         }

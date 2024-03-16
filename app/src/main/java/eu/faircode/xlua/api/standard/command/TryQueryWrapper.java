@@ -40,7 +40,7 @@ public class TryQueryWrapper implements Callable<Cursor> {
             return handle.handle(packet);
         }catch (Throwable e) {
             exception = e;
-            Log.e(TAG, "Query Error: \n" + e + "\n" + Log.getStackTraceString(e));
+            Log.e(TAG, "Query Error: packet=" + packet + " command=" + handle.getName() + " \n" + e + "\n" + Log.getStackTraceString(e));
             XposedBridge.log("Query Error");
             return null;
         }finally {

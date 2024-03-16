@@ -19,6 +19,7 @@
 
 package eu.faircode.xlua;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -30,6 +31,7 @@ import android.os.Build;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 
 public class ReceiverPackage extends BroadcastReceiver {
@@ -55,22 +57,24 @@ public class ReceiverPackage extends BroadcastReceiver {
                     //args.putInt("uid", uid);
                     //context.getContentResolver()
                     //        .call(XSecurity.getURI(), "xlua", "clearApp", args);
-                    XLuaCall.clearApp(context, packageName, uid);
+                    XLuaCall.clearApp(context, uid, packageName);
 
-                    if (XLuaCall.getSettingBoolean(context, userid, "restrict_new_apps"))
-                        XLuaCall.initApp(context, packageName, uid);
+                    //Ensure this bullshit works (userid then use Global namespace ???????? )
+                    if (XLuaCall.getSettingBoolean(context, userid, UserIdentityPacket.GLOBAL_NAMESPACE, "restrict_new_apps"))
+                        //XLuaCall.initApp(context, packageName, uid);
+                        XLuaCall.initApp(context, uid, packageName);
                         //context.getContentResolver()
                         //        .call(XSecurity.getURI(), "xlua", "initApp", args);
 
 
                     // Notify new app
-                    if (XLuaCall.getSettingBoolean(context, userid, "notify_new_apps")) {
+                    if (XLuaCall.getSettingBoolean(context, userid,  UserIdentityPacket.GLOBAL_NAMESPACE, "notify_new_apps")) {
                         PackageManager pm = ctx.getPackageManager();
                         Resources resources = pm.getResourcesForApplication(BuildConfig.APPLICATION_ID);
 
                         Notification.Builder builder = new Notification.Builder(ctx);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                            builder.setChannelId(XGlobalCore.cChannelName);
+                            builder.setChannelId(XGlobals.cChannelName);
                         builder.setSmallIcon(android.R.drawable.ic_dialog_alert);
                         builder.setContentTitle(resources.getString(R.string.msg_review_settings));
                         builder.setContentText(pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)));
@@ -83,7 +87,7 @@ public class ReceiverPackage extends BroadcastReceiver {
                         int flags = (Build.VERSION.SDK_INT > Build.VERSION_CODES.R ? 0x04000000 : 0);
                         Intent main = ctx.getPackageManager().getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
                         main.putExtra(ActivityMain.EXTRA_SEARCH_PACKAGE, packageName);
-                        PendingIntent pi = PendingIntent.getActivity(ctx, uid, main, flags);
+                        @SuppressLint("WrongConstant") PendingIntent pi = PendingIntent.getActivity(ctx, uid, main, flags);
                         builder.setContentIntent(pi);
 
                         builder.setAutoCancel(true);
@@ -98,7 +102,10 @@ public class ReceiverPackage extends BroadcastReceiver {
                     //context.getContentResolver()
                     //        .call(XSecurity.getURI(), "xlua", "clearData", args);
 
+                    //WTF IS THIS GLOBAL ARGUMENT ????????
+                    //Clear XLUA data ?
                     XLuaCall.clearData(context, userid);
+                    //For now we comment this out
                 } else {
                     //Bundle args = new Bundle();
                     //args.putString("packageName", packageName);
@@ -107,7 +114,7 @@ public class ReceiverPackage extends BroadcastReceiver {
                     //context.getContentResolver()
                     //        .call(XSecurity.getURI(), "xlua", "clearApp", args);
 
-                    XLuaCall.clearApp(context, packageName, uid, true);
+                    XLuaCall.clearApp(context, uid, packageName, true);
                     XUtil.cancelAsUser(ctx, "xlua_new_app", uid, userid);
                 }
             }

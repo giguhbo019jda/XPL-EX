@@ -18,18 +18,19 @@ import java.util.Map;
 
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.XGlobalCore;
+import eu.faircode.xlua.XGlobals;
 import eu.faircode.xlua.api.XResult;
-import eu.faircode.xlua.api.settings.XLuaLuaSetting;
 
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.XposedUtil;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignment;
-import eu.faircode.xlua.api.hook.assignment.XLuaAssignmentWriter;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignmentWriter;
+import eu.faircode.xlua.api.settings.LuaSetting;
+import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
+import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.api.app.XLuaApp;
 import eu.faircode.xlua.api.hook.XLuaHook;
-import eu.faircode.xlua.api.xlua.database.XLuaSettingsDatabase;
 
 public class XLuaAppProvider {
     private static final String TAG = "XLua.XAppProvider";
@@ -43,7 +44,7 @@ public class XLuaAppProvider {
 
     public static boolean forceStop(Context context, String packageName, int userid) { return forceStop(context, packageName, userid, null); }
     public static boolean forceStop(Context context, String packageName, int userid, XResult res) {
-        if(packageName.equalsIgnoreCase(XLuaSettingsDatabase.GLOBAL_NAMESPACE)) {
+        if(packageName.equalsIgnoreCase(UserIdentityPacket.GLOBAL_NAMESPACE)) {
             XResult.logError(TAG, res, "Cannot Kill Global or UID: " + userid + " pgk=" + packageName);
             return false;
         }
@@ -101,7 +102,7 @@ public class XLuaAppProvider {
                         app.setPersistent(persistent);
                         app.setSystem(system);
                         app.setForceStop((!persistent && !system));
-                        app.setAssignments(new ArrayList<XLuaAssignment>());
+                        app.setAssignments(new ArrayList<LuaAssignment>());
                         apps.put(app.getPackageName(), app);
                     } catch (Throwable ex) {
                         Log.e(TAG, ex + "\n" + Log.getStackTraceString(ex));
@@ -126,7 +127,7 @@ public class XLuaAppProvider {
     private static void initAppForceToStop(Map<String, XLuaApp> apps, XDatabase db, int userid) {
         //direct insert here
         SqlQuerySnake snake = SqlQuerySnake
-                .create(db, XLuaLuaSetting.Table.name)
+                .create(db, LuaSetting.Table.name)
                 .whereColumn("user", Integer.toString(userid))
                 .whereColumn("name", "'forcestop'")
                 .onlyReturnColumns("category", "value");
@@ -161,7 +162,7 @@ public class XLuaAppProvider {
         int start = XUtil.getUserUid(userid, 0);
         int end = XUtil.getUserUid(userid, Process.LAST_APPLICATION_UID);
         SqlQuerySnake snake = SqlQuerySnake
-                .create(db, XLuaAssignment.Table.name)
+                .create(db, LuaAssignment.Table.name)
                 .onlyReturnColumns("package", "uid", "hook", "installed", "used", "restricted", "exception")
                 .whereColumn("uid", start, ">=")
                 .whereColumn("uid", end, "<=");
@@ -192,9 +193,9 @@ public class XLuaAppProvider {
                     if (app.getUid() != uid)
                         continue;
 
-                    XLuaHook hook = XGlobalCore.getHook(hookId, pkg, collections);
+                    XLuaHook hook = XGlobals.getHook(hookId, pkg, collections);
                     if(hook != null) {
-                        XLuaAssignmentWriter assignment = new XLuaAssignmentWriter(hook);
+                        LuaAssignmentWriter assignment = new LuaAssignmentWriter(hook);
                         assignment.setInstalled(c.getLong(colInstalled));
                         assignment.setUsed(c.getLong(colUsed));
                         assignment.setRestricted((c.getInt(colRestricted) == 1));

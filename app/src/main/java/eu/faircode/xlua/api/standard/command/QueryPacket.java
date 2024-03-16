@@ -7,31 +7,46 @@ import androidx.annotation.NonNull;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.standard.interfaces.IPacket;
+import eu.faircode.xlua.api.standard.interfaces.IUserPacket;
 
 public class QueryPacket {
     private static final String TAG = "XLua.QueryPacket";
 
-    private Context context;
-    private String method;
-    private String[] selection;
-    private XDatabase db;
+    private final Context context;
+    private final String methodPrefix;
+    private final String subMethod;
+    private final String[] selection;
+    private final XDatabase db;
+    private final String packageName;
 
-    public QueryPacket(Context context, String method, String[] selection, XDatabase db) {
+    private boolean isVxp = false;
+
+    public QueryPacket(Context context, String methodPrefix, String subMethod, String[] selection, XDatabase db) { this(context, methodPrefix, subMethod, selection, db, null); }
+    public QueryPacket(Context context, String methodPrefix, String subMethod, String[] selection, XDatabase db, String packageName) {
         this.context = context;
-        this.method = method;
+        this.subMethod = subMethod;
         this.selection = selection;
         this.db = db;
+        this.methodPrefix = methodPrefix;
+        this.packageName = packageName;
+        this.isVxp = packageName == null;
     }
 
+    public boolean isVXP() { return this.isVxp; };
+    public void setIsVXP(boolean isVxp) { this.isVxp = isVxp; }
+
+    public String getPackageName() { return this.packageName; }
     public Context getContext() { return this.context; }
-    public String getMethod() { return this.method; }
+    public String getMethodPrefix() { return this.methodPrefix; }
+    public String getSubMethod() { return this.subMethod; }
     public String[] getSelection() { return this.selection; }
     public XDatabase getDatabase() { return this.db; }
 
-    public <T extends IPacket> T readFrom(Class<T> classType, int flags) {
+
+    public <T extends IUserPacket> T readFrom(Class<T> classType, int flags) {
         try {
             T itm = classType.newInstance();
-            itm.readSelectionArgs(selection, flags);
+            itm.readSelectionArgsFromQuery(selection, flags);
             return itm;
         }catch (Exception e) {
             Log.e(TAG, "Failed to read Selections args! " + e);
@@ -43,9 +58,9 @@ public class QueryPacket {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if(method != null) {
+        if(subMethod != null) {
             sb.append("method=");
-            sb.append(method);
+            sb.append(subMethod);
         }
 
         if(db != null) {

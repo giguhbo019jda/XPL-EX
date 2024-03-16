@@ -8,10 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.settings.XMockMappedSetting;
-import eu.faircode.xlua.api.xmock.database.XMockSettingsDatabase;
 
-public class XMockSettingsProvider {
+
+/*public class XMockSettingsProvider {
     private static final Object lock = new Object();
     private static final String TAG = "XLua.XMockSettingsProvider";
     private static HashMap<String, XMockMappedSetting> defaultSettings = new HashMap<>();
@@ -60,4 +59,4 @@ public class XMockSettingsProvider {
 
         Log.i(TAG, "Cache is google size=" + defaultSettings.size());
     }
-}
+}*/

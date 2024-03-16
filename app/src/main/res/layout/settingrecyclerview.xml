@@ -37,12 +37,11 @@
         android:layout_marginBottom="10dp"
         android:clickable="true"
         android:focusable="true"
-        android:tint="@android:color/white"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/flSettingsButtonOne"
         app:layout_constraintEnd_toEndOf="@+id/flSettingsButtonOne"
         app:layout_constraintStart_toStartOf="@+id/flSettingsButtonOne"
-        app:srcCompat="@drawable/ic_remix_dice_line" />
+        app:srcCompat="@drawable/ic_remix_dice_fill" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/flSettingsButtonOne"
@@ -53,10 +52,9 @@
         android:clickable="true"
         android:focusable="true"
         android:visibility="visible"
-        android:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_remix_aliens_line" />
+        app:srcCompat="@drawable/ic_remix_aliens_fill" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cvAppInfoSettings"

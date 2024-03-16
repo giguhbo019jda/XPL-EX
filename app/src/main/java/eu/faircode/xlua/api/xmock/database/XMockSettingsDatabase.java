@@ -6,12 +6,11 @@ import java.util.Collection;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.XResult;
-import eu.faircode.xlua.api.props.XMockPropSetting;
-import eu.faircode.xlua.api.settings.XMockMappedSetting;
+
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 
-public class XMockSettingsDatabase {
+/*public class XMockSettingsDatabase {
     private static final String TAG = "XLua.XMockSettingsDatabase";
     private static final String JSON = "settingdefaults.json";
     private static final int COUNT = 116;
@@ -69,4 +68,4 @@ public class XMockSettingsDatabase {
                 XMockMappedSetting.class,
                 DatabaseHelp.DB_FORCE_CHECK);
     }
-}
+}*/

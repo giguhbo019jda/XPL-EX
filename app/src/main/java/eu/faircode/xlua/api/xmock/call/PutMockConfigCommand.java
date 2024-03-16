@@ -4,12 +4,12 @@ import android.content.Context;
 import android.os.Bundle;
 
 import eu.faircode.xlua.api.XProxyContent;
+import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.configs.MockConfig;
 import eu.faircode.xlua.api.configs.MockConfigDatabase;
+import eu.faircode.xlua.api.configs.MockConfigPacket;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
-import eu.faircode.xlua.api.config.XMockConfig;
-import eu.faircode.xlua.api.xmock.database.XMockConfigDatabase;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class PutMockConfigCommand extends CallCommandHandler {
@@ -22,15 +22,20 @@ public class PutMockConfigCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         throwOnPermissionCheck(commandData.getContext());
-        MockConfig config = commandData.read(MockConfig.class);
-        return BundleUtil.createResultStatus(
-                MockConfigDatabase.putMockConfig(
-                        commandData.getContext(),
-                        config,
-                        commandData.getDatabase()));
+        MockConfigPacket packet = commandData.read(MockConfigPacket.class);
+        if(packet == null) return XResult.create().setMethodName("putMockConfig").setFailed("Mock Config Packet is NULL!").toBundle();
+
+        packet.ensureCode(MockConfigPacket.CODE_APPLY_CONFIG);
+        switch (packet.getCode()) {
+            case MockConfigPacket.CODE_DELETE_CONFIG:
+            case MockConfigPacket.CODE_APPLY_CONFIG:
+                return MockConfigDatabase.putMockConfig(commandData.getContext(), commandData.getDatabase(), packet).toBundle();
+        }
+
+        return XResult.create().setMethodName("putMockConfig").setFailed("Failed to find Command Handler for Mock Config Packet! Code=" + packet.getCode()).toBundle();
     }
 
-    public static Bundle invoke(Context context, MockConfig packet) {
+    public static Bundle invoke(Context context, MockConfigPacket packet) {
         return XProxyContent.mockCall(
                 context,
                 "putMockConfig",
