@@ -8,6 +8,31 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 
 public class SettingUtil {
     private static final List<String> allUpperNames = Arrays.asList("sms", "icc", "no", "sys", "isp", "cid", "lac", "mac", "net", "ad", "drm", "gsf", "lcc", "meid", "imei", "bssid", "ssid", "esim", "sim", "sku", "lac", "cid", "msin", "mnc", "mcc", "adb", "os", "utc", "abi", "gps", "dns", "vm", "id", "gsm", "cpu", "gpu", "fp", "rom", "nfc", "soc", "url", "dev", "sdk", "iso");
+    public static final List<String> xpSettings = Arrays.asList("collection", "theme", "restrict_new_apps", "notify_new_apps");
+
+    public static String generateDescription(LuaSettingExtended extended) {
+        String desc = "N/A";
+        if(extended == null)
+            return desc;
+
+        //ensure put for these will not change packageName
+        if(StringUtil.isValidString(extended.getDescription()))
+            desc = extended.getDescription();
+        else {
+            if(extended.getName() != null) {
+                if(extended.getName().equalsIgnoreCase("theme"))
+                    desc = "Theme Control Setting to Control XPL-EX Theme (pls leave) (Dark, Light)";
+                else if(extended.getName().equalsIgnoreCase("collection"))
+                    desc = "XPL-EX Collections, separating each Collection with a Comma. Collections specifically enabled within the PRO or Main App (if supported)";
+                else if(extended.getName().equalsIgnoreCase("restrict_new_apps"))
+                    desc = "Restrict new Apps when installed (only if LSPosed also did the same :P )";
+                else if(extended.getName().equalsIgnoreCase("notify_new_apps"))
+                    desc = "Notify User when a new Application is Installed";
+            }
+        }
+
+        return desc;
+    }
 
     public static String cleanSettingName(String settingName) {
         if(!StringUtil.isValidString(settingName))

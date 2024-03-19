@@ -37,11 +37,9 @@ import eu.faircode.xlua.api.properties.MockPropConversions;
 import eu.faircode.xlua.api.properties.MockPropGroupHolder;
 import eu.faircode.xlua.api.properties.MockPropSetting;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
-import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.dialogs.PropertyAddDialog;
-import eu.faircode.xlua.dialogs.SettingAddDialog;
 
 public class FragmentProperties extends Fragment implements View.OnClickListener {
     private final static String TAG = "XLua.FragmentProperties";
@@ -53,12 +51,7 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
     private RecyclerView rvPropGroups;
     private AppGeneric application;
 
-
-    private TextView tvPackageName;
-    private TextView tvPackage;
-    private TextView tvPackageUid;
-
-    private ImageView ivAppIcon;
+    private TextView tvPropCount;
 
     private FloatingActionButton flMain, flAdd;
     private Animation fabOpen, fabClose, fromBottom, toBottom;
@@ -66,17 +59,18 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View main = inflater.inflate(R.layout.proprecyclerview, container, false);
-
         application = AppGeneric.from(getArguments(), getContext());
         Log.i(TAG, "Application Object Created=" + application);
 
-        tvPackageName = main.findViewById(R.id.tvPropertiesPackageName);
-        tvPackage = main.findViewById(R.id.tvPropertiesPackageFull);
-        tvPackageUid = main.findViewById(R.id.tvPropertiesPackageUid);
-        ivAppIcon = main.findViewById(R.id.ivPropertiesAppIcon);
+        tvPropCount = main.findViewById(R.id.tvPropCountProperties);
 
         initRefresh(main);
         initRecyclerView(main);
+
+        TextView tvPackageName = main.findViewById(R.id.tvPropertiesPackageName);
+        TextView tvPackage = main.findViewById(R.id.tvPropertiesPackageFull);
+        TextView tvPackageUid = main.findViewById(R.id.tvPropertiesPackageUid);
+        ImageView ivAppIcon = main.findViewById(R.id.ivPropertiesAppIcon);
 
         tvPackageName.setText(application.getName());
         tvPackage.setText(application.getPackageName());
@@ -107,6 +101,7 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
         });
 
         wire();
+        loadData();
         return main;
     }
 
@@ -131,7 +126,7 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
     @Override
     public void onResume() {
         super.onResume();
-        loadData();
+        //loadData();
     }
 
     @Override
@@ -203,12 +198,12 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
         manager.restartLoader(ActivityMain.LOADER_DATA, new Bundle(), dataLoaderCallbacks).forceLoad();
     }
 
-    LoaderManager.LoaderCallbacks dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<PropsDataHolder>() {
+    LoaderManager.LoaderCallbacks<PropsDataHolder> dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<PropsDataHolder>() {
+        @NonNull
         @Override
-        public Loader<PropsDataHolder> onCreateLoader(int id, Bundle args) {
-            return new PropsDataLoader(getContext()).setApp(application);
-        }
+        public Loader<PropsDataHolder> onCreateLoader(int id, Bundle args) { return new PropsDataLoader(getContext()).setApp(application); }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void onLoadFinished(Loader<PropsDataHolder> loader, PropsDataHolder data) {
             Log.i(TAG, "onLoadFinished");
@@ -224,6 +219,7 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
                     }
                 });
 
+                tvPropCount.setText(Integer.toString(data.totalProps));
                 rvPropsAdapter.set(data.propGroups);
                 swipeRefresh.setRefreshing(false);
                 progressBar.setVisibility(View.GONE);
@@ -258,20 +254,17 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
             PropsDataHolder data = new PropsDataHolder();
             try {
                 data.theme = XLuaCall.getTheme(getContext());
-
-
                 Log.i(TAG, "Loading properties with application=" + application);
-
                 Collection<MockPropSetting> props = XMockQuery.getAllProperties(getContext(), application);
                 Collection<LuaSettingExtended> settings = new ArrayList<>(XMockQuery.getAllSettings(getContext(), true, application.getUid(), application.getPackageName()));
-
-
+                data.totalProps = props.size();
                 Log.i(TAG, "props size=" + props.size() + " settings size=" + settings.size());
                 data.propGroups = new ArrayList<>(MockPropConversions.createHolders(getContext(), props, settings));
                 Log.i(TAG, "prop groups from cursor=" + data.propGroups.size());
             }catch (Throwable ex) {
                 data.propGroups.clear();
                 data.exception = ex;
+                data.totalProps = 0;
                 Log.e(TAG, ex.getMessage());
             }
 
@@ -283,6 +276,7 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
     private static class PropsDataHolder {
         String theme;
         List<MockPropGroupHolder> propGroups = new ArrayList<>();
+        int totalProps;
         Throwable exception = null;
     }
 }

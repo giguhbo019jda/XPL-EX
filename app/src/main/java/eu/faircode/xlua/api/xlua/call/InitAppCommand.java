@@ -19,8 +19,7 @@ public class InitAppCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
-        LuaSimplePacket packet = commandData.read(LuaSimplePacket.class);
+        LuaSimplePacket packet = commandData.readFullPackFrom(LuaSimplePacket.class);
         if(packet == null) return XResult.fromInvalidPacket(name, LuaSimplePacket.class).toBundle();
         return XResult.create()
                 .setMethodName(name)

@@ -288,6 +288,9 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
         @Override
         public void onCheckedChanged(final CompoundButton compoundButton, boolean checked) {
             Log.i(TAG, "Check changed");
+            //Bug here , ArrayIndexOutOfBoundsException=length=183; index=-1
+            //ArrayList.get()
+            //setChecked (occurs when check all at once)
             final XLuaApp app = filtered.get(getAdapterPosition());
 
             switch (compoundButton.getId()) {

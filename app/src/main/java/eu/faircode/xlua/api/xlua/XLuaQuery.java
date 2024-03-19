@@ -18,17 +18,9 @@ import eu.faircode.xlua.api.xlua.query.GetSettingsCommand;
 import eu.faircode.xlua.utilities.CursorUtil;
 
 public class XLuaQuery {
-    public static Collection<XLuaApp> getApps(Context context, boolean marshall) {
-        return XLuaAppConversions.fromCursor(
-                !marshall ?
-                GetAppsCommand.invoke(context) : GetAppsCommand.invokeEx(context), marshall, true);
-    }
-
-    public static Collection<XLuaHook> getHooks(Context context, boolean marshall) {
-        return XLuaHookConversions.fromCursor(
-                !marshall ?
-                GetHooksCommand.invoke(context) : GetHooksCommand.invokeEx(context), marshall, true);
-    }
+    //Clean this class as well as security class
+    public static Collection<XLuaApp> getApps(Context context, boolean marshall) { return XLuaAppConversions.fromCursor(GetAppsCommand.invoke(context, marshall), marshall, true); }
+    public static Collection<XLuaHook> getHooks(Context context, boolean marshall) { return XLuaHookConversions.fromCursor(GetHooksCommand.invoke(context, marshall), marshall, true); }
 
     public static Map<String, String> getGlobalSettings(Context context, int uid) { return getSettings(context, "global", uid); }
     public static Map<String, String> getSettings(Context context, String packageOrName, int uid) {

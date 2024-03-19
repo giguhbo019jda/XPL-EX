@@ -20,7 +20,7 @@ public class KillAppCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        LuaSettingPacket packet = commandData.read(LuaSettingPacket.class);
+        LuaSettingPacket packet = commandData.readFullPackFrom(LuaSettingPacket.class);
         XResult res = XResult.create().setMethodName("killApp").setExtra(packet.toString());
         return res.setResult(XLuaAppProvider.forceStop(commandData.getContext(), packet.getCategory(), XUtil.getUserId(packet.getUser()), res)).toBundle();
     }

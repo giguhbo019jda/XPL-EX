@@ -9,7 +9,6 @@ import eu.faircode.xlua.api.properties.MockPropPacket;
 import eu.faircode.xlua.api.properties.MockPropProvider;
 import eu.faircode.xlua.api.standard.QueryCommandHandler;
 import eu.faircode.xlua.api.standard.command.QueryPacket;
-import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 import eu.faircode.xlua.utilities.CursorUtil;
 
 public class GetMockPropertiesCommand extends QueryCommandHandler {
@@ -25,13 +24,8 @@ public class GetMockPropertiesCommand extends QueryCommandHandler {
 
     @Override
     public Cursor handle(QueryPacket commandData) throws Throwable {
-        Log.i("XLua.GetMockProperties", " is in command now handling: marshall=" + marshall + " data is null=" + (commandData.getSelection() == null));
-
-        MockPropPacket packet = commandData.readFrom(MockPropPacket.class, MockPropPacket.USER_QUERY_PACKET_ONE);
-        if(packet == null) {
-            Log.e("XLua.GetMockProperties", " is null packet");
-            return null;
-        }
+        MockPropPacket packet = commandData.readFullPacketFrom(MockPropPacket.class, MockPropPacket.USER_QUERY_PACKET_ONE);
+        if(packet == null) return null;
 
         packet.resolveUserID();
         return CursorUtil.toMatrixCursor(

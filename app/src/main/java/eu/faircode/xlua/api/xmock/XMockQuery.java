@@ -55,11 +55,7 @@ public class XMockQuery {
      * @param application Application Info where Modified Properties are saved Under
      * @return Collection of the Modified Properties AND Unmodified Properties.
      */
-    public static Collection<MockPropSetting> getAllProperties(Context context, AppGeneric application) {
-        MockPropPacket packet = MockPropPacket.createQueryRequest(application, false);
-        Log.i("XLua.XMockQuery", "created packet=" + packet.toString());
-        return getProperties(context, true, packet);
-    }
+    public static Collection<MockPropSetting> getAllProperties(Context context, AppGeneric application) { return getProperties(context, true, MockPropPacket.createQueryRequest(application, false));}
     /**
      * Get a Collection of the Build Properties that have been modified as well as Unmodified but Mapped Properties (all)
      * @param context

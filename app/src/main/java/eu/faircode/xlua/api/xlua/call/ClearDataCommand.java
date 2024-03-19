@@ -19,7 +19,6 @@ public class ClearDataCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
         return BundleUtil.createResultStatus(
                 LuaAppDatabase.clearData(
                         commandData.getExtras().getInt("user"),

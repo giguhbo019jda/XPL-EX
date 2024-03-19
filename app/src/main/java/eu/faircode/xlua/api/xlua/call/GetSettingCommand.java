@@ -22,8 +22,7 @@ public class GetSettingCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
-        LuaSettingPacket packet = commandData.read(LuaSettingPacket.class);
+        LuaSettingPacket packet = commandData.readFullPackFrom(LuaSettingPacket.class);
         packet.resolveUserID();
 
         if(BuildConfig.DEBUG)

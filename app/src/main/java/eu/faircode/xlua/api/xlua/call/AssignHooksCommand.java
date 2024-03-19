@@ -3,8 +3,6 @@ package eu.faircode.xlua.api.xlua.call;
 import android.content.Context;
 import android.os.Bundle;
 
-import java.util.List;
-
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.app.LuaSimplePacket;
@@ -12,7 +10,6 @@ import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.command.CallPacket;
 import eu.faircode.xlua.api.xlua.database.XLuaHookDatabase;
 import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
-import eu.faircode.xlua.utilities.BundleUtil;
 
 public class AssignHooksCommand extends CallCommandHandler {
     public static AssignHooksCommand create() { return new AssignHooksCommand(); };
@@ -23,8 +20,7 @@ public class AssignHooksCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
-        LuaAssignmentPacket packet = commandData.read(LuaAssignmentPacket.class);
+        LuaAssignmentPacket packet = commandData.readFullPackFrom(LuaAssignmentPacket.class);
         if(packet == null) return XResult.fromInvalidPacket(name, LuaSimplePacket.class).toBundle();
         return XLuaHookDatabase.assignHooks(
                 commandData.getContext(),

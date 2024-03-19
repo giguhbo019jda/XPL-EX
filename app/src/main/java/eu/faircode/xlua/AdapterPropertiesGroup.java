@@ -71,6 +71,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
 
         final ImageView ivDropDown;
         final TextView tvSettingName;
+        final TextView tvSettingNameFull;
 
         final AdapterProperty adapterProps;
         final RecyclerView rvGroupProps;
@@ -92,6 +93,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
 
             ivDropDown = itemView.findViewById(R.id.ivSettingDropDown);
             tvSettingName = itemView.findViewById(R.id.tvSettingName);
+            tvSettingNameFull = itemView.findViewById(R.id.tvGroupPropertiesSettingFullName);
 
             tvSettingDescription = itemView.findViewById(R.id.tvSettingDescriptionFromProperties);
             tiSettingValue = itemView.findViewById(R.id.tiSettingValueFromProperties);
@@ -413,6 +415,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
         String sName = group.getSettingName();
 
         holder.tvSettingName.setText(SettingUtil.cleanSettingName(sName));
+        holder.tvSettingNameFull.setText(sName);
         holder.tiSettingValue.setText(group.getValue());
         holder.tvSettingDescription.setText(group.getDescription());
 

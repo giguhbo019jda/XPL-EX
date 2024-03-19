@@ -62,31 +62,29 @@ public class MockPropProvider {
         Log.i(TAG, "[getSettingsForPackage] db=" + db.getName() + " user=" + user + " pkg=" + packageName + " all=" + getAll);
         initCache(context, db);
         Collection<MockPropSetting> userSettings = MockPropDatabase.getPropertySettingsForUser(db, user, packageName);
-        Log.i(TAG, "user settings=" + userSettings.size());
-        if(!getAll)
-            return userSettings;
+        Log.i(TAG, "[getSettingsForPackage] user settings size=" + userSettings.size());
+        if(!getAll) return userSettings;
 
-        HashMap<String, MockPropSetting> users = new HashMap<>(userSettings.size());
-        if(!CollectionUtil.isValid(userSettings)) {
+        HashMap<String, MockPropSetting> allSettings = new HashMap<>(userSettings.size());
+        if(CollectionUtil.isValid(userSettings))
             for(MockPropSetting s : userSettings)
-                users.put(s.getName(), s);
-        }
+                allSettings.put(s.getName(), s);
 
-        Log.i(TAG, "user settings (2) =" + users.size() + " mapped properties=" + mappedProperties.size());
+        Log.i(TAG, "[getSettingsForPackage] user settings (2) =" + allSettings.size() + " mapped properties=" + mappedProperties.size());
 
         synchronized (lock) {
             for(Map.Entry<String, MockPropMap> e : mappedProperties.entrySet()) {
                 String k = e.getKey();
                 MockPropMap m = e.getValue();
-                if(!users.containsKey(k)) {
+                if(!allSettings.containsKey(k)) {
                     MockPropSetting mSetting = MockPropSetting.create(user, packageName,  k, m.getSettingName(), MockPropSetting.PROP_NULL);
-                    users.put(k, mSetting);
+                    allSettings.put(k, mSetting);
                 }
             }
         }
 
-        Log.i(TAG, "total user settings=" + users.size());
-        return users.values();
+        Log.i(TAG, "[getSettingsForPackage] total user settings (all)=" + allSettings.size());
+        return allSettings.values();
     }
 
     public static void initCache(Context context, XDatabase db) {

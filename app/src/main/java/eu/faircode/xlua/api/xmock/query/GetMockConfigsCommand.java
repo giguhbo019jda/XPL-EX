@@ -23,7 +23,6 @@ public class GetMockConfigsCommand extends QueryCommandHandler {
 
     @Override
     public Cursor handle(QueryPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
         return CursorUtil.toMatrixCursor(
                 MockConfigDatabase.getMockConfigs(commandData.getContext(), commandData.getDatabase()),
                 marshall, 0);

@@ -27,7 +27,7 @@ import eu.faircode.xlua.api.hook.XLuaHook;
 public class XReporter {
     private static final String TAG = "XLua.XError";
     private final Map<String, Map<String, Bundle>> queue = new HashMap<String, Map<String, Bundle>>();
-    private Timer timer = new Timer();
+    private Timer timer = null;
 
     public void reportFieldException(Context context, Exception ex, XLuaHook hook, Field field) {
         StringBuilder sb = new StringBuilder();
@@ -91,6 +91,9 @@ public class XReporter {
         }
         sb.append("\n");
 
+        Log.i(TAG, "done writing method...");
+
+
         // Report use error
         //Bundle data = new Bundle();
         //data.putString("function", function);
@@ -106,13 +109,10 @@ public class XReporter {
 
     public void reportError(Context context, XLuaHook hook, StringBuilder sb, String functionName) {
         Log.e(TAG, sb.toString());
-
-        Log.e(TAG, sb.toString());
         // Report use error
         Bundle data = new Bundle();
         data.putString("function", functionName);
         data.putString("exception", sb.toString());
-
         pushReport(context, hook.getId(), functionName, "use", data);
     }
 
@@ -120,17 +120,17 @@ public class XReporter {
         boolean restricted = result.arg1().checkboolean();
         if (restricted && hook.doUsage()) {
             Bundle data = new Bundle();
-
             data.putString("function", funName);
-
-            //data.putString("function", function);
             data.putInt("restricted", restricted ? 1 : 0);
             data.putLong("duration", SystemClock.elapsedRealtime() - startTime);
             if (result.narg() > 1) {
                 data.putString("old", result.isnil(2) ? null : result.checkjstring(2));
                 data.putString("new", result.isnil(3) ? null : result.checkjstring(3));
             }
+
             pushReport(context, hook.getId(), funName, "use", data);
+        }else {
+            Log.w(TAG, "Big Bad Warning we didnt make the report... fun=" + funName);
         }
     }
 
@@ -156,8 +156,6 @@ public class XReporter {
                 timer = new Timer();
                 timer.schedule(new TimerTask() {
                     public void run() {
-                        Log.i(TAG, "Processing event queue package=" + packageName + ":" + uid);
-
                         List<Bundle> work = new ArrayList<>();
                         synchronized (queue) {
                             for (String key : queue.keySet())

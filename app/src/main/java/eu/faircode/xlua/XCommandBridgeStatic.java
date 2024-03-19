@@ -3,6 +3,9 @@ package eu.faircode.xlua;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
+
+import java.lang.reflect.Method;
 
 import de.robv.android.xposed.XC_MethodHook;
 import eu.faircode.xlua.api.standard.CommanderService;
@@ -22,6 +25,7 @@ import eu.faircode.xlua.api.xlua.call.ReportCommand;
 import eu.faircode.xlua.api.xlua.query.GetAppsCommand;
 import eu.faircode.xlua.api.xlua.query.GetAssignedHooksCommand;
 import eu.faircode.xlua.api.xlua.query.GetHooksCommand;
+import eu.faircode.xlua.api.xlua.query.GetLogCommand;
 import eu.faircode.xlua.api.xlua.query.GetSettingsCommand;
 import eu.faircode.xlua.api.xmock.XMockDatabase;
 import eu.faircode.xlua.api.xmock.call.GetMockCpuCommand;
@@ -38,8 +42,10 @@ import eu.faircode.xlua.api.xmock.query.GetMockSettingsCommand;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class XCommandBridgeStatic {
+    public static final String PRO_PACKAGE = "eu.faircode.xlua.pro";
+    public static final String X_LUA_PACKAGE = "eu.faircode.xlua";//pretty sure this is a string somewhere already
+
     private static final String TAG = "XLua.XSettingBridgeStatic";
-    private static final String xLUA_PACKAGE = "eu.faircode.xlua";//pretty sure this is a string somewhere already
 
     public static final CommanderService luaCommandService = new CommanderService("xlua", XLuaDatabase.createEmpty(), 100);
     private static final CommanderService mockCommandService = new CommanderService("mock", XMockDatabase.createEmpty(), 100);
@@ -60,6 +66,8 @@ public class XCommandBridgeStatic {
                 .registerQuery(GetAssignedHooksCommand.class, true)
                 .registerQuery(GetHooksCommand.class, true)
                 .registerQuery(GetSettingsCommand.class)
+                //didnt register log
+                .registerQuery(GetLogCommand.class)
                 //Mock Settings that link to XLUA DB
                 .registerQuery(GetMockSettingsCommand.class, true)
                 .registerCall(PutMockSettingCommand.class);
@@ -101,24 +109,30 @@ public class XCommandBridgeStatic {
     }
 
     public static void handleQuery(XC_MethodHook.MethodHookParam param, String packageName) {
-        QueryPacket packet = luaCommandService.createQueryPacket(param, packageName);
-        if(packet != null) param.setResult(luaCommandService.handleQuery(packet));
+        QueryPacket packet = luaCommandService.tryCreateQueryPacket(param, packageName);
+        if (packet != null) {
+            //Lua Command (query)
+            param.setResult(luaCommandService.handleQuery(packet));
+        }
         else {
-            packet = mockCommandService.createQueryPacket(param, packageName);
+            //Mock Commands (query)
+            packet = mockCommandService.tryCreateQueryPacket(param, packageName);
             if(packet != null) param.setResult(mockCommandService.handleQuery(packet));
         }
     }
 
     public static void handeCall(XC_MethodHook.MethodHookParam param, String packageName)  {
-        CallPacket packet = luaCommandService.createCallPacket(param, packageName);
+        CallPacket packet = luaCommandService.tryCreateCallPacket(param, packageName);
         if(packet != null) {
-            if(packet.getSubMethod().equals("getVersion"))
+            //Lua commands (call)
+            if(packet.getMethod().equalsIgnoreCase("getVersion"))
                 param.setResult(BundleUtil.createSingleInt("version", XLua.version));
             else
                 param.setResult(luaCommandService.handleCall(packet));
         }
         else {
-            packet = mockCommandService.createCallPacket(param, packageName);
+            //Mock Commands (call)
+            packet = mockCommandService.tryCreateCallPacket(param, packageName);
             if(packet != null) param.setResult(mockCommandService.handleCall(packet));
         }
     }

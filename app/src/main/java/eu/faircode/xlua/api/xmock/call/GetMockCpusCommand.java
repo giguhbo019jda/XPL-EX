@@ -19,7 +19,6 @@ public class GetMockCpusCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
         return MockCpuConversions.toBundleArray(
                 XMockCpuDatabase.getCpuMaps(
                         commandData.getContext(),

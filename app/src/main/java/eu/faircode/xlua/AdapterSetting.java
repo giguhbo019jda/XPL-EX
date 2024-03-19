@@ -29,6 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,12 +89,16 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         final CardView cvSetting;
         final ConstraintLayout clLayout;
 
+        final TextView tvSettingNameFull;
+
         ViewHolder(View itemView) {
             super(itemView);
 
             this.itemView = itemView;
             cvSetting = itemView.findViewById(R.id.cvSetting);
             clLayout = itemView.findViewById(R.id.clSettingLayout);
+
+            tvSettingNameFull = itemView.findViewById(R.id.tvSettingsSettingFullName);
             //appInfoLayout = itemView.findViewById(R.id.app_info_layout_settings);
 
             ivSettingDrop = itemView.findViewById(R.id.ivExpanderSettingsSetting);
@@ -247,6 +253,10 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
     AdapterSetting() { setHasStableIds(true); this.randomizers = GlobalRandoms.getRandomizers(); }
     AdapterSetting(FragmentManager fragmentManager) { this(); this.fragmentManager = fragmentManager; }
 
+    void randomizeAll(Context context) {
+
+    }
+
     void set(List<LuaSettingExtended> settings, AppGeneric application) {
         this.dataChanged = true;
         this.settings.clear();
@@ -377,11 +387,9 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         LuaSettingExtended setting = filtered.get(position);
         String settingName = setting.getName();
         holder.tvSettingName.setText(SettingUtil.cleanSettingName(settingName));
-        String desc = "User Defined Setting/ Hook Setting (not ObbedCode's) setting full=" + settingName;
-        if(StringUtil.isValidString(setting.getDescription()))
-            desc = setting.getDescription();
+        holder.tvSettingDescription.setText(SettingUtil.generateDescription(setting));
+        holder.tvSettingNameFull.setText(setting.getName());
 
-        holder.tvSettingDescription.setText(desc);
         if(StringUtil.isValidString(setting.getValue())) {
             holder.cvSetting.setCardBackgroundColor(XUtil.resolveColor(holder.itemView.getContext(), R.attr.colorSystem));
             holder.tiSettingValue.setText(setting.getValue());

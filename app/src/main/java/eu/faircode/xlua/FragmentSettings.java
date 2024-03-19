@@ -195,7 +195,10 @@ public class FragmentSettings  extends Fragment implements View.OnClickListener 
                 invokeFloatingAction();
                 break;
             case R.id.flSettingsButtonTwo:
-                //
+                //Randomize all
+
+                //for(int i = 0; i < rvAdapter.)
+
                 break;
             case R.id.flSettingsButtonThree:
                 SettingAddDialog setDialog = new SettingAddDialog();

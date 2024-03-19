@@ -24,29 +24,25 @@ import eu.faircode.xlua.utilities.BundleUtil;
 public class ReportCommand extends CallCommandHandler {
     private static final String TAG = "XLua.ReportCommand";
 
-    public static ReportCommand create() { return new ReportCommand(); };
+    @SuppressWarnings("unused")
     public ReportCommand() {
-        name = "report";
-        requiresPermissionCheck = false;
+        this.name = "report";
+        this.requiresPermissionCheck = false;
+        this.requiresSingleThread = true;
     }
 
     @Override
     @SuppressLint("MissingPermission")
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
         XReport report = new XReport(commandData.getExtras());
-        //int userId = report.getUserId();
-
-        if(report.uid != Binder.getCallingUid()) {
+        if(report.uid !=  Binder.getCallingUid()) {
             Log.e(TAG, "Calling ID is not matched with Report User ID! " + report.uid);
             throw new SecurityException();//Ok how the fuck this can throw exception without a throws clause this JAVA is fucking dumb worst language
         }
 
-        Log.i(TAG, report + " exc=" + report.getFullException());
-
         XLuaHook hook = XGlobals.getHook(report.hookId);
-
         long used = XLuaHookDatabase.report(report, hook, commandData.getDatabase());
+
 
         long identity = Binder.clearCallingIdentity();
         try {
@@ -67,6 +63,7 @@ public class ReportCommand extends CallCommandHandler {
                 Notification.Builder builder = XNotify.buildExceptionNotification(ctx, report, pm, resources);
                 XUtil.notifyAsUser(ctx, "xlua_exception", report.uid, builder.build(), report.getUserId());
             }
+
         }catch (Throwable e) {
             Log.e(TAG, "Internal Error for Report: \n" + e + "\n" + Log.getStackTraceString(e));
         }finally {

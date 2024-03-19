@@ -1,5 +1,6 @@
 package eu.faircode.xlua.loggers;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.List;
@@ -48,9 +49,17 @@ public class DatabaseQueryLogger {
 
         log.append("\n");
 
+        log.append("[7] OnlyReturn=");
+        List<String> els = snake.getOnlyReturn();
+        if(els != null) {
+            log.append(TextUtils.join(" , ", els));
+        }
+
+        log.append("\n");
+
         //Binder.getCallingUid();
         if(logStack) {
-            log.append("[7] Stack=\n");
+            log.append("[8] Stack=\n");
             for(StackTraceElement e : Thread.currentThread().getStackTrace()) {
                 log.append(e.getClassName());
                 log.append("::");

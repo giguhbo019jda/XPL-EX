@@ -93,12 +93,14 @@ public class LuaSettingsDatabase {
                 .whereColumn("name", packet.getName())
                 .queryGetFirstString("value", true);
 
+        Log.i(TAG, "within getSettingValue packet=" + packet + " v=" + v + " isglobal=" + packet.isGlobal() + "  code=" + packet.getCode());
+
         if(v == null) {
-            if(packet.equals("theme")) {
+            if(packet.getName().equalsIgnoreCase("theme")) {
                 putSetting(context, db, LuaSettingPacket.create(packet.getName(), DEFAULT_THEME, LuaSettingPacket.CODE_INSERT_UPDATE_SETTING));
                 return DEFAULT_THEME;
             }
-            else if(packet.equals("collection")) {
+            else if(packet.getName().equalsIgnoreCase("collection")) {
                 putSetting(context, db, LuaSettingPacket.create(packet.getName(), DEFAULT_COLLECTIONS, LuaSettingPacket.CODE_INSERT_UPDATE_SETTING));
                 return DEFAULT_COLLECTIONS;
             }else if(!packet.isGlobal()) {

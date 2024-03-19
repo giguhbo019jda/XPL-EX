@@ -107,6 +107,8 @@ public class XLuaHookDatabase {
         Log.i(TAG , "Updating Assignment: " + report);
 
         //Update Assignment , make it a function ?
+
+
         long used = -1;
         if(!DatabaseHelp.updateItem(db, LuaAssignment.Table.name, report.generateQuery(), report))
             Log.w(TAG, "Error updating Assignment: " + report);

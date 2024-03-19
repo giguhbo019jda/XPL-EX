@@ -18,8 +18,7 @@ import eu.faircode.xlua.api.app.XLuaApp;
 
 
 public class GetAppsCommand extends QueryCommandHandler {
-    public static GetAppsCommand create(boolean marshall) { return new GetAppsCommand(marshall); };
-
+    @SuppressWarnings("unused")
     public GetAppsCommand() { this(false); }
     public GetAppsCommand(boolean marshall) {
         name = marshall ? "getApps2" : "getApps";
@@ -42,6 +41,9 @@ public class GetAppsCommand extends QueryCommandHandler {
                 0);
     }
 
-    public static Cursor invoke(Context context) { return XProxyContent.luaQuery(context, "getApps"); }
-    public static Cursor invokeEx(Context context) { return XProxyContent.luaQuery(context, "getApps2"); }
+    public static Cursor invoke(Context context, boolean marshall) {
+        return XProxyContent.luaQuery(
+                context,
+                marshall ? "getApps2" : "getApps");
+    }
 }

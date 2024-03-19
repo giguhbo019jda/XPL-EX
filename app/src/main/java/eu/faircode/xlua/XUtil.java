@@ -200,6 +200,7 @@ public class XUtil {
         return typedValue.data;
     }
 
+    //Hmm we have this
     public static void areYouSure(ActivityBase activity, String question, final DoubtListener listener) {
         final DialogObserver observer = new DialogObserver();
         AlertDialog ad = new AlertDialog.Builder(activity)

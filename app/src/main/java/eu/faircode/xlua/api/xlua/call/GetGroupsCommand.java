@@ -18,7 +18,6 @@ public class GetGroupsCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
         return BundleUtil.
                 createFromStringArray(
                         "groups",

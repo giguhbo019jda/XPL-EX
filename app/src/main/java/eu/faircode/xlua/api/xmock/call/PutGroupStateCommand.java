@@ -10,9 +10,7 @@ import eu.faircode.xlua.api.standard.command.CallPacket;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class PutGroupStateCommand extends CallCommandHandler {
-
     public static PutGroupStateCommand create() { return new PutGroupStateCommand(); };
-
     public PutGroupStateCommand() {
         name = "putGroupState";
         requiresPermissionCheck = true;
@@ -20,7 +18,6 @@ public class PutGroupStateCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
         /*MockPropMap packet = commandData.read(MockPropMap.class);
         return BundleUtil.createResultStatus(
                 XMockPropertiesProvider.setGroupState(commandData.getContext(), commandData.getDatabase(), packet));*/

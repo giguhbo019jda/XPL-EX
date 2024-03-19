@@ -60,6 +60,7 @@ import androidx.fragment.app.FragmentTransaction;
 import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
 import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.utilities.PrefUtil;
 
 public class ActivityMain extends ActivityBase {
     private final static String TAG = "XLua.Main";
@@ -487,14 +488,30 @@ public class ActivityMain extends ActivityBase {
         }
     }
 
+    public void checkWelcome() {
+        if(!PrefUtil.getPreferenceBoolean(getApplicationContext(), "welcome", false, true)) {
+            PrefUtil.setPreferenceBoolean(getApplicationContext(), "welcome", true);
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View view = inflater.inflate(R.layout.thankyou, null, false);
+            TextView tvLicence = view.findViewById(R.id.tvThankYouObbed);
+            tvLicence.setMovementMethod(LinkMovementMethod.getInstance());
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            tvLicence.setText(Html.fromHtml(getString(R.string.thank_you, year)));
+
+            firstRunDialog = new AlertDialog.Builder(this)
+                    .setView(view).setCancelable(false)
+                    .setPositiveButton(R.string.option_thanks, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) { }
+                    }).create();
+            firstRunDialog.show();
+        }
+    }
+
     public void checkFirstRun() {
+        checkWelcome();
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean firstRun = prefs.getBoolean("firstrun", true);
-        //use this to init debug
-        //
-        //boolean debug = prefs.getBoolean("verbosedebug", true);
-        //DebugUtil.setForceDebug(debug);
-
         if (firstRun && firstRunDialog == null) {
             final XUtil.DialogObserver observer = new XUtil.DialogObserver();
 

@@ -13,10 +13,8 @@ import eu.faircode.xlua.api.standard.command.QueryPacket;
 import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
 
 
-
 public class GetSettingsCommand extends QueryCommandHandler {
     public static GetSettingsCommand create() { return new GetSettingsCommand(); };
-
     public GetSettingsCommand() {
         name = "getSettings";
         requiresPermissionCheck = false;
@@ -28,7 +26,7 @@ public class GetSettingsCommand extends QueryCommandHandler {
         String[] selection = commandData.getSelection();
         XDatabase db = commandData.getDatabase();
         if(selection == null || selection.length == 0)
-            return result;
+            return null;
 
         String packageName = selection[0];
         int userid = 0;
@@ -61,20 +59,6 @@ public class GetSettingsCommand extends QueryCommandHandler {
                 .create()
                 .whereColumn("pkg", packageOrName)
                 .whereColumn("uid", uid);
-
-        return XProxyContent.luaQuery(
-                context,
-                "getSettings",
-                snake.getSelectionCompareValues(),
-                snake.getSelectionArgs());
-    }
-
-    public static Cursor invokeEx(Context context, String packageOrName, int uid) {
-        SqlQuerySnake snake = SqlQuerySnake
-                .create()
-                .whereColumn("pkg", packageOrName)
-                .whereColumn("uid", uid)
-                .whereColumn("cache", "true");
 
         return XProxyContent.luaQuery(
                 context,

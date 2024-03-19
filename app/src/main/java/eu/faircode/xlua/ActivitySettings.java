@@ -37,6 +37,7 @@ public class ActivitySettings extends ActivityBase implements ISettingDialogList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settingscontent);
 
+
         //Show Fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

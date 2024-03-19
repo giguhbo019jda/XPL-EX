@@ -18,7 +18,7 @@ public class SqlQueryBuilder {
     protected List<String> compareValues = new ArrayList<>();
     protected List<String> onlyReturn = new ArrayList<>();
 
-    private String symbolWithCompare = " = ?";
+    private String symbolWithCompare = null;//" = ?";
     private boolean useOr = false;
 
     protected StringBuilder selectionArgsBuilder = new StringBuilder();
@@ -69,23 +69,81 @@ public class SqlQueryBuilder {
         compareValues.addAll(Arrays.asList(values));
     }
 
+    private static final String SYMBOL_EQUALS = "=";
+    private static final String SYMBOL_WILD = "?";
+    private static final String SYMBOL_SPACE = " ";
+    private static final String SYMBOL_OR = "OR";
+    private static final String SYMBOL_AND = "AND";
+
+    private static final List<String> symbols = Arrays.asList("<", ">", "=", ">=", "<=", "=>", "=<", "==");
+
     protected void internal_whereColumnBinds(String columnName, String value) { internal_whereColumnBinds(columnName, value, null); }
     protected void internal_whereColumnBinds(String columnName, String value, String symbol) {
         if(!StringUtil.isValidString(columnName))
             return;
 
-        if(fCount != 0)
-            selectionArgsBuilder.append(useOr ? " OR " : " AND ");
-
-        if(symbol != null) {
-            symbol = symbol.replace(" ", "");
-            symbol = " " + symbol + " ?";
-            //eww this looks ugly fix later
+        //
+        //
+        //columnName    (column to perform check)
+        //symbol        (symbol to use compare)
+        //value         (value to perform comparison on)    if its (?) then we bind it from a compare values list else direct bind it
+        //
+        //<= >= =
+        //
+        //
+        if(fCount != 0) selectionArgsBuilder.append(useOr ? " OR " : " AND ");
+        selectionArgsBuilder.append(columnName);
+        selectionArgsBuilder.append(" ");
+        if(symbol == null) {
+            if(symbolWithCompare == null) {
+                selectionArgsBuilder.append(SYMBOL_EQUALS);
+                selectionArgsBuilder.append(" ?");
+            }else {
+                String sc = symbolWithCompare.trim();
+                selectionArgsBuilder.append(sc);
+                if(!sc.endsWith("?") && symbols.contains(sc))
+                    selectionArgsBuilder.append(" ?");
+            }
+        }else {
+            symbol = symbol.trim();
+            if(symbol.endsWith("*")) {
+                if(symbol.length() > 1) selectionArgsBuilder.append(symbol.substring(0, symbol.length() - 1));
+                else selectionArgsBuilder.append(SYMBOL_EQUALS);
+                selectionArgsBuilder.append(" ");
+                selectionArgsBuilder.append(value);
+                fCount++;
+                return;
+            }else {
+                selectionArgsBuilder.append(symbol);
+                if(symbol.length() <= 2) {
+                    if(!symbol.endsWith("?") && symbols.contains(symbol))
+                        selectionArgsBuilder.append(" ?");
+                }
+            }
         }
 
-        selectionArgsBuilder.append(columnName);
-        selectionArgsBuilder.append(symbol == null ? symbolWithCompare : symbol);
-        compareValues.add(value);
+
+        //compareValues.add(value);
+        /*if(symbol == null)
+            symbol = symbolWithCompare;
+        if(symbol != null) {
+        }
+        if(fCount != 0)
+            selectionArgsBuilder.append(useOr ? " OR " : " AND ");
+        if(symbol != null) {
+            if(symbol.equals("*")) {
+                //symbol is going to be " value"
+            }
+            symbol = symbol.replace(" ", "");
+            //String compEnd = value == null ? " ?" : " " + value.trim();
+            symbol = " " + symbol; //+ compEnd;
+            //eww this looks ugly fix later
+        }*/
+
+        //selectionArgsBuilder.append(columnName);
+        //selectionArgsBuilder.append(symbol == null ? symbolWithCompare : symbol);
+        if(value != null)
+            compareValues.add(value);
         fCount++;
     }
 

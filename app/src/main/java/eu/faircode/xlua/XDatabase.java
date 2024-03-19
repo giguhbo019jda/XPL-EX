@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Process;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -84,17 +85,20 @@ public class XDatabase {
     }
 
     public boolean update(String tableName, ContentValues values, SqlQuerySnake queryFilter) {
+        boolean ass = false;
         try {
-            long rows = db.updateWithOnConflict(tableName, values, queryFilter.getSelectionArgs(), queryFilter.getSelectionCompareValues(), SQLiteDatabase.CONFLICT_REPLACE);
-            //if(rows < 0) {
+            long rows = db.update(tableName, values, queryFilter.getSelectionArgs(), queryFilter.getSelectionCompareValues());
             if(rows != 1){
-                Log.e(TAG, "Failed to Update Data into Table:" + tableName);
-                return false;
+                rows = db.updateWithOnConflict(tableName, values, queryFilter.getSelectionArgs(), queryFilter.getSelectionCompareValues(), SQLiteDatabase.CONFLICT_REPLACE);
+                if(rows != 1) {
+                    Log.e(TAG, " Failed to Update Data into Table:" + tableName + " stack=" + Log.getStackTraceString(new Throwable()));
+                    return false;
+                }
             }
 
             return true;
         }catch (Exception e) {
-            Log.e(TAG, "Failed to Add / Update Row in Table=" + tableName + "\n" + e.getMessage());
+            Log.e(TAG, "Failed to Add / Update Row in Table=" + tableName + "\n" + e.getMessage() + " stack=" + Log.getStackTraceString(e));
             return false;
         }
     }
@@ -383,6 +387,12 @@ public class XDatabase {
     @NonNull
     @Override
     public String toString() {
-        return getName() + " path=" + getPath() + " isOpen=" + isOpen(false);
+        return new StringBuilder()
+                .append("file=[")
+                .append(getPath())
+                .append(" => ")
+                .append(getName())
+                .append("]  >> isOpen=")
+                .append(isOpen(false)).toString();
     }
 }

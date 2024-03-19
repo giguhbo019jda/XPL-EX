@@ -107,7 +107,7 @@ public class LuaSettingPacket extends LuaSettingExtended  {
     public boolean isGetObject() { return isCode(CODE_GET_OBJECT); }
     public boolean isGetValueOrDefault() { return isCode(CODE_GET_VALUE_OR_DEFAULT); }
     public boolean isOriginalCall() {  return isCode(CODE_VERSION_ONE); }
-    public boolean isDelete() { return (isNullOrEmptyCode() && value == null) || isCodes(false, CODE_DELETE_SETTING , CODE_DELETE_DEFAULT_AND_SETTING); }
+    public boolean isDelete() { return (isNullOrEmptyCode() && value == null) || isCodes( CODE_DELETE_SETTING , CODE_DELETE_DEFAULT_AND_SETTING); }
     public boolean isDeleteDefault() { return isCodes(CODE_DELETE_DEFAULT_AND_SETTING , CODE_DELETE_DEFAULT_SETTING); }
     public boolean isGetAll() { return isCode(CODE_GET_ALL); }
     public boolean isGetModified() { return isCode(CODE_GET_MODIFIED); }

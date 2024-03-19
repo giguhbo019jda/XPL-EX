@@ -18,8 +18,7 @@ public class PutMockCpuCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
-        MockCpu packet = commandData.read(MockCpu.class);
+        MockCpu packet = commandData.readFullPackFrom(MockCpu.class);
         return XMockCpuProvider.putMockCpuMap(
                         commandData.getDatabase(),
                         packet.getName(),

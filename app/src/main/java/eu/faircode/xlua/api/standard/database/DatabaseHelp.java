@@ -305,7 +305,7 @@ public class DatabaseHelp {
                 info(tableName, db, TAG_InsertUpdate, "Inserted item=" + item);
             }else {
                 info(tableName, db, TAG_InsertUpdate, "Updating item=" + item);
-                if(db.update(tableName, item.createContentValues(), query)) {
+                if(!db.update(tableName, item.createContentValues(), query)) {
                     error(tableName, db, TAG_InsertUpdate, ERROR_UPDATE + " item=" + item);
                     return false;
                 }

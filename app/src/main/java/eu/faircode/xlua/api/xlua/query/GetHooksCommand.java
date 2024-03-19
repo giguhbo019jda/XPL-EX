@@ -14,8 +14,7 @@ import eu.faircode.xlua.utilities.DatabasePathUtil;
 import eu.faircode.xlua.utilities.ReflectUtil;
 
 public class GetHooksCommand extends QueryCommandHandler {
-    public static GetHooksCommand create(boolean marshall) { return new GetHooksCommand(marshall); };
-
+    @SuppressWarnings("unused")
     public GetHooksCommand() { this(false); }
     public GetHooksCommand(boolean marshall) {
         this.marshall = marshall;
@@ -33,6 +32,9 @@ public class GetHooksCommand extends QueryCommandHandler {
                 XLuaHook.FLAG_WITH_LUA);
     }
 
-    public static Cursor invoke(Context context) { return XProxyContent.luaQuery(context, "getHooks"); }
-    public static Cursor invokeEx(Context context) { return XProxyContent.luaQuery(context, "getHooks2"); }
+    public static Cursor invoke(Context context, boolean marshall) {
+        return XProxyContent.luaQuery(
+                context,
+                marshall ? "getHooks2" : "getHooks");
+    }
 }

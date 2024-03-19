@@ -38,10 +38,8 @@ public class ActivityBase extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //theme = XProvider.getSetting(this, "global", "theme");
         theme = XLuaCall.getTheme(this);
         setTheme("dark".equals(theme) ? R.style.AppThemeDark : R.style.AppThemeLight);
-
         super.onCreate(savedInstanceState);
     }
 
@@ -69,13 +67,5 @@ public class ActivityBase extends AppCompatActivity {
                 }
             }
         });
-
-
-        /*Log.i(TAG, "Set Theme=" + name);
-        //XProvider.putSetting(this, "global", "theme", name);
-        XLuaCall.putSetting(this, "theme", name);
-        theme = name;
-        setTheme("dark".equals(name) ? R.style.AppThemeDark : R.style.AppThemeLight);
-        recreate();*/
     }
 }

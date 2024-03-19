@@ -101,13 +101,10 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
         @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
         @Override
         public void onCheckedChanged(final CompoundButton cButton, final boolean isChecked) {
+            Log.i(TAG, "onCheckedChanged: " + cButton.getId() + " isChecked=" + isChecked);
             final MockPropSetting setting = filtered.get(getAdapterPosition());
 
             int valueNeeded = 0;
-            final int code = isChecked ? MockPropPacket.CODE_INSERT_UPDATE_PROP_SETTING : MockPropPacket.CODE_DELETE_PROP_SETTING;
-            //boolean hide = cbHide.isChecked();
-            //boolean skip = cbSkip.isChecked();
-
             if(isChecked) {
                 switch (cButton.getId()) {
                     case R.id.cbPropSkip: valueNeeded = MockPropPacket.PROP_SKIP; break;
@@ -116,13 +113,12 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
                 }
             }
 
-            Log.i(TAG, "CheckBox Invoked code =" + code + " valueNeeded=" + valueNeeded + " application=" + application);
-
-            final MockPropPacket packet = MockPropPacket.create(application.getUid(), application.getPackageName(), setting.getName(), null, valueNeeded, code);
+            final int code = isChecked && valueNeeded != MockPropPacket.PROP_NULL ? MockPropPacket.CODE_INSERT_UPDATE_PROP_SETTING : MockPropPacket.CODE_DELETE_PROP_SETTING;
+            Log.i(TAG, "CheckBox Invoked code =" + code + " valueNeeded=" + valueNeeded + " application=" + application + " isChecked=" + isChecked + " id=" + cButton.getId() + " setting=" + setting);
+            final MockPropPacket packet = MockPropPacket.create(application.getUid(), application.getPackageName(), setting.getName(), setting.getSettingName(), valueNeeded, code);
             final Context context = cButton.getContext();
 
             Log.i(TAG, "Packet Created for Property: packet=" + packet);
-
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -132,11 +128,8 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
                             @SuppressLint("NotifyDataSetChanged")
                             @Override
                             public void run() {
-                                if(ret.succeeded()) {
-                                    //cvSetting.setCardBackgroundColor(XUtil.resolveColor(context, R.attr.cardForegroundColor));
-                                    //modified.remove(setting);
+                                if(ret.succeeded())
                                     setting.setValue(packet.getValue());
-                                }
 
                                 Toast.makeText(context, ret.getResultMessage(), Toast.LENGTH_SHORT).show();
                                 notifyDataSetChanged();

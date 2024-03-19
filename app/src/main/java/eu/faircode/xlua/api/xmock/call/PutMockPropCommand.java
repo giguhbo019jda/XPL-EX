@@ -9,8 +9,6 @@ import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.properties.MockPropDatabase;
 import eu.faircode.xlua.api.properties.MockPropPacket;
 import eu.faircode.xlua.api.properties.MockPropProvider;
-import eu.faircode.xlua.api.settings.LuaSettingPacket;
-import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
 import eu.faircode.xlua.api.standard.CallCommandHandler;
 import eu.faircode.xlua.api.standard.UserIdentityPacket;
 import eu.faircode.xlua.api.standard.command.CallPacket;
@@ -24,8 +22,7 @@ public class PutMockPropCommand extends CallCommandHandler {
 
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
-        throwOnPermissionCheck(commandData.getContext());
-        MockPropPacket packet = commandData.read(MockPropPacket.class);
+        MockPropPacket packet = commandData.readFullPackFrom(MockPropPacket.class);
         if(packet == null) return XResult.fromInvalidPacket(name, MockPropPacket.class).toBundle();
 
         packet.resolveUserID();

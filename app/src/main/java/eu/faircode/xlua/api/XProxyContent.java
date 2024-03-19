@@ -37,17 +37,8 @@ public class XProxyContent {
     public static Cursor invokeQuery(Context context,String handler, String method) { return invokeQuery(context, handler, method, null, null); }
     public static Cursor invokeQuery(Context context,String handler, String method, String[] args_selection) { return invokeQuery(context, handler, method, args_selection, null); }
     public static Cursor invokeQuery(Context context,String handler, String method, String[] args_selection, String selection) {
-        Log.i(TAG, "invokeQuery=" + method);
+        //Log.i(TAG, "invokeQuery=" + method);
         try {
-            if(args_selection != null && args_selection.length > 0) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("invokeQuery=").append(method).append(" handler=").append(handler).append(" arg values=").append(selection).append(" selection=");
-                for(String s : args_selection)
-                    sb.append("[").append(s).append("]");
-
-                Log.i(TAG, sb.toString());
-            }else Log.w(TAG, " selection is null: method=" + method + " handler=" + handler);
-
             return context.getContentResolver()
                     .query(
                             XSecurity.getURI(),
@@ -56,15 +47,20 @@ public class XProxyContent {
                             args_selection,
                             null);
         }catch (Exception e) {
-            Log.e(TAG, "Failed to Invoke Query! " + e + "\n" + Log.getStackTraceString(e));
+            Log.e(TAG, "Failed to Invoke Query! handler=" + handler + " method=" + method + " e=" + e + "\n" + Log.getStackTraceString(e));
             return null;
         }
     }
 
     public static Bundle invokeCall(Context context, String handler, String method) { return invokeCall(context,handler, method, new Bundle()); }
     public static Bundle invokeCall(Context context, String handler, String method, Bundle extras) {
-        Log.i(TAG, "invokeCall=" + method);
-        return context.getContentResolver()
-                .call(XSecurity.getURI(), handler, method, extras);
+        //Log.i(TAG, "invokeCall=" + method);
+        try {
+            return context.getContentResolver()
+                    .call(XSecurity.getURI(), handler, method, extras);
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to Invoke Call! handler=" + handler + " method=" + method + " e=" + e + "\n" + Log.getStackTraceString(e));
+            return null;
+        }
     }
 }

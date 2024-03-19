@@ -3,6 +3,7 @@ package eu.faircode.xlua.hooks;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -46,29 +47,27 @@ public class XReport implements IDBSerial {
         hookId = b.getString("hook");
         packageName = b.getString("packageName");
         uid = b.getInt("uid");
+        userid = XUtil.getUserId(uid);
         event = b.getString("event");
         time = b.getLong("time");
         data = b.getBundle("data");
+        restricted = data.getInt("restricted", 0);
     }
 
     public XLuaGroup createGroupObject(XLuaHook hook, long used) { return new XLuaGroup(packageName, uid, hook.getGroup(), used); }
 
     public int getRestricted() {
-        if(restricted == null)
-            restricted = data.getInt("restricted", 0);
-
+        if(restricted == null) restricted = data.getInt("restricted", 0);
         return restricted;
     }
 
     public int getUserId() {
-        if(userid == null)
-            userid = XUtil.getUserId(uid);
-
+        if(userid == null) userid = XUtil.getUserId(uid);
         return userid;
     }
 
     public boolean getNotify(XDatabase db) {
-        if(notify == null)
+        if(notify == null)//This is where error can arrive , context is null and context is used and abused alot :P
             notify = LuaSettingsDatabase.getSettingBoolean(null, db, "notify", getUserId(), packageName);
 
         return notify;
@@ -106,7 +105,7 @@ public class XReport implements IDBSerial {
             cv.put("installed", time);
         else if(event.equals("use")) {
             cv.put("used", time);
-            cv.put("restricted", data.getInt("restricted", 0));
+            cv.put("restricted", restricted);
         }
 
         if (data.containsKey("exception"))

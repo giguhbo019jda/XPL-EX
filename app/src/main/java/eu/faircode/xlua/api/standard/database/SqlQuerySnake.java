@@ -1,6 +1,7 @@
 package eu.faircode.xlua.api.standard.database;
 
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class SqlQuerySnake extends SqlQueryBuilder {
         return this;
     }
 
-    public SqlQuerySnake setSymbol(String symbol, String compareValue) {
+    /*public SqlQuerySnake setSymbol(String symbol, String compareValue) {
         setSymbol(symbol, compareValue);
         return this;
     }
@@ -42,7 +43,7 @@ public class SqlQuerySnake extends SqlQueryBuilder {
     public SqlQuerySnake setSymbol(String symbol) {
         internal_setSymbol(symbol);
         return this;
-    }
+    }*/
 
     public SqlQuerySnake useOr(boolean useOr) {
         internal_useOr(useOr);
@@ -56,6 +57,11 @@ public class SqlQuerySnake extends SqlQueryBuilder {
 
     public SqlQuerySnake whereColumnValues(String... values) {
         internal_anchorValuesWithFields(values);
+        return this;
+    }
+
+    public SqlQuerySnake whereColumnNoBind(String columnName, String value) {
+        internal_whereColumnBinds(columnName, value);
         return this;
     }
 
@@ -430,10 +436,6 @@ public class SqlQuerySnake extends SqlQueryBuilder {
         Cursor c = null;
         try {
             String[] columns = onlyReturn.isEmpty() ? null : onlyReturn.toArray(new String[0]);
-            if(columns != null) {
-                Log.i(TAG, "columns[0]onlyReturn=" + columns[0]);
-            }
-
             Log.i(TAG, "query,  table=" + tableName);
 
             c = db.getDatabase().query(
