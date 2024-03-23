@@ -43,7 +43,6 @@ public class ReportCommand extends CallCommandHandler {
         XLuaHook hook = XGlobals.getHook(report.hookId);
         long used = XLuaHookDatabase.report(report, hook, commandData.getDatabase());
 
-
         long identity = Binder.clearCallingIdentity();
         try {
             Context ctx = XUtil.createContextForUser(commandData.getContext(), report.getUserId());
@@ -63,13 +62,11 @@ public class ReportCommand extends CallCommandHandler {
                 Notification.Builder builder = XNotify.buildExceptionNotification(ctx, report, pm, resources);
                 XUtil.notifyAsUser(ctx, "xlua_exception", report.uid, builder.build(), report.getUserId());
             }
-
         }catch (Throwable e) {
             Log.e(TAG, "Internal Error for Report: \n" + e + "\n" + Log.getStackTraceString(e));
         }finally {
             Binder.restoreCallingIdentity(identity);
         }
-
         return BundleUtil.createResultStatus(true);
     }
 

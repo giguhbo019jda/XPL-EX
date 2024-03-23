@@ -29,14 +29,26 @@ public class XReporter {
     private final Map<String, Map<String, Bundle>> queue = new HashMap<String, Map<String, Bundle>>();
     private Timer timer = null;
 
-    public void reportFieldException(Context context, Exception ex, XLuaHook hook, Field field) {
+    public void reportFieldException(
+            Context context,
+            Exception ex,
+            XLuaHook hook,
+            Field field) {
+
         StringBuilder sb = new StringBuilder();
         XReporter.writeExceptionHeader(sb, ex, context);
         XReporter.writeField(sb, field);
         reportError(context, hook, sb, "after");
     }
 
-    public void reportMemberException(Context context, Exception ex, XLuaHook hook, Member member, String function, XC_MethodHook.MethodHookParam param) {
+    public void reportMemberException(
+            Context context,
+            Exception ex,
+            XLuaHook hook,
+            Member member,
+            String function,
+            XC_MethodHook.MethodHookParam param) {
+
         StringBuilder sb = new StringBuilder();
         XReporter.writeExceptionHeader(sb, ex, context);
         XReporter.writeMethod(sb, member, function, param);
@@ -145,6 +157,23 @@ public class XReporter {
         args.putString("event", event);
         args.putLong("time", new Date().getTime());
         args.putBundle("data", data);
+
+        //
+        //hook
+        //packageName
+        //uid
+        //event => (use .....)
+        //time
+        //data  =>  [function]
+        //          [restricted]
+        //          [duration]
+        //              [old]
+        //              [new]
+        //
+        //
+        //
+        //
+        //
 
         synchronized (queue) {
             String key = (function == null ? "*" : function) + ":" + event;

@@ -1,4 +1,4 @@
-package eu.faircode.xlua.dialogs;
+package eu.faircode.xlua.ui.dialogs;
 
 import eu.faircode.xlua.api.settings.LuaSettingPacket;
 

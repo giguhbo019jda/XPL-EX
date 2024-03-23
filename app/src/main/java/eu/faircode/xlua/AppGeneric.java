@@ -7,7 +7,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -60,6 +62,24 @@ public class AppGeneric {
     public int getUid() { return uid; }
     public String getName() { return name; }
     public String getPackageName() { return packageName; }
+
+    public void initView(Context context, View view, int appIcon, int textViewPackageName, int textViewPackageNameFull, int textViewPackageUid) {
+        try {
+            Log.i(TAG, "Initializing View [" + view.getId() + "]");
+            initIcon((ImageView) view.findViewById(appIcon), context);
+
+            TextView tvPkgName = view.findViewById(textViewPackageName);
+            TextView tvPkgNameFull = view.findViewById(textViewPackageNameFull);
+            TextView tvPkgUid = view.findViewById(textViewPackageUid);
+
+            tvPkgName.setText(getName());
+            tvPkgNameFull.setText(getPackageName());
+            tvPkgUid.setText(String.valueOf(getUid()));
+            Log.i(TAG, "Finished Initialized View [" + view.getId() + "] [pkg=" + getName() + " pkg full=" + getPackageName() + " uid=" + getUid() + "]");
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to initView [" + e + "] (ai=" + appIcon + " tvpn=" + textViewPackageName + " tvpnf=" + textViewPackageNameFull + " tvpkgu=" + textViewPackageUid + ")");
+        }
+    }
 
     public void initIcon(ImageView ivAppIcon, Context context) {
         Log.i(TAG, "Setting icon s=" + toString());

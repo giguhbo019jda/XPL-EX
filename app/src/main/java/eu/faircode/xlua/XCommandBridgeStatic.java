@@ -37,6 +37,7 @@ import eu.faircode.xlua.api.xmock.call.PutMockCpuCommand;
 import eu.faircode.xlua.api.xmock.call.PutMockPropCommand;
 import eu.faircode.xlua.api.xmock.call.PutMockSettingCommand;
 import eu.faircode.xlua.api.xmock.query.GetMockConfigsCommand;
+import eu.faircode.xlua.api.xmock.query.GetMockPropMapsCommand;
 import eu.faircode.xlua.api.xmock.query.GetMockPropertiesCommand;
 import eu.faircode.xlua.api.xmock.query.GetMockSettingsCommand;
 import eu.faircode.xlua.utilities.BundleUtil;
@@ -81,7 +82,8 @@ public class XCommandBridgeStatic {
                 .registerCall(PutMockCpuCommand.class)
                 .registerCall(PutMockPropCommand.class)
                 .registerQuery(GetMockConfigsCommand.class, true)
-                .registerQuery(GetMockPropertiesCommand.class, true);
+                .registerQuery(GetMockPropertiesCommand.class, true)
+                .registerQuery(GetMockPropMapsCommand.class, true);
     }
 
     public static Bundle vxpCall(Context context, String arg, Bundle extras, String method)  {

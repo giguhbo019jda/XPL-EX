@@ -2,16 +2,16 @@
   //Device Info Default Settings
   { "settingName": "device.brand", "propNames": ["ro.vendor_dlkm.build.brand", "ro.product.brand","ro.product.odm.brand","ro.product.system.brand","ro.product.system_ext.brand","ro.product.vendor.brand", "ro.vendor.product.brand"] },
   { "settingName": "device.manufacturer", "propNames": ["ro.vendor_dlkm.build.manufacturer", "ro.product.vendor.manufacturer ", "ro.product.system_ext.manufacturer", "ro.product.system.manufacturer", "ro.product.odm.manufacturer", "ro.product.manufacturer", "ro.vendor.product.manufacturer"] },
-  { "settingName": "device.nick.name", "propNames": ["ro.vendor_dlkm.build.device", "ro.product.nickname","ro.vendor.product.device", "ro.build.product","ro.product.device","ro.product.odm.device","ro.product.system.device","ro.product.system_ext.device","ro.product.vendor.device", "ro.product.system.name"] },
+  { "settingName": "device.nick.name", "propNames": ["ro.product.mod_device", "persist.sys.hardcoder.name", "persist.sys.device_name", "persist.odm.ril.factory_id", "ro.product.system_ext.name", "ro.product.vendor.marketname", "ro.product.system_ext.marketname", "ro.product.system.marketname", "ro.product.product.marketname", "ro.product.odm.marketname", "ro.product.marketname", "ro.vendor_dlkm.build.device", "ro.product.nickname","ro.vendor.product.device", "ro.build.product","ro.product.device","ro.product.odm.device","ro.product.system.device","ro.product.system_ext.device","ro.product.vendor.device", "ro.product.system.name"] },
   { "settingName": "device.model", "propNames": [ "ro.vendor_dlkm.build.model", "persist.sys.exif.model", "ro.vendor.product.model", "ro.product.odm.model","ro.product.system.model","ro.product.system_ext.model","ro.product.vendor.model"] },
   { "settingName": "device.codename", "propNames": [ "ro.boot.device" ] },
   { "settingName": "device.bootloader", "propNames": [ "ro.bootloader" ] },
   { "settingName": "device.boot.mode", "propNames": [ "ro.bootmode" ] },
 
   //Android Build Default Settings
-  { "settingName": "android.build.version", "propNames": [ "ro.build.version.release", "ro.build.version.release_or_codename", "ro.build.version.release_or_preview_display", "ro.system.build.version.release", "ro.system.build.version.release_or_codename", "ro.system_ext.build.version.release", "ro.system_ext.build.version.release_or_codename", "ro.vendor.build.version.release", "ro.vendor.build.version.release_or_codename", "ro.vendor_dlkm.build.version.release", "ro.vendor_dlkm.build.version.release_or_codename"] },
+  { "settingName": "android.build.version", "propNames": [ "os.version", "ro.build.version.release", "ro.build.version.release_or_codename", "ro.build.version.release_or_preview_display", "ro.system.build.version.release", "ro.system.build.version.release_or_codename", "ro.system_ext.build.version.release", "ro.system_ext.build.version.release_or_codename", "ro.vendor.build.version.release", "ro.vendor.build.version.release_or_codename", "ro.vendor_dlkm.build.version.release", "ro.vendor_dlkm.build.version.release_or_codename"] },
   { "settingName": "android.build.version.sdk", "propNames": ["ro.vendor_dlkm.build.version.sdk", "ro.system.build.version.sdk", "ro.system_ext.build.version.sdk", "ro.build.version.sdk", "ro.vendor.build.version.sdk"] },
-  { "settingName": "android.build.version.min.sdk", "propNames": ["ro.build.version.min_supported_target_sdk"]},
+  { "settingName": "android.build.version.min.sdk", "propNames": ["ro.product.first_api_level", "ro.build.version.min_supported_target_sdk"]},
   { "settingName": "android.build.tags", "propNames": ["ro.vendor_dlkm.build.tags", "ro.build.tags","ro.system.build.tags","ro.system_ext.build.tags","ro.vendor.build.tags"] },
   { "settingName": "android.build.type", "propNames": [ "ro.vendor_dlkm.build.type", "ro.build.type","ro.system.build.type","ro.system_ext.build.type","ro.vendor.build.type"] },
   { "settingName": "android.build.date.utc",  "propNames": ["ro.build.date.utc","ro.odm.build.date.utc","ro.system.build.date.utc","ro.system_ext.build.date.utc","ro.vendor.build.date.utc"] },
@@ -39,12 +39,12 @@
   { "settingName": "android.kernel.version", "propNames": [ "os.version" ] },
 
 
-
   //Android GPU Settings
   { "settingName": "gpu.opengls.version", "propNames": [ "ro.opengls.version" ] },
+  { "settingName": "gpu.egl.code.name", "propNames": [ "ro.hardware.egl", "persist.graphics.egl" ] },
 
   //Android CPU Settings
-  { "settingName": "cpu.arch", "propNames": [ "os.arch" ] },
+  { "settingName": "cpu.arch", "propNames": [ "os.arch", "ro.bionic.2nd_arch", "ro.bionic.arch" ] },
   { "settingName": "cpu.abi", "propNames": [ "ro.product.cpu.abi" ] },
   { "settingName": "cpu.abilist", "propNames": [ "ro.vendor.product.cpu.abilist", "ro.system.product.cpu.abilist", "ro.odm.product.cpu.abilist", "ro.product.cpu.abilist" ] },
   { "settingName": "cpu.abilist32", "propNames": [ "ro.vendor.product.cpu.abilist32", "ro.system.product.cpu.abilist32", "ro.odm.product.cpu.abilist32", "ro.product.cpu.abilist32" ] },
@@ -54,6 +54,7 @@
   { "settingName": "cpu.base.band", "propNames": [ "ro.baseband", "ro.baseband.arch" ] },
   { "settingName": "cpu.hardware.name", "propNames": [ "ro.hardware" ] },
   { "settingName": "cpu.soc.model", "propNames": [ "ro.soc.model" ] },
+  { "settingName": "cpu.cpuid", "propNames": [ "ro.boot.cpuid" ] },
 
   //Android ROM Specific Settings
   { "settingName": "android.rom.adb.secure", "propNames": [ "ro.adb.secure" ] },
@@ -66,7 +67,12 @@
   { "settingName": "android.rom.root.image", "propNames": [ "ro.build.system_root_image" ] },
   { "settingName": "android.rom.netflix", "propNames": [ "ro.netflix.bsp_rev" ] },
 
+  { "settingName": "android.system.supports.ab", "propNames": [ "ro.build.ab_update" ] },
+  { "settingName": "android.system.treble.enabled", "propNames": [ "ro.treble.enabled" ] },
+
+
   //System hardware Settings
+  { "settingName": "hardware.efuse", "propNames": [ "ro.boot.efuse" ] },
   { "settingName": "hardware.nfc.kind", "propNames": [ "ro.nfc.port" ] },
   { "settingName": "hardware.camera.app", "propNames": [ "persist.vendor.camera.privapp.list" ] },
   { "settingName": "hardware.fp.sensor", "propNames": [ "ro.boot.fpsensor" ] },
@@ -81,8 +87,12 @@
   { "settingName": "bluetooth.soc", "propNames": [ "vendor.bluetooth.soc" ] },
 
   //Unique Identifiers
-  { "settingName": "unique.serial.no", "propNames": [ "ro.serialno", "ro.boot.serialno", "ril.serialnumber", "gsm.sn1", "sys.serialnumber" ] },
-  { "settingName": "unique.gsm.imei", "propNames": [ "persist.radio.imei1", "getprop ro.ril.oem.imei1" ] },
+  { "settingName": "unique.serial.no", "propNames": [   "ro.build.serial", "persist.odm.ril.oem.sno", "persist.odm.ril.oem.psno", "persist.odm.ril.odm.ril.oem.psno", "ro.ril.oem.psno", "ro.ril.oem.sno","ro.serialno", "ro.boot.serialno", "ril.serialnumber", "gsm.sn1", "sys.serialnumber" ] },
+  { "settingName": "unique.gsm.imei", "propNames": [ "ro.ril.miui.imei2", "ro.ril.miui.imei1", "ro.ril.miui.imei0", "ro.ril.miui.imei", "persist.radio.imei2", "persist.radio.imei1", "persist.radio.imei0", "persist.radio.imei", "persist.odm.ril.oem.imei2", "persist.odm.ril.oem.imei1", "persist.odm.ril.oem.imei0", "persist.odm.ril.oem.imei", "persist.radio.imei1", "persist.radio.imei0", "ro.ril.oem.imei", "ro.ril.oem.imei0", "ro.ril.oem.imei1", "ro.ril.oem.imei2" ] },
+  { "settingName": "unique.gsm.meid", "propNames": [ "ro.ril.oem.meid" ] },
+  { "settingName": "unique.gsm.icc.id", "propNames": [ "gsm.sim.preiccid_0", "gsm.sim.preiccid_1", "persist.vendor.cfu.iccid.0", "persist.vendor.radio.cfu.iccid.1" ] },
+  { "settingName": "unique.network.mac.address", "propNames": [ "ro.ril.oem.btmac", "persist.odm.ril.oem.btmac", "ro.ril.oem.wifimac", "persist.odm.ril.oem.wifimac" ] },
+  { "settingName": "unique.netd.secret.key", "propNames": [ "persist.netd.stable_secret" ] },
 
 
 
@@ -91,9 +101,24 @@
   { "settingName": "zone.country.iso", "propNames": [  "persist.sys.country", "gsm.operator.iso-country", "gsm.sim.operator.iso-country" ] },
   { "settingName": "zone.language.iso", "propNames": [ "persist.sys.language" ] },
   { "settingName": "zone.language.tag", "propNames": [ "ro.product.locale" ] },
+  { "settingName": "zone.region", "propNames": [ "ro.product.locale.region", "ro.miui.region" ] },
+  { "settingName": "zone.language", "propNames": [ "ro.product.locale.language" ] },
+
+
+  //  { "name": "zone.language", "description": "Language Name", "value": "Icelandic" },
+  //  { "name": "zone.region", "description": "Region Specification (IS)", "value": "IS" },
 
   //Network Settings
   { "settingName": "network.dns", "propNames": [ "net.dns", "net.dns1", "net.dns2", "net.dns3", "net.dns4" ] },
+  { "settingName": "network.host.name", "propNames": [ "net.hostname", "sys.device_name" ] },
+
+
+  //SafePal
+  //CakeWallet
+
+  //Emulator Virtual props
+  { "settingName": "qemu.emulator*", "propNames": [ "ro.kernel.qemu", "init.svc.qemu-props", "qemu.hw.mainkeys", "qemu.sf.fake_camera", "qemu.sf.lcd_density", "ro.kernel.android.qemud", "qmu.adb.secure", "qemu.gles", "qemu.logcat", "qemu.timezone", "ro.kernel.qemu.encrypt", "ro.kernel.qemu.gles", "ro.kernel.qemu.gltransport", "ro.kernel.qemu.opengles.version", "ro.kernel.qemu.vsync", "ro.kernel.qemu.wifi", "ro.qemu.initrc" ] },
+
 
   //GSM Settings
   { "settingName": "gsm.operator.id", "propNames": [ "gsm.operator.numeric", "gsm.sim.operator.numeric" ] },
@@ -102,6 +127,26 @@
   { "settingName": "gsm.phone.type", "propNames": [ "gsm.current.phone-type" , "gsm.phone.type"] },
   { "settingName": "gsm.sim.state", "propNames": [ "gsm.sim.state" ] },
   { "settingName": "gsm.setting.network.roaming", "propNames": [ "gsm.operator.isroaming" ] },
+  { "settingName": "gsm.operator.id", "propNames": [  "vendor.gsm.ril.uicc.mccmnc", "vendor.gsm.ril.uicc.mccmnc.1", "persist.vendor.mtk.provision.mccmnc.0", "persist.vendor.mtk.provision.mccmnc.1" ] },
+
+  { "settingName": "gsm.operator.mcc", "propNames": [  "ro.miui.mcc" ] },
+  { "settingName": "gsm.operator.mnc", "propNames": [  "ro.miui.mnc" ] },
+
+  { "settingName": "gsm.sim.count", "propNames": [ "ro.telephony.sim.count" ] },
+  { "settingName": "gsm.network.carrier", "propNames": [ "vendor.gsm.sim.operator.default-name" ] },
+
+  //gsm.network.carrier
+
+  //Google
+  { "settingName": "google.client.id.base", "propNames": [ "ro.com.google.clientidbase" ] },
+  { "settingName": "google.client.id.base.name", "propNames": [ "ro.com.google.clientidbase.ax", "ro.com.google.clientidbase.ms", "ro.com.google.clientidbase.tx", "ro.com.google.clientidbase.vs" ] },
+  { "settingName": "google.gms.version", "propNames": [ "ro.com.google.gmsversion" ] },
+  //ro.frp.pst
+
+
+
+  { "settingName": "google.client.id.base", "description": "Some base property (dosnt seem to be ID) (android-vf-de)", "value": "android-vf-de" },
+  { "name": "google.client.id.base.name", "description": "Some base property (dosnt seem to be ID) (android-xiaomi-rvo3)", "value": "android-xiaomi-rvo3" },
 
 
   //User Agent Properties

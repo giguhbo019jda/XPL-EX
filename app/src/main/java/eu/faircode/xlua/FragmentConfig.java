@@ -45,6 +45,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.configs.MockConfig;
 import eu.faircode.xlua.api.configs.MockConfigPacket;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
@@ -186,6 +187,11 @@ public class  FragmentConfig extends Fragment implements View.OnClickListener, V
     public void pushConfigs(List<MockConfig> configs) {
         Log.i(TAG, "[pushConfigs] configs size=" + configs.size());
         spConfigs.clear();
+        for(MockConfig c : configs) {
+            for (LuaSettingExtended s : c.getSettings())
+                s.setIsEnabled(true);
+        }
+
         spConfigs.addAll(configs);
         spConfigs.notifyDataSetChanged();
     }

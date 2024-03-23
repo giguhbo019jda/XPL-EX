@@ -1,13 +1,142 @@
 package eu.faircode.xlua.utilities;
 
+import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StringUtil {
     private static final String TAG = "XLua.StringUtil";
+
+    public static final String BUILD_PROP_ENDING = "\b\n";//(0D 0A) or  \u000D\u000A
+    public static final List<Character> ESCAPE_CHARS = Arrays.asList('\n', '\t', '\b', '\f', '\r', '\"', '\0');
+
+    public static int countOccurrences(String subStr, String str) {
+        if (subStr == null || str == null || subStr.isEmpty() || str.isEmpty()) { return 0; }
+        int count = 0;
+        int fromIndex = 0;
+        while (fromIndex < str.length()) {
+            int index = str.indexOf(subStr, fromIndex);
+            if (index != -1) {
+                count++;
+                fromIndex = index + subStr.length();
+            } else {
+                break;
+            }
+        } return count;
+    }
+
+    public static String startAtString(String startAt, String str) {
+        if (str == null || startAt == null) { return null; }
+        int index = str.indexOf(startAt);
+        return index != -1 ? str.substring(index) : str;
+    }
+
+    public static List<String> breakStringExtreme(String str, boolean keepAlpha, boolean keepNumeric, List<Character> goodChars) {
+        if(str == null || TextUtils.isEmpty(str))
+            return new ArrayList<>();
+
+        String lowered = str.toLowerCase().trim();
+        StringBuilder low = new StringBuilder();
+        List<String> parts = new ArrayList<>();
+
+        for (int i = 0; i < lowered.length(); i++) {
+            char c = lowered.charAt(i);
+            if (c == ' '  || c == '\n' || c == '\0' || c == '\t') {
+                if (low.length() > 0) {
+                    parts.add(low.toString());
+                    low.setLength(0);
+                }
+            }else {
+                if((keepAlpha && Character.isAlphabetic(c)) || (keepNumeric && Character.isDigit(c)) || goodChars.contains(c)) {
+                    low.append(c);
+                }else {
+                    if (low.length() > 0) {
+                        parts.add(low.toString());
+                        low.setLength(0);
+                    }
+                }
+            }
+        }
+
+        if (low.length() > 0) parts.add(low.toString());
+        return parts;
+    }
+
+    public static List<String> breakStringListExtreme(List<String> lst) {
+        List<String> elements = new ArrayList<>();
+        for(String s : lst)
+            elements.addAll(breakStringExtreme(s));
+
+        return elements;
+    }
+
+    public static List<String> breakStringArrayExtreme(String[] array) {
+        List<String> elements = new ArrayList<>();
+        for (String s : array)
+            elements.addAll(breakStringExtreme(s));
+
+        return elements;
+    }
+
+    public static List<String> breakStringExtreme(String str) {
+        if(str == null || TextUtils.isEmpty(str))
+            return new ArrayList<>();
+
+        String lowered = str.toLowerCase().trim();
+        StringBuilder low = new StringBuilder();
+        List<String> parts = new ArrayList<>();
+
+        for (int i = 0; i < lowered.length(); i++) {
+            char c = lowered.charAt(i);
+            if (c == ' '  || c == '\n' || c == '\0' || c == '\t' || c == ',' || c == '|' || c == '>' || c == '<') {
+                if (low.length() > 0) {
+                    parts.add(low.toString());
+                    low.setLength(0);
+                }
+            } else {
+                low.append(c);
+            }
+        }
+
+        if (low.length() > 0) parts.add(low.toString());
+        return parts;
+    }
+
+    public static String capitalizeFirstLetter(String s) {
+        StringBuilder sb = new StringBuilder();
+        if(s.length() > 1) {
+            char f = s.charAt(0);
+            sb.append(Character.toUpperCase(f));
+            sb.append(s.substring(1));
+        }else sb.append(s);
+        return sb.toString();
+    }
+
+    public static Boolean toBoolean(String str) { return toBoolean(str, null); }
+    public static Boolean toBoolean(String str, Boolean defaultValue) {
+        try {
+            if(str == null || TextUtils.isEmpty(str)) return defaultValue;
+            str = str.trim();
+            if(str.equals("0"))
+                return false;
+            if(str.equals("1"))
+                return true;
+            if(str.equalsIgnoreCase("false"))
+                return false;
+            if(str.equalsIgnoreCase("true"))
+                return true;
+
+            return defaultValue;
+        }catch (Exception ex) {
+            Log.e(TAG, "Error Converting String to Boolean: " + str + " " + ex);
+            return defaultValue;
+        }
+    }
 
     public static Integer toInteger(String str) { return toInteger(str, null); }
     public static Integer toInteger(String str, Integer defaultValue) {

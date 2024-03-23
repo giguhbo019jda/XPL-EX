@@ -198,6 +198,8 @@ public class XUtil {
         Resources.Theme theme = context.getTheme();
         theme.resolveAttribute(attr, typedValue, true);
         return typedValue.data;
+        //boolean found = theme.resolveAttribute(attr, typedValue, true);
+        //return found ? typedValue.data : 0;  // Fallback to default color or handle error
     }
 
     //Hmm we have this

@@ -5,19 +5,14 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,8 +23,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.textfield.TextInputEditText;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -39,12 +32,8 @@ import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.properties.MockPropPacket;
 import eu.faircode.xlua.api.properties.MockPropSetting;
 
-import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockCall;
-import eu.faircode.xlua.dialogs.PropertyDeleteDialog;
-import eu.faircode.xlua.dialogs.SettingAddDialog;
-import eu.faircode.xlua.randomizers.GlobalRandoms;
-import eu.faircode.xlua.randomizers.IRandomizer;
+import eu.faircode.xlua.ui.dialogs.PropertyDeleteDialog;
 
 public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewHolder> implements Filterable {
     private static final String TAG = "XLua.AdapterProperty";

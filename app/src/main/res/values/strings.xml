@@ -84,7 +84,7 @@
     <string name="title_hook_exclude" translatable="false">Exclude packages</string>
     <string name="title_hook_settings" translatable="false">Settings</string>
 
-    <string name="menu_props" translatable="false">Prop Values 2.5</string>
+    <string name="menu_props" translatable="false">Prop Values 2.4</string>
     <string name="menu_settings" translatable="false">Setting Values</string>
     <string name="menu_configs" translatable="false">Config Editor</string>
     <string name="menu_dark" translatable="false">Dark Mode</string>

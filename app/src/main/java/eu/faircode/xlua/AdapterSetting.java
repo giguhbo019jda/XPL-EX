@@ -2,8 +2,6 @@ package eu.faircode.xlua;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -13,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -29,87 +29,84 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.api.XResult;
 
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
-import eu.faircode.xlua.api.settings.LuaSettingPacket;
-import eu.faircode.xlua.api.xlua.XLuaCall;
-import eu.faircode.xlua.dialogs.SettingDeleteDialog;
+import eu.faircode.xlua.api.standard.interfaces.IDividerKind;
+import eu.faircode.xlua.api.standard.interfaces.ISettingUpdate;
+import eu.faircode.xlua.ui.dialogs.SettingDeleteDialog;
 import eu.faircode.xlua.randomizers.GlobalRandoms;
 import eu.faircode.xlua.randomizers.IRandomizer;
+import eu.faircode.xlua.randomizers.elements.DataNullElement;
+import eu.faircode.xlua.randomizers.elements.ISpinnerElement;
+import eu.faircode.xlua.ui.AlertMessage;
+import eu.faircode.xlua.ui.SettingsQue;
 import eu.faircode.xlua.utilities.SettingUtil;
-import eu.faircode.xlua.utilities.StringUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
-public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHolder> implements Filterable {
+public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHolder> implements Filterable, IDividerKind, ISettingUpdate {
     private static final String TAG = "XLua.AdapterSetting";
+    private final List<IRandomizer> randomizers = GlobalRandoms.getRandomizers();
 
+    private final HashMap<String, Boolean> expanded = new HashMap<>();
     private final List<LuaSettingExtended> settings = new ArrayList<>();
     private List<LuaSettingExtended> filtered = new ArrayList<>();
 
-    //private final HashMap<String, XMockMappedSetting> modified = new HashMap<>();
-    private final HashMap<String, Boolean> expanded = new HashMap<>();
-    private final HashMap<LuaSettingExtended, String> modified = new HashMap<>();
+    private SettingsQue settingsQue;
 
     private AppGeneric application;
     private FragmentManager fragmentManager;
-    private List<IRandomizer> randomizers;
+
+    //Filter / Divider VARs
+    private boolean isRandomizingAll = false;
+    private boolean isSearching = false;
+    private boolean hasChanged = false;
 
     private boolean dataChanged = false;
     private CharSequence query = null;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final Object lock = new Object();
-
     public class ViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener, TextWatcher {
+            implements View.OnClickListener,
+            TextWatcher,
+            CompoundButton.OnCheckedChangeListener,
+            AdapterView.OnItemSelectedListener, ISettingUpdate {
 
         final View itemView;
-
-        final ImageView ivSettingDrop;
-        final TextView tvSettingName;
-        final TextView tvSettingDescription;
-        final TextInputEditText tiSettingValue;
-
-        final ImageView ivBtSave;
-        final ImageView ivBtDelete;
-        final ImageView ivBtRandomize;
-
-        final Spinner spRandomSelector;
-        final ArrayAdapter<IRandomizer> spRandomizer;
-
         final CardView cvSetting;
         final ConstraintLayout clLayout;
 
-        final TextView tvSettingNameFull;
+        final ImageView ivSettingDrop;
+        final TextView tvSettingName, tvSettingDescription, tvSettingNameFull;
+
+        final TextInputEditText tiSettingValue;
+        final ImageView ivBtSave, ivBtDelete, ivBtRandomize, ivReset;
+        final CheckBox cbSelected;
+
+        final Spinner spRandomSelector;
+        final ArrayAdapter<IRandomizer> spRandomizer;
 
         ViewHolder(View itemView) {
             super(itemView);
 
             this.itemView = itemView;
+            ivSettingDrop = itemView.findViewById(R.id.ivExpanderSettingsSetting);
             cvSetting = itemView.findViewById(R.id.cvSetting);
             clLayout = itemView.findViewById(R.id.clSettingLayout);
 
             tvSettingNameFull = itemView.findViewById(R.id.tvSettingsSettingFullName);
-            //appInfoLayout = itemView.findViewById(R.id.app_info_layout_settings);
-
-            ivSettingDrop = itemView.findViewById(R.id.ivExpanderSettingsSetting);
             tvSettingName = itemView.findViewById(R.id.tvSettingNameLabel);
             tvSettingDescription = itemView.findViewById(R.id.tvSettingsSettingDescription);
             tiSettingValue = itemView.findViewById(R.id.tiSettingsSettingValue);
+            cbSelected = itemView.findViewById(R.id.cbSettingEnabled);
 
             ivBtSave = itemView.findViewById(R.id.ivBtSaveSettingSetting);
             ivBtDelete = itemView.findViewById(R.id.ivBtDeleteSetting);
+            ivReset = itemView.findViewById(R.id.ivBtSaveSettingReset);
 
-            //Start of Drop Down
             spRandomizer = new ArrayAdapter<>(itemView.getContext(), android.R.layout.simple_spinner_item);
             spRandomizer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             ivBtRandomize = itemView.findViewById(R.id.ivBtRandomSettingValue);
@@ -119,29 +116,6 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
 
             spRandomSelector.setTag(null);
             spRandomSelector.setAdapter(spRandomizer);
-            spRandomSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { updateSelection(); }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-                    updateSelection();
-                }
-
-                private void updateSelection() {
-                    IRandomizer selected = (IRandomizer) spRandomSelector.getSelectedItem();
-                    String name = selected.getName();
-                    if(DebugUtil.isDebug())
-                        Log.i(TAG, "Selected Randomizer=" + name);
-
-                    if (name == null ? spRandomSelector.getTag() != null : !name.equals(spRandomSelector.getTag()))
-                        spRandomSelector.setTag(name);
-                }
-            });
-
-            spRandomizer.clear();
-            spRandomizer.addAll(randomizers);
-            //spRandomizer.addAll(GlobalRandoms.getRandomizers());
         }
 
         private void unWire() {
@@ -151,6 +125,9 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             tiSettingValue.removeTextChangedListener(this);
             ivSettingDrop.setOnClickListener(null);
             ivBtDelete.setOnClickListener(null);
+            ivReset.setOnClickListener(null);
+            cbSelected.setOnCheckedChangeListener(null);
+            spRandomSelector.setOnItemSelectedListener(null);
         }
 
         private void wire() {
@@ -160,6 +137,9 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             tiSettingValue.addTextChangedListener(this);
             ivSettingDrop.setOnClickListener(this);
             ivBtDelete.setOnClickListener(this);
+            ivReset.setOnClickListener(this);
+            cbSelected.setOnCheckedChangeListener(this);
+            spRandomSelector.setOnItemSelectedListener(this);
         }
 
         @SuppressLint("NonConstantResourceId")
@@ -174,65 +154,56 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             switch (id) {
                 case R.id.ivExpanderSettingsSetting:
                 case R.id.itemViewSetting:
-                    //Expand Setting
                     ViewUtil.internalUpdateExpanded(expanded, name);
                     updateExpanded();
                     break;
                 case R.id.ivBtRandomSettingValue:
-                    //Randomize Setting Value
-                    IRandomizer randomizer = (IRandomizer) spRandomSelector.getSelectedItem();
-                    String randomValue = randomizer.generateString();
-                    SettingUtil.updateSetting(setting, randomValue, modified);
-                    tiSettingValue.setText(setting.getValue());
+                    setting.randomizeValue();
+                    SettingUtil.initCardViewColor(view.getContext(), tvSettingName, cvSetting, setting);
                     break;
                 case R.id.ivBtSaveSettingSetting:
-                    if(modified.containsKey(setting))
-                        sendSetting(view.getContext(), setting, false, false);
+                    settingsQue.sendSetting(view.getContext(), setting, false, false, this);
                     break;
                 case R.id.ivBtDeleteSetting:
-                    if(fragmentManager == null) {
-                        sendSetting(itemView.getContext(), setting, true, false);
-                    }else {
-                        SettingDeleteDialog setDialog = new SettingDeleteDialog(setting, application);
-                        setDialog.show(fragmentManager, "Delete Setting");
-                        //setDialog.wait();
+                    SettingDeleteDialog setDialog = new SettingDeleteDialog(setting, application);
+                    setDialog.show(fragmentManager, "Delete Setting");
+                    break;
+                case R.id.ivBtSaveSettingReset:
+                    if(setting.isModified()) {
+                        setting.resetModified(true);
+                        SettingUtil.initCardViewColor(view.getContext(), tvSettingName, cvSetting, setting);
                     }
-
                     break;
             }
         }
 
-        public void sendSetting(final Context context, final LuaSettingExtended setting, boolean deleteSetting, boolean forceKill) {
-            final LuaSettingPacket packet = LuaSettingPacket.create(setting, LuaSettingPacket.getCodeInsertOrDelete(deleteSetting), forceKill)
-                    .copyIdentification(application);
-
-            executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (lock) {
-                        final XResult ret = XLuaCall.sendSetting(context, packet);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @SuppressLint("NotifyDataSetChanged")
-                            @Override
-                            public void run() {
-                                if(ret.succeeded()) {
-                                    cvSetting.setCardBackgroundColor(XUtil.resolveColor(context, R.attr.cardForegroundColor));
-                                    modified.remove(setting);
-                                }
-
-                                Toast.makeText(context, ret.getResultMessage(), Toast.LENGTH_SHORT).show();
-                                notifyDataSetChanged();
-                            }
-                        });
-                    }
-                }
-            });
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onSettingUpdatedSuccessfully(Context context, LuaSettingExtended setting, XResult result) {
+            setting.updateValue();
+            Toast.makeText(context, "Setting updated successfully!", Toast.LENGTH_SHORT).show();
+            SettingUtil.initCardViewColor(context, tvSettingName, cvSetting, setting);
+            notifyDataSetChanged();
         }
 
         @Override
+        public void onSettingUpdateFailed(Context context, LuaSettingExtended setting, XResult result) { AlertMessage.displayMessageFailed(context, setting, result); }
+
+        @Override
+        public void onBatchFinished(Context context, List<LuaSettingExtended> successful, List<LuaSettingExtended> failed) { }
+
+        @Override
+        public void onException(Context context, Exception e, LuaSettingExtended setting) { AlertMessage.displayMessageException(context, setting, e); }
+
+        @Override
         public void afterTextChanged(Editable editable) {
-            LuaSettingExtended setting = filtered.get(getAdapterPosition());
-            SettingUtil.updateSetting(setting,editable.toString(), modified);
+            if(!isRandomizingAll) {
+                LuaSettingExtended setting = filtered.get(getAdapterPosition());
+                String s = editable.toString();
+                if(TextUtils.isEmpty(s)) setting.setModifiedValue(null);
+                else setting.setModifiedValue(editable.toString());
+                SettingUtil.initCardViewColor(cvSetting.getContext(), tvSettingName, cvSetting, setting);
+            }
         }
 
         @Override
@@ -241,27 +212,152 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
+        @SuppressLint("NotifyDataSetChanged")
         void updateExpanded() {
             LuaSettingExtended setting = filtered.get(getAdapterPosition());
             String name = setting.getName();
-            Log.w(TAG, " name=" + name);
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
-            ViewUtil.setViewsVisibility(ivSettingDrop, isExpanded, tvSettingDescription, tiSettingValue, spRandomSelector, ivBtRandomize, ivBtSave, ivBtDelete);
+            ViewUtil.setViewsVisibility(ivSettingDrop, isExpanded, tvSettingDescription, tiSettingValue, spRandomSelector, ivReset, ivBtRandomize, ivBtSave, ivBtDelete);
+        }
+
+        @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            int code = buttonView.getId();
+            if(DebugUtil.isDebug()) Log.i(TAG, "onCheckedChanged=" + code + " isChecked=" + isChecked);
+            final LuaSettingExtended setting = filtered.get(getAdapterPosition());
+            if (code == R.id.cbSettingEnabled) {
+                setting.setIsEnabled(isChecked);
+                notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { updateSelection(); }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) { updateSelection(); }
+
+        private void updateSelection() {
+            IRandomizer selected = (IRandomizer) spRandomSelector.getSelectedItem();
+            String name = selected.getName();
+            if(DebugUtil.isDebug())
+                Log.i(TAG, "Selected Randomizer=" + name);
+
+            try {
+                if (name == null ? spRandomSelector.getTag() != null : !name.equals(spRandomSelector.getTag()))
+                    spRandomSelector.setTag(name);
+
+                LuaSettingExtended setting = filtered.get(getAdapterPosition());
+                if(setting == null)
+                    return;
+
+                IRandomizer randomizer = setting.getRandomizer();
+                if(randomizer != null) {
+                    List<ISpinnerElement> options = randomizer.getOptions();
+                    if(options != null && !options.isEmpty() && (randomizer.isSetting(setting.getName()))) {
+                        if(selected instanceof ISpinnerElement) {
+                            ISpinnerElement element = (ISpinnerElement) selected;
+                            if(!element.getName().equals(DataNullElement.EMPTY_ELEMENT.getName())) {
+                                setting.setModifiedValue(element.getValue(), true);
+                                SettingUtil.initCardViewColor(spRandomSelector.getContext(), tvSettingName, cvSetting, setting);
+                                return;
+                            }
+                        } return;
+                    }
+                } setting.bindRandomizer(selected);
+            }catch (Exception e) {
+                Log.e(TAG, "Failed to Init Randomizer Drop Down! e=" + e);
+            }
         }
     }
 
-    AdapterSetting() { setHasStableIds(true); this.randomizers = GlobalRandoms.getRandomizers(); }
-    AdapterSetting(FragmentManager fragmentManager) { this(); this.fragmentManager = fragmentManager; }
+    AdapterSetting() { setHasStableIds(true); }
+    AdapterSetting(FragmentManager fragmentManager) { this(); this.fragmentManager = fragmentManager;  }
 
+    @Override
+    public String getDividerID(int position) { return filtered.get(position).getGroupId(); }
+
+    @Override
+    public String getLongID(int position) { return filtered.get(position).getName(); }
+
+    @Override
+    public boolean isSearching() { return isSearching; }
+
+    @Override
+    public boolean hasChanged() { return hasChanged; }
+
+    @Override
+    public void resetHashChanged() { this.hasChanged = false; }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Override
+    public void onSettingUpdatedSuccessfully(Context context, LuaSettingExtended setting, XResult result) {
+        setting.updateValue();
+        setting.setIsBusy(false);
+        Log.i(TAG, "Successfully updated setting=" + setting.getName());
+        notifyDataSetChanged();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Override
+    public void onSettingUpdateFailed(Context context, LuaSettingExtended setting, XResult result) {
+        Log.w(TAG, "Failed to update setting=" + setting.getName());
+        setting.setIsBusy(false);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onException(Context context, Exception e, LuaSettingExtended setting) { }
+
+    @Override
+    public void onBatchFinished(Context context, List<LuaSettingExtended> successful, List<LuaSettingExtended> failed) { AlertMessage.displayMessageBatch(context, successful, failed); }
+
+    @SuppressLint("NotifyDataSetChanged")
     void randomizeAll(Context context) {
+        Log.i(TAG, "Invoking the randomize all.. size filtered=" + filtered.size());
+        isRandomizingAll = true;
+        int randomized = 0;
+        for(LuaSettingExtended e : filtered) {
+            if(e.getRandomizer() != null && e.isEnabled()) {
+                e.randomizeValue();
+                randomized++;
+            }
+        }
 
+        isRandomizingAll = false;
+        Log.i(TAG, "Finished randomizing all settings randomized=" + randomized);
+        Toast.makeText(context, "Finished Randomizing all props, randomized count=" + randomized, Toast.LENGTH_SHORT).show();
+        notifyDataSetChanged();
+    }
+
+    void saveAll(Context context) {
+        Log.i(TAG, "Saving all settings... filtered=" + filtered.size());
+        List<LuaSettingExtended> batch = new ArrayList<>();
+        for(LuaSettingExtended e : filtered)
+            if(e.isModified()) { batch.add(e); e.setIsBusy(true); }
+
+        if(!batch.isEmpty()) {
+            Log.i(TAG, "settings=" + settings.size() + " batch size=" + batch.size());
+            settingsQue.batchUpdate(context, batch, false, this);
+        }
     }
 
     void set(List<LuaSettingExtended> settings, AppGeneric application) {
+        for(LuaSettingExtended s : settings) {
+            s.resetModified();
+            s.bindRandomizer(randomizers);
+        }
+
         this.dataChanged = true;
         this.settings.clear();
         this.settings.addAll(settings);
-        this.application = application;
+
+        if(this.settingsQue == null) {
+            this.application = application;
+            this.settingsQue = new SettingsQue(application);
+        }
+
         if(DebugUtil.isDebug())
             Log.i(TAG, "Internal Count=" + this.settings.size() + " app=" + application);
 
@@ -277,6 +373,8 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             @Override
             protected FilterResults performFiltering(CharSequence query) {
                 AdapterSetting.this.query = query;
+                AdapterSetting.this.isSearching = true;
+                AdapterSetting.this.hasChanged = true;
                 List<LuaSettingExtended> visible = new ArrayList<>(settings);
                 List<LuaSettingExtended> results = new ArrayList<>();
 
@@ -288,6 +386,8 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
                         if(setting.getName().toLowerCase().contains(q))
                             results.add(setting);
                         else if(setting.getValue() != null && setting.getValue().toLowerCase().contains(q))
+                            results.add(setting);
+                        else if(SettingUtil.cleanSettingName(setting.getName()).toLowerCase().contains(q))
                             results.add(setting);
                     }
                 }
@@ -315,11 +415,13 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
                 if(dataChanged) {
                     dataChanged = false;
                     filtered = settings;
+                    isSearching = false;
                     notifyDataSetChanged();
                 }else {
                     DiffUtil.DiffResult diff =
                             DiffUtil.calculateDiff(new AppDiffCallback(expanded1, filtered, settings));
                     filtered = settings;
+                    isSearching = false;
                     diff.dispatchUpdatesTo(AdapterSetting.this);
                 }
             }
@@ -338,14 +440,10 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         }
 
         @Override
-        public int getOldListSize() {
-            return prev.size();
-        }
+        public int getOldListSize() { return prev.size(); }
 
         @Override
-        public int getNewListSize() {
-            return next.size();
-        }
+        public int getNewListSize() { return next.size(); }
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
@@ -359,12 +457,8 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             LuaSettingExtended s1 = prev.get(oldItemPosition);
             LuaSettingExtended s2 = next.get(newItemPosition);
 
-            if(!s1.getName().equalsIgnoreCase(s2.getName()))
-                return false;
-
-            if(s1.getValue() == null || s2.getValue() == null)
-                return false;
-
+            if(!s1.getName().equalsIgnoreCase(s2.getName())) return false;
+            if(s1.getValue() == null || s2.getValue() == null) return false;
             return s1.getValue().equalsIgnoreCase(s2.getValue());
         }
     }
@@ -385,26 +479,72 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.unWire();
         LuaSettingExtended setting = filtered.get(position);
-        String settingName = setting.getName();
-        holder.tvSettingName.setText(SettingUtil.cleanSettingName(settingName));
-        holder.tvSettingDescription.setText(SettingUtil.generateDescription(setting));
-        holder.tvSettingNameFull.setText(setting.getName());
+        setting.bindInputTextBox(holder.tiSettingValue);
 
-        if(StringUtil.isValidString(setting.getValue())) {
-            holder.cvSetting.setCardBackgroundColor(XUtil.resolveColor(holder.itemView.getContext(), R.attr.colorSystem));
-            holder.tiSettingValue.setText(setting.getValue());
-        }else {
-            holder.cvSetting.setCardBackgroundColor(XUtil.resolveColor(holder.itemView.getContext(), R.attr.cardForegroundColor));
-            holder.tiSettingValue.setText("");
-        }
+        holder.tvSettingName.setText(SettingUtil.cleanSettingName(setting.getName()));  //Setting Name
+        holder.tvSettingNameFull.setText(setting.getName());                            //Setting Name RAW
+        holder.tvSettingDescription.setText(SettingUtil.generateDescription(setting));  //Setting Description
 
-        for(int i = 0; i < holder.spRandomizer.getCount(); i++) {
-            IRandomizer randomizer = holder.spRandomizer.getItem(i);
-            if(randomizer != null && randomizer.isSetting(settingName)) {
-                holder.spRandomSelector.setSelection(i);
-                break;
+        //Im TERRIBLE with colors....
+        SettingUtil.initCardViewColor(holder.itemView.getContext(), holder.tvSettingName, holder.cvSetting, setting);
+
+        holder.spRandomizer.clear();
+        IRandomizer randomizer = setting.getRandomizer();
+        boolean enable = false;
+        if(randomizer != null) {
+            List<ISpinnerElement> elements = randomizer.getOptions();
+            if(randomizer.isSetting(setting.getName()) && elements != null && !elements.isEmpty()) {
+                holder.spRandomizer.addAll(elements);//here we can compare values
+                boolean found = false;
+                if(setting.isModified()) {
+                    String setModValue = setting.getModifiedValue();
+                    if(setModValue != null && !TextUtils.isEmpty(setModValue)) {
+                        for(int i = 0; i < holder.spRandomizer.getCount(); i++) {
+                            IRandomizer r = holder.spRandomizer.getItem(i);
+                            if(r == null) continue;
+                            if(r instanceof ISpinnerElement) {
+                                ISpinnerElement spe = (ISpinnerElement) r;
+                                if(spe.getName().equals(DataNullElement.EMPTY_ELEMENT.getName())) continue;
+                                if(spe.getValue().equalsIgnoreCase(setModValue)) {
+                                    holder.spRandomSelector.setSelection(i);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if(!found) {
+                    for(int i = 0; i < holder.spRandomizer.getCount(); i++) {
+                        IRandomizer r = holder.spRandomizer.getItem(i);
+                        if(r == null) continue;
+                        if(r.getName().equals(DataNullElement.EMPTY_ELEMENT.getName())) {
+                            holder.spRandomSelector.setSelection(i);
+                            break;
+                        }
+                    }
+                }
             }
+            else {
+                holder.spRandomizer.addAll(randomizers);
+                for(int i = 0; i < holder.spRandomizer.getCount(); i++) {
+                    IRandomizer r = holder.spRandomizer.getItem(i);
+                    if(r == null) continue;
+                    if(r.getName().equalsIgnoreCase(randomizer.getName())) {
+                        holder.spRandomSelector.setSelection(i);
+                        break;
+                    }
+                }
+            } enable = true;
         }
+
+        holder.spRandomSelector.setEnabled(enable);
+        holder.ivBtRandomize.setEnabled(enable);
+        setting.setInputText();
+        holder.cbSelected.setChecked(setting.isEnabled());
+
+        holder.cvSetting.setEnabled(!setting.isBusy());
+        holder.ivSettingDrop.setEnabled(!setting.isBusy());
 
         holder.updateExpanded();
         holder.wire();

@@ -43,7 +43,10 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import de.robv.android.xposed.XC_MethodHook;
+import eu.faircode.xlua.api.properties.MockPropSetting;
 import eu.faircode.xlua.api.xmock.XMockCall;
+import eu.faircode.xlua.interceptors.shell.ShellInterceptionResult;
+import eu.faircode.xlua.interceptors.UserContextMaps;
 import eu.faircode.xlua.interceptors.ShellIntercept;
 import eu.faircode.xlua.utilities.MemoryUtilEx;
 import eu.faircode.xlua.utilities.MockCpuUtil;
@@ -66,15 +69,20 @@ public class XParam {
     private final Class<?> returnType;
     private final Map<String, String> settings;
     private final Map<String, Integer> propSettings;
+    private final Map<String, String> propMaps;
     private final String key;
 
     private static final Map<Object, Map<String, Object>> nv = new WeakHashMap<>();
+    private UserContextMaps getUserMaps() { return new UserContextMaps(this.settings, this.propMaps, this.propSettings); }
 
     // Field param
     public XParam(
             Context context,
             Field field,
-            Map<String, String> settings, Map<String, Integer> propSettings, String key) {
+            Map<String, String> settings,
+            Map<String, Integer> propSettings,
+            Map<String, String> propMaps,
+            String key) {
         this.context = context;
         this.field = field;
         this.param = null;
@@ -82,6 +90,7 @@ public class XParam {
         this.returnType = field.getType();
         this.settings = settings;
         this.propSettings = propSettings;
+        this.propMaps = propMaps;
         this.key = key;
     }
 
@@ -91,6 +100,7 @@ public class XParam {
             XC_MethodHook.MethodHookParam param,
             Map<String, String> settings,
             Map<String, Integer> propSettings,
+            Map<String, String> propMaps,
             String key) {
         this.context = context;
         this.field = null;
@@ -104,6 +114,7 @@ public class XParam {
         }
         this.settings = settings;
         this.propSettings = propSettings;
+        this.propMaps = propMaps;
         this.key = key;
     }
 
@@ -116,15 +127,29 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public String filterBuildProperty(String property) {
-        if(!StringUtil.isValidString(property) || MockUtils.isPropVxpOrLua(property))
+        if(property == null || MockUtils.isPropVxpOrLua(property))
             return MockUtils.NOT_BLACKLISTED;
 
         if(DebugUtil.isDebug())
-            Log.i(TAG, "Filtering Property=" + property);
+            Log.i(TAG, "Filtering Property=" + property + " prop maps=" + propMaps.size() + " settings size=" + settings.size());
 
-        //we can also use the local cached settings
-        //return XMockCall.getPropertyValue(getApplicationContext(), property, getPackageName(), 0);
-        return null;
+        Integer code = propSettings.get(property);
+        if(code != null) {
+            if(code == MockPropSetting.PROP_HIDE)
+                return null;//return MockUtils.HIDE_PROPERTY;
+            if(code == MockPropSetting.PROP_SKIP)
+                return MockUtils.NOT_BLACKLISTED;
+        }
+
+        if(propMaps != null && !propMaps.isEmpty()) {
+            String settingName = propMaps.get(property);
+            if(settingName != null) {
+                if(settings.containsKey(settingName))
+                    return getSetting(settingName, null);
+            }
+        }
+
+        return MockUtils.NOT_BLACKLISTED;
     }
 
     @SuppressWarnings("unused")
@@ -141,15 +166,13 @@ public class XParam {
         switch (setting) {
             case "android_id":
                 if(set.equals("android_id")) {
-                    String fake = getSetting("value.android_id", "0000000000000000");
-                    setResult(fake);
+                    setResult(getSettingReMap("unique.android.id", "value.android_id", "0000000000000000"));
                     return true;
                 }
                 break;
             case "bluetooth_name":
                 if(set.equals("bluetooth_name")) {
-                    //setResult("00:00:00:00:00:00");//FIX
-                    setResult(getSetting("bludtooth.id", "00:00:00:00:00:00"));
+                    setResult(getSettingReMap("unique.bluetooth.address", "bluetooth.id", "00:00:00:00:00:00"));
                     return true;
                 }
                 break;
@@ -183,16 +206,26 @@ public class XParam {
     //
 
     @SuppressWarnings("unused")
-    public String interceptCommand(String command) { return ShellIntercept.interceptOne(command, getApplicationContext()); }
+    public ShellInterceptionResult interceptCommand(String command) { return ShellIntercept.intercept(ShellInterceptionResult.create(command, getUserMaps())); }
 
     @SuppressWarnings("unused")
-    public String interceptCommandArray(String[] commands) { return ShellIntercept.interceptTwo(commands, getApplicationContext()); }
+    public ShellInterceptionResult interceptCommandArray(String[] commands) { return ShellIntercept.intercept(ShellInterceptionResult.create(commands, getUserMaps())); }
 
     @SuppressWarnings("unused")
-    public String interceptCommandList(List<String> commands) { return ShellIntercept.interceptThree(commands, getApplicationContext()); }
+    public ShellInterceptionResult interceptCommandList(List<String> commands) { return ShellIntercept.intercept(ShellInterceptionResult.create(commands, getUserMaps())); }
 
-    @SuppressWarnings("unused")
-    public Process execEcho(String command) { return ShellIntercept.echo(command); }
+
+    //@SuppressWarnings("unused")
+    //public String interceptCommand(String command) { return ShellIntercept.interceptOne(command, getApplicationContext()); }
+
+    //@SuppressWarnings("unused")
+    //public String interceptCommandArray(String[] commands) { return ShellIntercept.interceptTwo(commands, getApplicationContext()); }
+
+    //@SuppressWarnings("unused")
+    //public String interceptCommandList(List<String> commands) { return ShellIntercept.interceptThree(commands, getApplicationContext()); }
+
+    //@SuppressWarnings("unused")
+    //public Process execEcho(String command) { return ShellIntercept.echo(command); }
 
     //
     //End of Shell Intercept
@@ -201,6 +234,8 @@ public class XParam {
     //
     //String Utils
     //
+
+    //public boolean isValidCollection(Collection<?>)
 
     @SuppressWarnings("unused")
     public String joinArray(String[] array) { return StringUtil.joinDelimiter(" ", array); }
@@ -591,15 +626,14 @@ public class XParam {
     @SuppressWarnings("unused")
     public String getSetting(String name, String defaultValue) {
         String setting = getSetting(name);
-        //Shouldt we ingore if its a empty string :P what if the spoof value is empty
-        return StringUtil.isValidString(setting) ? setting : defaultValue;
+        return setting == null ? defaultValue : setting;
     }
 
     @SuppressWarnings("unused")
     public String getSetting(String name) {
         synchronized (this.settings) {
             String value = (this.settings.containsKey(name) ? this.settings.get(name) : null);
-            Log.i(TAG, "Get setting " + this.getPackageName() + ":" + this.getUid() + " " + name + "=" + value);
+            //Log.i(TAG, "Get setting " + this.getPackageName() + ":" + this.getUid() + " " + name + "=" + value);
             return value;
         }
     }
@@ -617,7 +651,7 @@ public class XParam {
     @SuppressWarnings("unused")
     public Object getValue(String name, Object scope) {
         Object value = getValueInternal(name, scope);
-        Log.i(TAG, "Get value " + this.getPackageName() + ":" + this.getUid() + " " + name + "=" + value + " @" + scope);
+        //Log.i(TAG, "Get value " + this.getPackageName() + ":" + this.getUid() + " " + name + "=" + value + " @" + scope);
         return value;
     }
 

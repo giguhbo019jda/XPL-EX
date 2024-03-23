@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,6 +59,10 @@ public class LuaSetting extends UserIdentityPacket implements IJsonSerial, Parce
     public String getValue() { return this.value; }
     public LuaSetting setValue(String value) { if(value != null) this.value = value; return this; }
     public LuaSetting setValueForce(String value) { this.value = value; return this; }
+
+    public boolean isValueNull() { return this.value == null; }
+    public boolean isValueEmpty() { return this.value != null && TextUtils.isEmpty(this.value); }
+    public boolean isValueEmptyOrNull() { return isValueNull() || isValueEmpty(); }
 
     public LuaSettingDefault createDefault(String description) { return LuaSettingDefault.create(this, description); }
     public LuaSettingExtended createExtended(String description) { return LuaSettingExtended.create(this, description); }

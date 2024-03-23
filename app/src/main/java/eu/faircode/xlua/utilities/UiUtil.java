@@ -3,14 +3,29 @@ package eu.faircode.xlua.utilities;
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.lang.reflect.Field;
 
+import eu.faircode.xlua.R;
+
 public class UiUtil {
     private static final String TAG = "XLua.UiUtil";
     public static final int CIRCLE_DIAMETER = 64;
+
+    public static void initFloatingActionButtonAnimations(Context context, Animation fabOpen, Animation fabClose, Animation fromBottom, Animation toBottom) {
+        try {
+            fabOpen = AnimationUtils.loadAnimation(context, R.anim.rotate_open_anim_one);
+            fabClose = AnimationUtils.loadAnimation(context,R.anim.rotate_close_anim_one);
+            fromBottom = AnimationUtils.loadAnimation(context,R.anim.from_bottom_anim_one);
+            toBottom = AnimationUtils.loadAnimation(context,R.anim.to_bottom_anim_one);
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to init Floating Action Buttons... e=" + e);
+        }
+    }
 
     public static void setSwipeRefreshLayoutEndOffset(Context context, SwipeRefreshLayout srl, int startOffset) {
         if(srl == null || context == null) {

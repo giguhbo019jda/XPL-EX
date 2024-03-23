@@ -1,7 +1,6 @@
-package eu.faircode.xlua.dialogs;
+package eu.faircode.xlua.ui.dialogs;
 
 import eu.faircode.xlua.api.properties.MockPropPacket;
-import eu.faircode.xlua.api.properties.MockPropSetting;
 
 public interface IPropertyDialogListener {
     void pushMockPropPacket(MockPropPacket setting);

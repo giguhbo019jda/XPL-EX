@@ -3,12 +3,15 @@ package eu.faircode.xlua.api.properties;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.settings.LuaSetting;
 import eu.faircode.xlua.api.settings.LuaSettingDefault;
 import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
 import eu.faircode.xlua.api.standard.database.DatabaseHelp;
@@ -40,11 +43,16 @@ public class MockPropProvider {
         return value;
     }*/
 
+    public static Collection<MockPropMap> getMockPropMaps(Context context, XDatabase db) {
+        initCache(context, db);
+        Log.i(TAG, "mapped properties size=" + mappedProperties.size());
+        return mappedProperties.values();
+    }
+
     public static XResult putMockPropMap(Context context, XDatabase db, MockPropPacket packet) {
         initCache(context, db);
         Log.i(TAG, "Before Mapped Properties=" + mappedProperties.size());
-
-
+        //packet.resolveUserID();
         XResult res = MockPropDatabase.putSettingMapForProperty(db, packet);
         if(res.succeeded() && !packet.isDeleteMap()) { synchronized (lock) { mappedProperties.put(packet.getName(), packet.createMap()); } }
         else if(res.succeeded()) { synchronized (lock) { mappedProperties.remove(packet.getName()); } }

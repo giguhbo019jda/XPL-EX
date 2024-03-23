@@ -12,8 +12,6 @@ import eu.faircode.xlua.api.standard.command.QueryPacket;
 import eu.faircode.xlua.utilities.CursorUtil;
 
 public class GetMockSettingsCommand extends QueryCommandHandler {
-    public static GetMockSettingsCommand create() { return new GetMockSettingsCommand(true); }
-    public static GetMockSettingsCommand create(boolean marshall) { return new GetMockSettingsCommand(marshall); }
 
     @SuppressWarnings("unused")
     public GetMockSettingsCommand() { this(false); }

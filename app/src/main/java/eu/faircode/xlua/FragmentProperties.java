@@ -39,7 +39,7 @@ import eu.faircode.xlua.api.properties.MockPropSetting;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
-import eu.faircode.xlua.dialogs.PropertyAddDialog;
+import eu.faircode.xlua.ui.dialogs.PropertyAddDialog;
 
 public class FragmentProperties extends Fragment implements View.OnClickListener {
     private final static String TAG = "XLua.FragmentProperties";

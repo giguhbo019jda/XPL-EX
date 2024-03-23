@@ -1,21 +1,23 @@
 function before(hook, param)
+    log("Runtime.exec(command) Hook Invoked")
 	local arg = param:getArgument(0)
 	if arg == nil then
+	    log("Runtime.exec(command) input argument is NULL...")
 		return false
 	end
 
-	log("Runtime.exec(" .. arg .. ")")
-	local fakeCommand = param:interceptCommand(arg)
-	if fakeCommand == nil then
+    log("Runtime.exec(" .. arg .. ")")
+	local result = param:interceptCommand(arg)
+	if result == nil then
+        log("Command Interception returned NULL. arg=" .. arg)
 		return false
 	end
 
-	local fake = param:execEcho(fakeCommand)
-	if fake == nil then
-		return false
+	if result:isMalicious() then
+	    log("Found Malicious command. arg=" .. arg)
+	    param:setResult(result:getEchoProcess())
+	    return true, result:getOriginalValue(), result:getNewValue()
 	end
-
-	log("Runtime.exec(" .. arg .. " => " .. fakeCommand)
-	param:setResult(fake)
-	return true, arg, fakeCommand
+	log("Command is clean! arg=" .. arg)
+	return false
 end

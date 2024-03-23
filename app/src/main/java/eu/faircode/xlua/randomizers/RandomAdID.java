@@ -2,6 +2,9 @@ package eu.faircode.xlua.randomizers;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+
+import eu.faircode.xlua.randomizers.elements.ISpinnerElement;
 import eu.faircode.xlua.utilities.RandomStringGenerator;
 
 public class RandomAdID implements IRandomizer {
@@ -43,6 +46,9 @@ public class RandomAdID implements IRandomizer {
 
     @Override
     public int generateInteger() { return 0; }
+
+    @Override
+    public List<ISpinnerElement> getOptions() { return null; }
 
     @NonNull
     @Override

@@ -342,32 +342,16 @@ public class XResult {
     @NonNull
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getResultMessage());
-        if(errorMessage.length() > 0) {
-            sb.append(" error=[");
-            sb.append(errorMessage);
-            sb.append("]");
-        }
-
-        if(StringUtil.isValidString(message)) {
-            sb.append(" message=[");
-            sb.append(message);
-            sb.append("]");
-        }
-
-        if(StringUtil.isValidString(methodName)) {
-            sb.append(" method=[");
-            sb.append(methodName);
-            sb.append("]");
-        }
-
-        if(StringUtil.isValidString(extra)) {
-            sb.append(" extra=");
-            sb.append(extra);
-            sb.append("]");
-        }
-
-        return sb.toString();
+        return new StringBuilder()
+                .append("result:\n").append(getResultMessage())
+                .append("\n")
+                .append("error:\n").append(errorMessage)
+                .append("\n")
+                .append("message:\n").append(message)
+                .append("\n")
+                .append("method:\n").append(methodName)
+                .append("\n")
+                .append("extra:\n").append(extra)
+                .toString();
     }
 }

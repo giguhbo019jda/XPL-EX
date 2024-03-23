@@ -55,9 +55,12 @@
   { "name": "cpu.soc.model", "description": "Model Name of SOC", "value": "SM8150" },
   { "name": "cpu.soc.manufacturer", "description": "Manufacturer", "value": "Qualcomm" },
   { "name": "cpu.processor.count", "description": "The Amount of Processors in the CPU", "value": "8" },
+  { "name": "cpu.cpuid", "description": "CPU ID Stuff", "value": "N/A" },
+
 
   //Android GPU Default Settings
   { "name": "gpu.opengls.version",  "description": "GPU OpenGLS Version Number", "value": "19660" },
+  { "name": "gpu.egl.code.name",  "description": "GPU EGL Suffix Code Name", "value": "mesa" },
 
   //Android ROM Specific Default Settings
   { "name": "android.rom.adb.secure", "description": "Is ADB Secure ?", "value": "1" },
@@ -70,7 +73,13 @@
   { "name": "android.rom.root.image", "description": "I dunno", "value":  "true"  },
   { "name": "android.rom.netflix", "description": "This prop makes Netflix select L1 instead of L3.", "value": "Q855-16947-1" },
 
+  { "name": "android.system.supports.ab", "description": "Does system support A/B partitions", "value": "true" },
+  { "name": "android.system.treble.enabled", "description": "Is Treble Enabled on the Device", "value": "true" },
+
+
   //System hardware Default Settings
+
+  { "name": "hardware.efuse", "description": "E-fuse (1/0(", "value": "1" },
   { "name": "hardware.nfc.kind", "description": "NFC Protocal", "value": "I2C" },
   { "name": "hardware.camera.app", "description": "Packagename for Camera APP", "value": "com.oneplus.camera" },
   { "name": "hardware.fp.sensor", "description": "Fingerprint Sensor Short Name", "value": "gdx" },
@@ -102,6 +111,9 @@
   { "name": "unique.drm.id", "description": "DRM ID", "value": "slvwoputzjflhwfozqjqtloqpxudqrrxtirqjgxtzairmaftdxruhmflneex" },
   { "name": "unique.gsf.id", "description": "Google Services Framework ID", "value": "FMZIYEVGXZDCENRO" },
   { "name": "unique.network.ssid", "description": "Wifi SSID", "value": "Starbucks Free-Wifi" },
+  //stable_secret contains RFC 7217 secret key which should never be
+  { "name": "unique.netd.secret.key", "description": "stable_secret contains RFC 7217 secret key which should never be leaked", "value": "90f8:f587:2bb7:db9b:e5:306a:67d7:a155" },
+
 
   //Zone Default Settings (Time, Date, Region, Language)
   { "name": "zone.timezone.id", "description": "TimeZone ID (Atlantic/Reykjavik)", "value": "Atlantic/Reykjavik" },
@@ -110,6 +122,8 @@
   { "name": "zone.language", "description": "Language Name", "value": "Icelandic" },
   { "name": "zone.language.iso", "description": "Language ISO3 ID", "value": "IS" },
   { "name": "zone.language.tag", "description": "Language Tag (is-IS)", "value": "is-IS" },
+  { "name": "zone.region", "description": "Region Specification Code (IS/CN...)", "value": "IS" },
+
 
   //Network Default Settings
   { "name": "network.dns", "description": "DNS Address (1.1.1.1)", "value": "1.1.1.1" },
@@ -138,8 +152,9 @@
   { "name": "gsm.sim.type", "description": "LOCAL_SIM=(0) REMOTE_SIM=(1)", "value": "0" },
   { "name": "gsm.sim.state", "description": "State of the SIM Card (SIM_STATE_READY)", "value": "READY" },
   { "name": "gsm.sim.state.number", "description": "State of the SIM Card (SIM_STATE_READY) Number", "value": "5" },
-  { "name": "gsm.data.state", "description": "Current data connection state (cellular)", "value": "2" },
+  { "name": "gsm.data.state", "description": "Current data connection state (cellular) Values=DISCONNECTED=0, DISCONNECTING=4, ENABLED_REASON_CARRIER=2, ENABLED_REASON_OVERRIDE=4, ENABLED_REASON_POLICY=1, ENABLED_REASON_THERMAL=3, ENABLED_REASON_UNKNOWN/UNKNOWN=-1, ENABLED_REASON_USER=0, HANDOVER_IN_PROGRESS=5, SUSPENDED=3", "value": "2" },
   { "name": "gsm.sim.card.id", "description": "The card ID of the SIM card which contains the subscription.", "value": "8457894" },
+  { "name": "gsm.sim.count", "description": "Amount of SIM Cards or something...", "value": "1" },
 
 
   { "name": "gsm.index.sim.port", "description": "The port index of the SIM card which contains the subscription", "value": "1" },
@@ -152,8 +167,37 @@
   { "name": "display.width", "description": "Width of Display Pixels", "value": "1400" },
 
   //Memory Default Settings
-  { "name": "memory.total", "description": "Width of Display Pixels", "value": "900" },
-  { "name": "memory.available", "description": "Width of Display Pixels", "value": "500" },
+  { "name": "memory.total", "description": "Total amount of Memory on the Device", "value": "900" },
+  { "name": "memory.available", "description": "Available amount of Memory on the Device", "value": "500" },
+
+
+  //Emulator stuff
+  { "name": "qemu.emulator*", "description": "Control of all Emulator Functions (Hide/Skip....)", "value": "true" },
+  { "name": "qemu.emulator.kernel", "description": "Emulator Qemu Kernel", "value": "N/A" },
+  { "name": "qemu.emulator.props", "description": "Emulator Qemu Props", "value": "N/A" },
+  { "name": "qemu.emulator.hw.main.keys", "description": "Emulator Qemu Hardware Keys", "value": "N/A" },
+  { "name": "qemu.emulator.fake.camera", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.lcd_density", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.ud", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.gles", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.adb.secure", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.logcat", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.timezone", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.encrypt", "description": "Emulator Qemu Props", "value": "N/A" },
+  { "name": "qemu.emulator.opengls.version", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.gltransport", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.vsync", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.wifi", "description": "Emulator Qemu Shit", "value": "N/A" },
+  { "name": "qemu.emulator.initrc", "description": "Emulator Qemu Shit", "value": "N/A" },
+
+
+  { "name": "google.client.id.base", "description": "Some base property (dosnt seem to be ID) (android-vf-de)", "value": "android-vf-de" },
+  { "name": "google.client.id.base.name", "description": "Some base property (dosnt seem to be ID) (android-xiaomi-rvo3)", "value": "android-xiaomi-rvo3" },
+  { "name": "google.gms.version", "description": "GMS Version format (12_202112)", "value": "12_202112" },
+
+  //Values for inner functions
+  { "name": "intercept.shell.meminfo.bool", "description": "Should Shell Interceptor Intercept (/proc/meminfo) file", "value": "true" },
+  { "name": "intercept.shell.getprop.bool", "description": "Should Shell Interceptor Intercept (getprop) command", "value": "true" },
 
 
   //User Default Values

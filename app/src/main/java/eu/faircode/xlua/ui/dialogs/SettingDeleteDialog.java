@@ -1,4 +1,4 @@
-package eu.faircode.xlua.dialogs;
+package eu.faircode.xlua.ui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -72,6 +72,7 @@ public class SettingDeleteDialog extends AppCompatDialogFragment {
                             return;
 
                         LuaSettingPacket packet = setting.createPacket(LuaSettingPacket.getCodeForDeletion(deleteSetting, deleteDefault), forceKill);
+                        packet.identificationFromApplication(application);
                         Log.i(TAG, "Delete packet=" + packet);
                         listener.pushSettingPacket(packet);
                     }

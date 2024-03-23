@@ -9,6 +9,7 @@ import java.util.Collection;
 public class MockUtils {
     private static final String TAG = "XLua.XMockUtils";
     public static final String NOT_BLACKLISTED = "NotBlacklisted";
+    public static final String HIDE_PROPERTY = "<<*hide*>>";
 
     public static boolean isPropVxpOrLua(String propName) {
         boolean r = propName.equalsIgnoreCase("exp") ||

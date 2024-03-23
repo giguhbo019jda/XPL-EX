@@ -145,7 +145,13 @@ public class XHookUtil {
         return new LuaLocals(globals);
     }*/
 
-    public static Globals getGlobals(Context context, XLuaHook hook, Map<String, String> settings, Map<String, Integer> propSettings, String key) {
+    public static Globals getGlobals(
+            Context context,
+            XLuaHook hook,
+            Map<String, String> settings,
+            Map<String, Integer> propSettings,
+            Map<String, String> propMaps,
+            String key) {
         //Log.i(TAG, "Grabbing Globals <getGlobals>");
         Globals globals = JsePlatform.standardGlobals();
         // base, bit32, coroutine, io, math, os, package, string, table, luajava
@@ -155,7 +161,7 @@ public class XHookUtil {
 
         //This will create the logger and hook instance
         globals.set("log", new LuaLog(context.getPackageName(), context.getApplicationInfo().uid, hook.getId()));
-        globals.set("hook", new LuaHook(context, settings, propSettings, key));
+        globals.set("hook", new LuaHook(context, settings, propSettings, propMaps, key));
 
         return new LuaLocals(globals);
     }

@@ -1,4 +1,4 @@
-package eu.faircode.xlua.dialogs;
+package eu.faircode.xlua.ui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -8,17 +8,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import eu.faircode.xlua.AppGeneric;
 import eu.faircode.xlua.R;
 import eu.faircode.xlua.api.properties.MockPropPacket;
-import eu.faircode.xlua.api.settings.LuaSettingPacket;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class PropertyAddDialog extends AppCompatDialogFragment  {

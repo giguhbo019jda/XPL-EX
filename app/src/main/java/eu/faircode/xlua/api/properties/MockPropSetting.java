@@ -26,7 +26,10 @@ import eu.faircode.xlua.utilities.JSONUtil;
 public class MockPropSetting extends MockPropMap implements IJsonSerial, IDBQuery, Parcelable {
     public static final int PROP_HIDE = 0x3;
     public static final int PROP_SKIP = 0x4;
+    public static final int PROP_FORCE = 0x5;
     public static final int PROP_NULL = 0x8;
+
+    //public static boolean useProperty(Integer code) { return code == null || (code != MockPropSetting.PROP_HIDE && code != MockPropSetting.PROP_SKIP); }
 
     public static MockPropSetting create() { return new MockPropSetting(); }
     public static MockPropSetting create(MockPropPacket packet) { return new MockPropSetting(packet); }

@@ -35,6 +35,13 @@ public class GlobalRandoms {
         putRandomizer(new RandomSimSerial());
         putRandomizer(new RandomSubscriberID());
         putRandomizer(new RandomSSID());
+        putRandomizer(new RandomMemory());
+        putRandomizer(new RandomDNS());
+        putRandomizer(new RandomNetAddress());
+        putRandomizer(new RandomHostName());
+        putRandomizer(new RandomHostName());
+        putRandomizer(new RandomSerial());
+        putRandomizer(new RandomDataState());
     }
 
     public static void putRandomizer(IRandomizer randomizer) {

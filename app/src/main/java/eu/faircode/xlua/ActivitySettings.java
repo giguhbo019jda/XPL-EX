@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.settings.LuaSettingPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
-import eu.faircode.xlua.dialogs.ISettingDialogListener;
+import eu.faircode.xlua.ui.dialogs.ISettingDialogListener;
 
 public class ActivitySettings extends ActivityBase implements ISettingDialogListener {
     private static final String TAG = "XLua.ActivitySettings";

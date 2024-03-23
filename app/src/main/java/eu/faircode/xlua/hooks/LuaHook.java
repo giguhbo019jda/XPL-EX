@@ -21,12 +21,14 @@ public class LuaHook extends VarArgFunction {
     private Context context;
     private Map<String, String> settings;
     private Map<String, Integer> propSettings;
+    private Map<String, String> propMaps;
     private String key;
 
-    LuaHook(Context context, Map<String, String> settings, Map<String, Integer> propSettings, String key) {
+    LuaHook(Context context, Map<String, String> settings, Map<String, Integer> propSettings, Map<String, String> propMaps, String key) {
         this.context = context;
         this.settings = settings;
         this.propSettings = propSettings;
+        this.propMaps = propMaps;
         this.key = key;
     }
 
@@ -35,7 +37,7 @@ public class LuaHook extends VarArgFunction {
         Class<?> cls = args.arg(1).checkuserdata().getClass();
         String m = args.arg(2).checkjstring();
         args.arg(3).checkfunction();
-        Log.i(TAG, "Dynamic hook " + cls.getName() + "." + m);
+        //Log.i(TAG, "Dynamic hook " + cls.getName() + "." + m);
         final LuaValue fun = args.arg(3);
         final List<LuaValue> xargs = new ArrayList<>();
         for (int i = 4; i <= args.narg(); i++)
@@ -57,7 +59,7 @@ public class LuaHook extends VarArgFunction {
                 //Log.i(TAG, "Dynamic invoke " + param.method);
                 List<LuaValue> values = new ArrayList<>();
                 values.add(LuaValue.valueOf(when));
-                values.add(CoerceJavaToLua.coerce(new XParam(context, param, settings, propSettings, key)));
+                values.add(CoerceJavaToLua.coerce(new XParam(context, param, settings, propSettings, propMaps, key)));
                 for (int i = 0; i < xargs.size(); i++)
                     values.add(xargs.get(i));
                 fun.invoke(values.toArray(new LuaValue[0]));

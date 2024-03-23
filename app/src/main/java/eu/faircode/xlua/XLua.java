@@ -268,7 +268,7 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         Log.i(TAG, "pkg=" + pName + " uid=" + uid + " hooks=" + hooks.size());
 
         final Map<String, String> settings = XLuaQuery.getGlobalSettings(context, uid);
-        settings.putAll(XLuaQuery.getSettings(context, pName, uid));
+        settings.putAll(XLuaQuery.getSettings(context, uid, pName, true));
         //why global settings ? I suspect if null still use ?
         //nvm global is good, as in defined for all, then ovveride if need with the putAll
         //can be 0 globals to how ever many
@@ -276,8 +276,10 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         //final Map<String, Integer> propSettings = MockPropConversions.toMap(XMockQuery.getModifiedProperties(context));
         //propSettings.putAll(MockPropConversions.toMap(XMockQuery.getModifiedProperties(context, uid, pName)));
         final Map<String, Integer> propSettings = MockPropConversions.toMap(XMockQuery.getModifiedProperties(context, uid, pName));
+        final Map<String, String> propMaps = XMockQuery.getMockPropMapsMap(context, true, settings, false);
+        //we can also lazy load it ?
 
-        Log.i(TAG,"pkg [" + pName + "] settings=" + settings.size() + " properties=" + propSettings.size());
+        Log.i(TAG,"pkg [" + pName + "] settings=" + settings.size() + " properties=" + propSettings.size() + " prop maps=" + propMaps.size());
 
         Map<LuaScriptHolder, Prototype> scriptPrototype = new HashMap<>();
         PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
@@ -309,6 +311,7 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                                     hook,
                                     settings,
                                     propSettings,
+                                    propMaps,
                                     compiledScript,
                                     field,
                                     key);
@@ -355,7 +358,13 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                                     synchronized (threadGlobals) {
                                         Thread thread = Thread.currentThread();
                                         if (!threadGlobals.containsKey(thread))
-                                            threadGlobals.put(thread, XHookUtil.getGlobals(context, hook, settings, propSettings, key));
+                                            threadGlobals.put(thread, XHookUtil.getGlobals(
+                                                    context,
+                                                    hook,
+                                                    settings,
+                                                    propSettings,
+                                                    propMaps,
+                                                    key));
 
                                         Globals globals = threadGlobals.get(thread);
 
@@ -366,6 +375,7 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                                                         hook,
                                                         settings,
                                                         propSettings,
+                                                        propMaps,
                                                         compiledScript,
                                                         function,
                                                         param,

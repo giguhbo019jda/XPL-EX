@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.properties.MockPropPacket;
 import eu.faircode.xlua.api.xmock.XMockCall;
-import eu.faircode.xlua.dialogs.IPropertyDialogListener;
+import eu.faircode.xlua.ui.dialogs.IPropertyDialogListener;
 
 public class ActivityProperties extends ActivityBase implements IPropertyDialogListener {
     private static final String TAG = "XLua.ActivityProperties";

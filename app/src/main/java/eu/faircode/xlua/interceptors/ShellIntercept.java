@@ -1,28 +1,45 @@
 package eu.faircode.xlua.interceptors;
 
-import android.content.Context;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
-import eu.faircode.xlua.DebugUtil;
-import eu.faircode.xlua.api.xmock.XMockCall;
-import eu.faircode.xlua.api.cpu.MockCpu;
-import eu.faircode.xlua.utilities.MemoryUtil;
-import eu.faircode.xlua.utilities.MockUtils;
-import eu.faircode.xlua.utilities.StringUtil;
+import eu.faircode.xlua.interceptors.shell.CommandInterceptor;
+import eu.faircode.xlua.interceptors.shell.handlers.GetPropIntercept;
+import eu.faircode.xlua.interceptors.shell.ShellInterceptionResult;
 
 public class ShellIntercept {
-
-    //Network + Bluetooth hooks
-    //DNS info hooks
-    //Google Instance IC as Game ID
-    //
-
-
     private static final String TAG = "XLua.ShellIntercept";
+    private static final List<CommandInterceptor> interceptors = new ArrayList<>();
 
+    public static ShellInterceptionResult intercept(ShellInterceptionResult results) {
+        try {
+            if(results.isValueValid()) {
+                Log.i(TAG, "Checking command: " + results.getOriginalValue());
+                for(CommandInterceptor interceptor : getInterceptors()) {
+                    if(interceptor.containsCommand(results.getOriginalValue())) {
+                        if(interceptor.interceptCommand(results))
+                            return results;
+                    }
+                }
+            }
+        }catch (Exception e) {
+            Log.e(TAG, "Error with Interceptor Core: e=" + e);
+        }
+
+        return results;
+    }
+
+    public static List<CommandInterceptor> getInterceptors() {
+        if(interceptors.isEmpty()) {
+            interceptors.add(new GetPropIntercept());
+        }
+
+        return interceptors;
+    }
+
+/*
     public static String interceptOne(String command, Context context) {
         if(!StringUtil.isValidString(command))
             return null;
@@ -134,5 +151,5 @@ public class ShellIntercept {
 
     //public static Process interceptThree(ProcessBuilder builder, Context context) {
     //    return interceptOne(StringUtil.joinDelimiter(" ", builder.command()), context);
-    //}
+    //}*/
 }
