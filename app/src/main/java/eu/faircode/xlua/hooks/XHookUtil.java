@@ -114,6 +114,11 @@ public class XHookUtil {
     }*/
 
     public static Prototype compileScript(Map<LuaScriptHolder, Prototype> prototypes, XLuaHook hook) {
+        if(hook == null) {
+            Log.e(TAG, "Hook is null not compiling...");
+            return null;
+        }
+
         try {
             LuaScriptHolder sh = new LuaScriptHolder(hook.getLuaScript());
             if (prototypes.containsKey(sh))
@@ -126,7 +131,7 @@ public class XHookUtil {
                 return compiledScript;
             }
         }catch (Exception e) {
-            Log.e(TAG, "Error compiling Script: " + e);
+            Log.e(TAG, "Error compiling Script: s=" + hook.getName() + " script=" + " e=" + e);
             return null;
         }
     }

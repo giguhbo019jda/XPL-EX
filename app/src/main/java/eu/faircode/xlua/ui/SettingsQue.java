@@ -52,6 +52,10 @@ public class SettingsQue {
                                         if(onResult != null) onResult.onSettingUpdateFailed(context, s, ret);
                                     }else {
                                         successful.add(s);
+                                        if(delete) {
+                                            s.setValueForce(null);
+                                            s.resetModified(true);
+                                        }
                                         if(onResult != null) onResult.onSettingUpdatedSuccessfully(context, s, ret);
                                     }
                                 }
@@ -117,6 +121,7 @@ public class SettingsQue {
                         .copyIdentification(application);
 
         if(!deleteSetting) packet.setValueForce(setting.getModifiedValue());
+        else packet.setValueForce(null);
         return packet;
     }
 }

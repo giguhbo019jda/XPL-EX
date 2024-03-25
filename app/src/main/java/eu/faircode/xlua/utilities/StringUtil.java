@@ -3,8 +3,10 @@ package eu.faircode.xlua.utilities;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -12,8 +14,29 @@ import java.util.concurrent.ThreadLocalRandom;
 public class StringUtil {
     private static final String TAG = "XLua.StringUtil";
 
-    public static final String BUILD_PROP_ENDING = "\b\n";//(0D 0A) or  \u000D\u000A
+    public static final String BUILD_PROP_ENDING = "\r\n";//(0D 0A) or  \u000D\u000A
     public static final List<Character> ESCAPE_CHARS = Arrays.asList('\n', '\t', '\b', '\f', '\r', '\"', '\0');
+
+    public static boolean listHasString(List<String> lst, String s) {
+        if(lst == null || lst.isEmpty() || s == null || s.isEmpty()) return false;
+        for(String sl : lst) {
+            if(sl == null) continue;
+            if(sl.equalsIgnoreCase(s)) return true;
+        }
+
+        return false;
+    }
+
+    public static List<String> stringToList(String s, String del) {
+        if(s == null || s.isEmpty()) return new ArrayList<>();
+        if(del == null || del.isEmpty()) del = ",";
+        if(del.equals(".")) del = "\\.";
+        if(!s.contains(del)) return Collections.singletonList(s);
+        String[] ps = s.split(del);
+        List<String> psList = new ArrayList<>(ps.length);
+        psList.addAll(Arrays.asList(ps));
+        return psList;
+    }
 
     public static int countOccurrences(String subStr, String str) {
         if (subStr == null || str == null || subStr.isEmpty() || str.isEmpty()) { return 0; }
@@ -83,6 +106,7 @@ public class StringUtil {
         return elements;
     }
 
+    //have extract path function
     public static List<String> breakStringExtreme(String str) {
         if(str == null || TextUtils.isEmpty(str))
             return new ArrayList<>();
@@ -93,7 +117,7 @@ public class StringUtil {
 
         for (int i = 0; i < lowered.length(); i++) {
             char c = lowered.charAt(i);
-            if (c == ' '  || c == '\n' || c == '\0' || c == '\t' || c == ',' || c == '|' || c == '>' || c == '<') {
+            if (c == ' '  || c == '\n' || c == '\b' || c == '\r' || c == '\0' || c == '\t' || c == ',' || c == '|' || c == '>' || c == '<') {
                 if (low.length() > 0) {
                     parts.add(low.toString());
                     low.setLength(0);
@@ -216,5 +240,58 @@ public class StringUtil {
             randomStringBuilder.append(tempChar);
         }
         return randomStringBuilder.toString();
+    }
+
+    public static byte[] getUTF8Bytes(String s) {
+        try {
+            return s.getBytes("UTF-8");
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to get Bytes from String returning def. e=" + e);
+            return new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        }
+    }
+
+    public static String getUTF8String(byte[] bs) {
+        try {
+            return new String(bs, "UTF-8");
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to get String from Bytes. e=" + e);
+            return RandomStringGenerator.generateRandomLetterString(16, RandomStringGenerator.LOWER_LETTERS);
+        }
+    }
+
+
+    public static byte[] stringToRawBytes(String drmIdString) {
+        // Convert the string back to bytes
+        int len = drmIdString.length();
+        byte[] data = new byte[len / 2];
+
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(drmIdString.charAt(i), 16) << 4)
+                    + Character.digit(drmIdString.charAt(i + 1), 16));
+        }
+
+        return data;
+    }
+
+    public static String rawBytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    public static String getBytesSHA256Hash(byte[] bs) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(bs);
+            return rawBytesToHex(md.digest());
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to Get Bytes SHA256 Hash.. e=" + e);
+            return "";
+        }
     }
 }

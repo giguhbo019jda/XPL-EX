@@ -470,11 +470,12 @@ public class TextDividerItemDecoration extends RecyclerView.ItemDecoration {
 
                             textY = textY + Math.abs(fontMetrics.ascent);
                             textY = textY - Math.abs(fontMetrics.descent);
+
                             //textY = textY - 10;
                             //Log.w(TAG, " top=" + fontMetrics.top + " bottom=" + fontMetrics.bottom);
                             textY = textY - paddingBottomText;
-                            textY = textY + paddingTopText;
-                            textY = textY + textToLinePadding;
+                            textY = Math.abs(textY + paddingTopText);
+                            textY = Math.abs(textY + textToLinePadding);
                             break;
                         case CENTER:
                             float centerOffset = (fontMetrics.ascent + fontMetrics.descent) / 2;

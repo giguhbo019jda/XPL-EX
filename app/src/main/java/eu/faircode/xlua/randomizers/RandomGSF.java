@@ -28,7 +28,7 @@ public class RandomGSF implements IRandomizer {
 
     @Override
     public String generateString() {
-        return RandomStringGenerator.generateRandomAlphanumericString(16, RandomStringGenerator.UPPER_LETTERS);
+        return RandomStringGenerator.generateRandomNumberString(19);
     }
 
     @Override

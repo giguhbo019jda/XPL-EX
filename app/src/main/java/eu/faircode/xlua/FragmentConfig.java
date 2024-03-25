@@ -12,19 +12,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
@@ -32,7 +27,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -49,9 +43,10 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
+import eu.faircode.xlua.ui.ViewFloatingAction;
 import eu.faircode.xlua.utilities.FileDialogUtil;
 
-public class  FragmentConfig extends Fragment implements View.OnClickListener, View.OnLongClickListener {
+public class  FragmentConfig extends ViewFloatingAction implements View.OnClickListener, View.OnLongClickListener {
     private final static String TAG = "XLua.FragmentConfig";
     private static final int PICK_FILE_REQUEST_CODE = 1; // This is a request code you define to identify your request
     private static final int PICK_FOLDER_RESULT_CODE = 2;
@@ -60,122 +55,49 @@ public class  FragmentConfig extends Fragment implements View.OnClickListener, V
     private Spinner spConfigSelection;
     private ArrayAdapter<MockConfig> spConfigs;
 
-    private FloatingActionButton flMain, flApply, flExport, flSave, flImport;
-    private Animation fabOpen, fabClose, fromBottom, toBottom;
-    private boolean isActionOpen = false;
-
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefresh;
-    private RecyclerView rvSettings;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private AppGeneric application;
 
     public View onCreateView(final @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.i(TAG, "FragmentConfig.onCreateView Enter");
 
         final View main = inflater.inflate(R.layout.configeditor, container, false);
-        flMain = main.findViewById(R.id.flActionConfigOptions);
-        flSave = main.findViewById(R.id.flActionConfigSave);
-        flImport = main.findViewById(R.id.flActionConfigImport);
-        flApply = main.findViewById(R.id.flActionConfigApply);
-        flExport = main.findViewById(R.id.flActionConfigExport);
+
+        this.application = AppGeneric.from(getArguments(), getContext());
+        this.TAG_ViewFloatingAction = TAG;
+        super.initActions();
+        super.bindTextViewsToAppId(main, R.id.ivConfigsAppIcon, R.id.tvConfigsPackageName, R.id.tvConfigsPackageFull, R.id.tvConfigsPackageUid);
+        super.setFloatingActionBars(this, this, main, R.id.flActionConfigOptions, R.id.flActionConfigSave, R.id.flActionConfigImport, R.id.flActionConfigApply, R.id.flActionConfigExport);
 
         progressBar = main.findViewById(R.id.pbConfigs);
         swipeRefresh = main.findViewById(R.id.swipeRefreshConfigs);
 
-        fabOpen = AnimationUtils.loadAnimation
-                (getContext(),R.anim.rotate_open_anim_one);
-        fabClose = AnimationUtils.loadAnimation
-                (getContext(),R.anim.rotate_close_anim_one);
-        fromBottom = AnimationUtils.loadAnimation
-                (getContext(),R.anim.from_bottom_anim_one);
-        toBottom = AnimationUtils.loadAnimation
-                (getContext(),R.anim.to_bottom_anim_one);
+        super.initRecyclerView(main, R.id.rvConfigSettings, true);
+        rvList.setVisibility(View.VISIBLE);
+        rvList.setHasFixedSize(false);
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity()) {
+            @Override
+            public boolean onRequestChildFocus(@NonNull RecyclerView parent, @NonNull RecyclerView.State state, @NonNull View child, View focused) {
+                return true;
+            }
+        };
 
-        rvSettings = main.findViewById(R.id.rvConfigSettings);
-
-        TextView tvPackageName = main.findViewById(R.id.tvConfigsPackageName);
-        TextView tvPackageUid = main.findViewById(R.id.tvCongisPackageUid);
-        TextView tvPackageFull = main.findViewById(R.id.tvConfigsPackageFull);
-        ImageView ivPackageIcon = main.findViewById(R.id.ivConfigsAppIcon);
-
-        application = AppGeneric.from(getArguments(), getContext());
-        Log.i(TAG, "Application Object Created=" + application);
-
-        tvPackageName.setText(application.getName());
-        tvPackageFull.setText(application.getPackageName());
-        tvPackageUid.setText(String.valueOf(application.getUid()));
-        application.initIcon(ivPackageIcon, Objects.requireNonNull(getContext()));
+        if(DebugUtil.isDebug()) Log.i(TAG, "Created Layout Settings for Config Settings, Fragment Config");
+        llm.setAutoMeasureEnabled(true);
+        rvList.setLayoutManager(llm);
+        rvConfigAdapter = new AdapterConfig(application);
+        rvList.setAdapter(rvConfigAdapter);
+        if(DebugUtil.isDebug()) Log.i(TAG, "Created the Layout for Config Settings, Fragment Config, leaving now...");
 
         initDropDown(main);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() { loadData(); }
         });
-        initRecyclerView(main);
 
-        rvSettings.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 && flMain.isShown()) {
-                    if(isActionOpen) invokeFloatingAction();
-                    flMain.hide();
-                } else if (dy < 0 && !flMain.isShown()) flMain.show();
-            }
-        });
-
-        wire();
         return main;
-    }
-
-    private void invokeFloatingAction() {
-        isActionOpen = !isActionOpen;
-        //Start the Animation
-        if(isActionOpen) {
-            flExport.startAnimation(fromBottom);
-            flImport.setAnimation(fromBottom);
-            flSave.setAnimation(fromBottom);
-            flApply.setAnimation(fromBottom);
-            flMain.setAnimation(fabOpen);
-        }else {
-            flExport.startAnimation(toBottom);
-            flImport.setAnimation(toBottom);
-            flSave.setAnimation(toBottom);
-            flApply.setAnimation(toBottom);
-            flMain.setAnimation(fabClose);
-        }
-
-        //Set the Visibility
-        int visibility = isActionOpen ? View.VISIBLE : View.INVISIBLE;
-        flApply.setVisibility(visibility);
-        flSave.setVisibility(visibility);
-        flImport.setVisibility(visibility);
-        flExport.setVisibility(visibility);
-
-        //Set to be clickable or not
-        flApply.setLongClickable(isActionOpen);
-        flApply.setClickable(isActionOpen);
-        flSave.setLongClickable(isActionOpen);
-        flSave.setClickable(isActionOpen);
-        flImport.setLongClickable(isActionOpen);
-        flImport.setClickable(isActionOpen);
-        flExport.setLongClickable(isActionOpen);
-        flExport.setClickable(isActionOpen);
-    }
-
-    public void wire() {
-        flSave.setOnClickListener(this);
-        flApply.setOnClickListener(this);
-        flExport.setOnClickListener(this);
-        flImport.setOnClickListener(this);
-        flMain.setOnClickListener(this);
-
-        flSave.setOnLongClickListener(this);
-        flApply.setOnLongClickListener(this);
-        flExport.setOnLongClickListener(this);
-        flImport.setOnLongClickListener(this);
     }
 
     public void pushConfig(MockConfig config) {
@@ -200,9 +122,7 @@ public class  FragmentConfig extends Fragment implements View.OnClickListener, V
     public void onResume() { super.onResume();  loadData(); }
 
     @Override
-    public void onPause() {
-        super.onPause();
-    }
+    public void onPause() { super.onPause(); }
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -263,8 +183,10 @@ public class  FragmentConfig extends Fragment implements View.OnClickListener, V
                 }
                 break;
             case R.id.flActionConfigOptions:
-                invokeFloatingAction();
+                //invokeFloatingAction();
+                invokeFloatingActions();
                 break;
+
         }
     }
 
@@ -382,30 +304,6 @@ public class  FragmentConfig extends Fragment implements View.OnClickListener, V
                     rvConfigAdapter.set(selected);
             }
         });
-    }
-
-    public void initRecyclerView(View view) {
-        if(DebugUtil.isDebug())
-            Log.i(TAG, "Created Configs Drop Down, Getting Rotate View For Config Settings, Fragment Config");
-
-        rvSettings.setVisibility(View.VISIBLE);
-        rvSettings.setHasFixedSize(false);
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity()) {
-            @Override
-            public boolean onRequestChildFocus(@NonNull RecyclerView parent, @NonNull RecyclerView.State state, @NonNull View child, View focused) {
-                return true;
-            }
-        };
-
-        if(DebugUtil.isDebug())
-            Log.i(TAG, "Created Layout Settings for Config Settings, Fragment Config");
-
-        llm.setAutoMeasureEnabled(true);
-        rvSettings.setLayoutManager(llm);
-        rvConfigAdapter = new AdapterConfig(application);
-        rvSettings.setAdapter(rvConfigAdapter);
-        if(DebugUtil.isDebug())
-            Log.i(TAG, "Created the Layout for Config Settings, Fragment Config, leaving now...");
     }
 
     private void loadData() {

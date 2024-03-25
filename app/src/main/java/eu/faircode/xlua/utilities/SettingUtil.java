@@ -2,6 +2,7 @@ package eu.faircode.xlua.utilities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
@@ -31,8 +32,10 @@ import eu.faircode.xlua.api.xlua.XLuaCall;
 public class SettingUtil {
 
 
-    public static final List<String> allUpperNamesCapitalized = Arrays.asList("Hw", "Sms", "Icc", "No", "Sys", "Isp", "Cid", "Lac", "Mac", "Net", "Ad", "Drm", "Gsf", "Lcc", "Meid", "Imei", "Bssid", "Ssid", "Esim", "Sim", "Sku", "Lac", "Cid", "Msin", "Mnc", "Mcc", "Adb", "Os", "Utc", "Abi", "Gps", "Dns", "Vm", "Id", "Gsm", "Cpu", "Gpu", "Fp", "Rom", "Nfc", "Soc", "Url", "Dev", "Sdk", "Iso");
-    public static final List<String> xpSettings = Arrays.asList("value.imei", "value.meid", "value.email", "value.android_id", "value.serial", "value.phone_number", "collection", "theme", "restrict_new_apps", "notify_new_apps", "notify");
+    public static final List<String> allUpperNamesCapitalized = Arrays.asList("Wifi", "Vpn", "Ex", "Io", "Su", "Arch", "Cpuid", "Db", "Egl", "Ab", "Gms",  "Hw", "Sms", "Icc", "No", "Sys", "Isp", "Cid", "Lac", "Mac", "Net", "Ad", "Drm", "Gsf", "Lcc", "Meid", "Imei", "Bssid", "Ssid", "Esim", "Sim", "Sku", "Lac", "Cid", "Msin", "Mnc", "Mcc", "Adb", "Os", "Utc", "Abi", "Gps", "Dns", "Vm", "Id", "Gsm", "Cpu", "Gpu", "Fp", "Rom", "Nfc", "Soc", "Url", "Dev", "Sdk", "Iso");
+    public static final List<String> xpSettings = Arrays.asList("show", "value.imei", "value.meid", "value.email", "value.android_id", "value.serial", "value.phone_number", "collection", "theme", "restrict_new_apps", "notify_new_apps", "notify");
+
+    public static boolean isBooleanTypeSetting(String settingName) { return settingName.endsWith(".bool") || settingName.contains(".bool.") || settingName.startsWith("bool."); }
 
     public static String generateDescription(LuaSettingExtended extended) {
         String desc = "N/A";
@@ -128,6 +131,15 @@ public class SettingUtil {
             if(s.equals(name))
                 return name.toUpperCase();
 
+        if(name.equalsIgnoreCase("inputdevice"))
+            return "InputDevice";
+
+        if(name.equalsIgnoreCase("timezone"))
+            return "TimeZone";
+
+        if(name.endsWith("ex") && name.length() > 3)
+            return name.substring(0, name.length() -2) + " EX";
+
         return name;
     }
 
@@ -146,6 +158,25 @@ public class SettingUtil {
         cv.setCardBackgroundColor(XUtil.resolveColor(context, setting.isModified() ? R.attr.colorSystem : R.attr.cardBackgroundColor));
     }
 
+    public static String replaceSettingType(String settingName, String settingType) {
+        String s = "." + settingType + ".";
+        for(int i = 0; i < 3; i ++) {
+            if(i == 0 && settingName.contains(s))
+                return settingName.replace(s, "");
+            if(i == 1) {
+                s = "." + settingType;
+                if(settingName.contains(s)) return settingName.replace(s, "");
+            }
+
+            if(i == 2) {
+                s = settingType + ".";
+                if(settingName.contains(s)) return settingName.replace(s, "");
+            }
+        }
+
+        return settingName;
+    }
+
     public static String cleanSettingName(String settingName) {
         if (!StringUtil.isValidString(settingName))
             return "NULL";
@@ -154,6 +185,7 @@ public class SettingUtil {
             return "LAC CID";
 
         String lowered = settingName.toLowerCase().trim();
+        if(isBooleanTypeSetting(lowered)) lowered = replaceSettingType(lowered, "bool");
         StringBuilder name = new StringBuilder();
         boolean started = true;
         StringBuilder low = new StringBuilder();

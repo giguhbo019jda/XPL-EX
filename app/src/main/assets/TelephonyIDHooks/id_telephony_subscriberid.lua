@@ -5,16 +5,15 @@ function after(hook, param)
 		return false
 	end
 
-    local
-
-    local fake = 274299
+    --274 + 299
+    local fake = 572
     local fakeString = param:getSetting("gsm.operator.id")
     local fakeNumber = tonumber(fakeString)
     if fakeNumber ~= nil then
         fake = fakeNumber
     else
         local mcc = param:getSettingReMap("gsm.operator.mcc", "phone.mcc", "274")
-        local mnc = param:getSetting("gsm.operator.mnc", "phone.mnc", "299")
+        local mnc = param:getSettingReMap("gsm.operator.mnc", "phone.mnc", "299")
         local mccNumber = tonumber(mcc)
         local mncNumber = tonumber(mnc)
 

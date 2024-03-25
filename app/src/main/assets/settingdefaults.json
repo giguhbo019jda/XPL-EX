@@ -53,7 +53,7 @@
   { "name": "cpu.base.band", "description": "CPU Band Name", "value": "mdm" },
   { "name": "cpu.hardware.name", "description": "Like Manufacturer name of Hardware CPU", "value": "qcom" },
   { "name": "cpu.soc.model", "description": "Model Name of SOC", "value": "SM8150" },
-  { "name": "cpu.soc.manufacturer", "description": "Manufacturer", "value": "Qualcomm" },
+  { "name": "cpu.soc.manufacturer", "description": "CPU SOC Manufacturer Name", "value": "Qualcomm" },
   { "name": "cpu.processor.count", "description": "The Amount of Processors in the CPU", "value": "8" },
   { "name": "cpu.cpuid", "description": "CPU ID Stuff", "value": "N/A" },
 
@@ -94,6 +94,7 @@
   //Bluetooth Default Setting Values
   { "name": "bluetooth.name", "description": "Bluetooth Name Starter", "value": "Android" },
   { "name": "bluetooth.soc", "description": "Bluetooh SOC", "value": "cherokee" },
+  { "name": "bluetooth.allowed.bonded.list", "description": "List seperated with a comma (,) of ALLOWED (SAVED/PAIRED/BONDED) Bluetooth Devices that the app can see. Use Device name or Bluetooth MAC", "value": "*" },
 
   //Unique Identifiers Default Values
   { "name": "unique.serial.no", "description": "Android Build Serial", "value": "840er743" },
@@ -110,6 +111,7 @@
   { "name": "unique.android.id", "description": "Android ID", "value": "0329184861423674" },
   { "name": "unique.drm.id", "description": "DRM ID", "value": "slvwoputzjflhwfozqjqtloqpxudqrrxtirqjgxtzairmaftdxruhmflneex" },
   { "name": "unique.gsf.id", "description": "Google Services Framework ID", "value": "FMZIYEVGXZDCENRO" },
+  { "name": "unique.google.game.id", "description": "Google Games Game User ID thing", "value": "FFP3" },
   { "name": "unique.network.ssid", "description": "Wifi SSID", "value": "Starbucks Free-Wifi" },
   //stable_secret contains RFC 7217 secret key which should never be
   { "name": "unique.netd.secret.key", "description": "stable_secret contains RFC 7217 secret key which should never be leaked", "value": "90f8:f587:2bb7:db9b:e5:306a:67d7:a155" },
@@ -123,15 +125,20 @@
   { "name": "zone.language.iso", "description": "Language ISO3 ID", "value": "IS" },
   { "name": "zone.language.tag", "description": "Language Tag (is-IS)", "value": "is-IS" },
   { "name": "zone.region", "description": "Region Specification Code (IS/CN...)", "value": "IS" },
+  { "name": "zone.timezone", "description": "TimeZone like a number thingy", "value": "GMT+0" },
+  { "name": "zone.timezone.display.name", "description": "TimeZone Display Name (Greenwich Mean Time)", "value": "Greenwich Mean Time" },
+
 
 
   //Network Default Settings
   { "name": "network.dns", "description": "DNS Address (1.1.1.1)", "value": "1.1.1.1" },
   { "name": "network.host.address", "description": "Local Network Host Address (127.0.0.1)", "value": "127.0.0.1" },
   { "name": "network.host.name", "description": "Host name of Network (google.com)", "value": "google.com" },
+  { "name": "network.allowed.list", "description": "Set to (1) to allow (1 result). A list of either WIFI Macs (BSSID) or Names (SSIDs) that are allowed to be shown in Scan OR Saved Results", "value": "*" },
+
 
   //GSM Default Settings (re-checl all of these with the properties)
-  { "name": "gsm.operator.id", "description": "Operator ID", "value": "274299" },
+  { "name": "gsm.operator.id", "description": "Operator ID", "value": "573" }, //274+299
   { "name": "gsm.operator.mcc", "description": "Operator MCC Value", "value": "274" },
   { "name": "gsm.operator.mnc", "description": "Operator MNC Value", "value": "299" },
   { "name": "gsm.operator.msin", "description": "Mobile Subscription Identification Number (MSIN) is a 10-digit unique numeric code ", "value": "1234567890" },
@@ -198,6 +205,7 @@
   //Values for inner functions
   { "name": "intercept.shell.meminfo.bool", "description": "Should Shell Interceptor Intercept (/proc/meminfo) file", "value": "true" },
   { "name": "intercept.shell.getprop.bool", "description": "Should Shell Interceptor Intercept (getprop) command", "value": "true" },
+  { "name": "intercept.shell.su.bool", "description": "Should Shell Interceptor Intercept (SU) command", "value": "true" },
 
 
   //User Default Values

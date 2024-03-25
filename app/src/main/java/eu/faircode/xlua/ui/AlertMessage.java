@@ -11,22 +11,36 @@ import androidx.appcompat.app.AlertDialog;
 
 import java.util.List;
 
+import eu.faircode.xlua.AppGeneric;
 import eu.faircode.xlua.R;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
 
 public class AlertMessage {
-    public static void displayMessageBatch(Context context, List<LuaSettingExtended> successful, List<LuaSettingExtended> failed) {
+    public static void displayMessageBatch(Context context, List<LuaSettingExtended> successful, List<LuaSettingExtended> failed, AppGeneric application) {
         String title = "Batch Settings Update Finished";
         StringBuilder sb = new StringBuilder()
                 .append("successful count: ").append(successful.size())
                 .append("\n")
                 .append("failed count: ").append(failed.size());
 
+        if(application != null) {
+            sb.append("\n")
+                    .append("name=").append(application.getName())
+                    .append(" pkg=").append(application.getPackageName())
+                    .append(" uid=").append(application.getUid());
+        }
+
         if(failed.size() > 1) {
             sb.append("\n\n").append("failed:\n");
             for(LuaSettingExtended s : failed)
+                sb.append(s.getName()).append("\n");
+        }
+
+        if(successful.size() > 1) {
+            sb.append("\n\n").append("successful:\n");
+            for(LuaSettingExtended s : successful)
                 sb.append(s.getName()).append("\n");
         }
 

@@ -19,6 +19,34 @@ import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
 public class CursorUtil {
     private static final String TAG = "XLua.CursorUtil";
 
+    public static MatrixCursor copyKeyValue(Cursor c, String replaceKeyName, String newValue) {
+        MatrixCursor newCursor = new MatrixCursor(c.getColumnNames());
+        try {
+            c.moveToFirst();
+            int keyIx = c.getColumnIndex("key");
+            int valIx = c.getColumnIndex("value");
+            do {
+                MatrixCursor.RowBuilder rowBuilder = newCursor.newRow();
+                String kName = c.getString(keyIx);
+                if(kName == null) continue;
+                rowBuilder.add(kName);
+                if(kName.equalsIgnoreCase(replaceKeyName)) {
+                    rowBuilder.add(newValue);
+                }else {
+                    rowBuilder.add(c.getString(valIx));
+                }
+            }while (c.moveToNext());
+            newCursor.moveToPosition(-1);
+            //newCursor.moveToFirst();
+            return newCursor;
+        }catch (Exception e) {
+            Log.e(TAG, "Failed to copy key value matrix cursor! e=" + e);
+            //newCursor.moveToFirst();
+            newCursor.moveToPosition(-1);
+            return newCursor;
+        }
+    }
+
     public static void closeCursor(Cursor c) {
         if(c != null) {
             try {

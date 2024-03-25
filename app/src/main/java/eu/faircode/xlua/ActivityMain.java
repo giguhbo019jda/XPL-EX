@@ -42,6 +42,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -284,7 +285,15 @@ public class ActivityMain extends ActivityBase {
             }
         }));
 
+        drawerArray.add(new DrawerItem(this, R.string.menu_whats_new_button, new DrawerItem.IListener() {
+            @Override
+            public void onClick(DrawerItem item) {
+                whatsNew();
+            }
+        }));
+
         drawerList.setAdapter(drawerArray);
+        //whatsNew
 
         checkFirstRun();
     }
@@ -488,28 +497,23 @@ public class ActivityMain extends ActivityBase {
         }
     }
 
-    public void checkWelcome() {
-        if(!PrefUtil.getPreferenceBoolean(getApplicationContext(), "welcome", false, true)) {
-            PrefUtil.setPreferenceBoolean(getApplicationContext(), "welcome", true);
-            LayoutInflater inflater = LayoutInflater.from(this);
-            View view = inflater.inflate(R.layout.thankyou, null, false);
-            TextView tvLicence = view.findViewById(R.id.tvThankYouObbed);
-            tvLicence.setMovementMethod(LinkMovementMethod.getInstance());
-            int year = Calendar.getInstance().get(Calendar.YEAR);
-            tvLicence.setText(Html.fromHtml(getString(R.string.thank_you, year)));
-
-            firstRunDialog = new AlertDialog.Builder(this)
-                    .setView(view).setCancelable(false)
-                    .setPositiveButton(R.string.option_thanks, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) { }
-                    }).create();
-            firstRunDialog.show();
-        }
+    public void whatsNew() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.thankyou, null, false);
+        TextView tvLicence = view.findViewById(R.id.tvThankYouObbed);
+        tvLicence.setMovementMethod(LinkMovementMethod.getInstance());
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        tvLicence.setText(Html.fromHtml(getString(R.string.whats_new, year)));
+        firstRunDialog = new AlertDialog.Builder(this)
+                .setView(view).setCancelable(false)
+                .setPositiveButton(R.string.option_thanks, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) { Toast.makeText(getApplicationContext(), "ObedCode Says good luck", Toast.LENGTH_SHORT).show(); }
+                }).create();
+        firstRunDialog.show();
     }
 
     public void checkFirstRun() {
-        checkWelcome();
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean firstRun = prefs.getBoolean("firstrun", true);
         if (firstRun && firstRunDialog == null) {
@@ -549,6 +553,11 @@ public class ActivityMain extends ActivityBase {
             firstRunDialog.show();
 
             observer.startObserving(this, firstRunDialog);
+        }
+
+        if(!PrefUtil.getPreferenceBoolean(this, "welcome", false, true)) {
+            PrefUtil.setPreferenceBoolean(this, "welcome", true);
+            whatsNew();
         }
     }
 

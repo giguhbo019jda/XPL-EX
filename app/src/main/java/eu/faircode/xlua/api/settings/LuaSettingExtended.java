@@ -25,6 +25,8 @@ import eu.faircode.xlua.utilities.SettingUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class LuaSettingExtended extends LuaSettingDefault implements IJsonSerial, Parcelable {
+    private static final String TAG = "XLua.LuaSetting";
+
     public static LuaSettingExtended create() { return new LuaSettingExtended(); }
     public static LuaSettingExtended create(LuaSettingPacket packet) { return new LuaSettingExtended(packet); }
     public static LuaSettingExtended create(LuaSetting setting) { return new LuaSettingExtended(setting); }
@@ -106,8 +108,13 @@ public class LuaSettingExtended extends LuaSettingDefault implements IJsonSerial
     public void resetModified() { resetModified(false);  }
     public void resetModified(boolean setInput) {
         this.modifiedValue = this.value;
-        if(setInput && this.inputText != null)
-            this.inputText.setText(this.value);
+        if(setInput && this.inputText != null) {
+            try {
+                this.inputText.setText(this.value);
+            }catch (Exception e) {
+                Log.e(TAG, "Failed to input / set input text e=" + e);
+            }
+        }
     }
 
     public boolean isModified() {

@@ -39,70 +39,60 @@ import eu.faircode.xlua.api.properties.MockPropSetting;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
+import eu.faircode.xlua.ui.ViewFloatingAction;
 import eu.faircode.xlua.ui.dialogs.PropertyAddDialog;
 
-public class FragmentProperties extends Fragment implements View.OnClickListener {
+public class FragmentProperties extends ViewFloatingAction implements View.OnClickListener, View.OnLongClickListener {
     private final static String TAG = "XLua.FragmentProperties";
 
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefresh;
     private AdapterPropertiesGroup rvPropsAdapter;
 
-    private RecyclerView rvPropGroups;
-    private AppGeneric application;
-
     private TextView tvPropCount;
 
-    private FloatingActionButton flMain, flAdd;
-    private Animation fabOpen, fabClose, fromBottom, toBottom;
-    private boolean isActionOpen = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View main = inflater.inflate(R.layout.proprecyclerview, container, false);
-        application = AppGeneric.from(getArguments(), getContext());
-        Log.i(TAG, "Application Object Created=" + application);
+
+        this.TAG_ViewFloatingAction = TAG;
+        this.application = AppGeneric.from(getArguments(), getContext());
+
+        super.initActions();
+        super.bindTextViewsToAppId(main, R.id.ivPropertiesAppIcon, R.id.tvPropertiesPackageName, R.id.tvPropertiesPackageFull, R.id.tvPropertiesPackageUid);
+        super.setFloatingActionBars(this, this, main,  R.id.flPropertiesMainButton, R.id.flPropertiesAddMapButton);
 
         tvPropCount = main.findViewById(R.id.tvPropCountProperties);
 
-        initRefresh(main);
-        initRecyclerView(main);
-
-        TextView tvPackageName = main.findViewById(R.id.tvPropertiesPackageName);
-        TextView tvPackage = main.findViewById(R.id.tvPropertiesPackageFull);
-        TextView tvPackageUid = main.findViewById(R.id.tvPropertiesPackageUid);
-        ImageView ivAppIcon = main.findViewById(R.id.ivPropertiesAppIcon);
-
-        tvPackageName.setText(application.getName());
-        tvPackage.setText(application.getPackageName());
-        tvPackageUid.setText(String.valueOf(application.getUid()));
-        application.initIcon(ivAppIcon, Objects.requireNonNull(getContext()));
-
-        flMain = main.findViewById(R.id.flPropertiesMainButton);
-        flAdd = main.findViewById(R.id.flPropertiesAddMapButton);
-
-        fabOpen = AnimationUtils.loadAnimation (getContext(),R.anim.rotate_open_anim_one);
-        fabClose = AnimationUtils.loadAnimation (getContext(),R.anim.rotate_close_anim_one);
-        fromBottom = AnimationUtils.loadAnimation (getContext(),R.anim.from_bottom_anim_one);
-        toBottom = AnimationUtils.loadAnimation (getContext(),R.anim.to_bottom_anim_one);
-
-        rvPropGroups.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        progressBar = main.findViewById(R.id.pbProperties);
+        int colorAccent = XUtil.resolveColor(Objects.requireNonNull(getContext()), R.attr.colorAccent);
+        swipeRefresh = main.findViewById(R.id.swipeRefreshProperties);
+        swipeRefresh.setColorSchemeColors(colorAccent, colorAccent, colorAccent);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                // If scrolling up, show the FAB; if scrolling down, hide the FAB
-                if (dy > 0 && flMain.isShown()) {
-                    if(isActionOpen)
-                        invokeFloatingAction();
-
-                    flMain.hide();
-                } else if (dy < 0 && !flMain.isShown())
-                    flMain.show();
-            }
+            public void onRefresh() { loadData(); }
         });
 
-        wire();
+        super.initRecyclerView(main, R.id.rvProperties, true);
+        rvList.setVisibility(View.VISIBLE);
+        rvList.setHasFixedSize(false);
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity()) {
+            @Override
+            public boolean onRequestChildFocus(@NonNull RecyclerView parent, @NonNull RecyclerView.State state, @NonNull View child, View focused) { return true; }
+        };
+
+        llm.setAutoMeasureEnabled(true);
+        rvList.setLayoutManager(llm);
+        rvPropsAdapter = new AdapterPropertiesGroup(getFragmentManager(), application);
+        rvList.setAdapter(rvPropsAdapter);
+
         loadData();
         return main;
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return false;
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -113,84 +103,24 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
 
         switch (id) {
             case R.id.flPropertiesMainButton:
-                invokeFloatingAction();
+                //invokeFloatingAction();
+                invokeFloatingActions();
                 break;
             case R.id.flPropertiesAddMapButton:
                 PropertyAddDialog setDialog = new PropertyAddDialog();
-                assert getFragmentManager() != null;
-                setDialog.show(getFragmentManager(), "Add Property");
+                setDialog.show(Objects.requireNonNull(getFragmentManager()), "Add Property");
                 break;
         }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        //loadData();
-    }
+    public void onResume() { super.onResume(); }
 
     @Override
-    public void onPause() {
-        super.onPause();
-    }
+    public void onPause() { super.onPause(); }
 
-    private void invokeFloatingAction() {
-        isActionOpen = !isActionOpen;
-        //Start the Animation
-        if(isActionOpen) {
-            flAdd.startAnimation(fromBottom);
-            flMain.startAnimation(fabOpen);
-        }else {
-            flAdd.startAnimation(toBottom);
-            flMain.startAnimation(fabClose);
-        }
+    public void filter(String query) { if (rvPropsAdapter != null) rvPropsAdapter.getFilter().filter(query); }
 
-        //Set the Visibility
-        int visibility = isActionOpen ? View.VISIBLE : View.INVISIBLE;
-        flAdd.setVisibility(visibility);
-
-        //Set to be clickable or not
-        flAdd.setLongClickable(isActionOpen);
-        flAdd.setClickable(isActionOpen);
-    }
-
-    private void wire() {
-        flMain.setOnClickListener(this);
-        flAdd.setOnClickListener(this);
-    }
-
-    public void filter(String query) {
-        if (rvPropsAdapter != null)
-            rvPropsAdapter.getFilter().filter(query);
-    }
-
-    private void initRefresh(final View view) {
-        progressBar = view.findViewById(R.id.pbProperties);
-        int colorAccent = XUtil.resolveColor(Objects.requireNonNull(getContext()), R.attr.colorAccent);
-        swipeRefresh = view.findViewById(R.id.swipeRefreshProperties);
-        swipeRefresh.setColorSchemeColors(colorAccent, colorAccent, colorAccent);
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() { loadData(); }
-        });
-    }
-
-    private void initRecyclerView(final View view) {
-        rvPropGroups = view.findViewById(R.id.rvProperties);
-        rvPropGroups.setVisibility(View.VISIBLE);
-        rvPropGroups.setHasFixedSize(false);
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity()) {
-            @Override
-            public boolean onRequestChildFocus(RecyclerView parent, RecyclerView.State state, View child, View focused) {
-                return true;
-            }
-        };
-
-        llm.setAutoMeasureEnabled(true);
-        rvPropGroups.setLayoutManager(llm);
-        rvPropsAdapter = new AdapterPropertiesGroup(getFragmentManager(), application);
-        rvPropGroups.setAdapter(rvPropsAdapter);
-    }
 
     public void loadData() {
         Log.i(TAG, "Starting data loader");
@@ -230,9 +160,7 @@ public class FragmentProperties extends Fragment implements View.OnClickListener
         }
 
         @Override
-        public void onLoaderReset(Loader<PropsDataHolder> loader) {
-            // Do nothing
-        }
+        public void onLoaderReset(@NonNull Loader<PropsDataHolder> loader) { }
     };
 
     private static class PropsDataLoader extends AsyncTaskLoader<PropsDataHolder> {

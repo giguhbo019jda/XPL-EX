@@ -20,10 +20,12 @@
 package eu.faircode.xlua;
 
 import android.app.ActivityManager;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -38,7 +40,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -48,6 +50,9 @@ import eu.faircode.xlua.api.xmock.XMockCall;
 import eu.faircode.xlua.interceptors.shell.ShellInterceptionResult;
 import eu.faircode.xlua.interceptors.UserContextMaps;
 import eu.faircode.xlua.interceptors.ShellIntercept;
+import eu.faircode.xlua.utilities.ListFilterUtil;
+import eu.faircode.xlua.utilities.CollectionUtil;
+import eu.faircode.xlua.utilities.CursorUtil;
 import eu.faircode.xlua.utilities.MemoryUtilEx;
 import eu.faircode.xlua.utilities.MockCpuUtil;
 import eu.faircode.xlua.display.MotionRangeUtil;
@@ -55,6 +60,7 @@ import eu.faircode.xlua.utilities.FileUtil;
 import eu.faircode.xlua.utilities.LuaLongUtil;
 import eu.faircode.xlua.utilities.MemoryUtil;
 import eu.faircode.xlua.utilities.NetworkUtil;
+import eu.faircode.xlua.utilities.RandomStringGenerator;
 import eu.faircode.xlua.utilities.ReflectUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 import eu.faircode.xlua.utilities.MockUtils;
@@ -214,38 +220,10 @@ public class XParam {
     @SuppressWarnings("unused")
     public ShellInterceptionResult interceptCommandList(List<String> commands) { return ShellIntercept.intercept(ShellInterceptionResult.create(commands, getUserMaps())); }
 
-
-    //@SuppressWarnings("unused")
-    //public String interceptCommand(String command) { return ShellIntercept.interceptOne(command, getApplicationContext()); }
-
-    //@SuppressWarnings("unused")
-    //public String interceptCommandArray(String[] commands) { return ShellIntercept.interceptTwo(commands, getApplicationContext()); }
-
-    //@SuppressWarnings("unused")
-    //public String interceptCommandList(List<String> commands) { return ShellIntercept.interceptThree(commands, getApplicationContext()); }
-
-    //@SuppressWarnings("unused")
-    //public Process execEcho(String command) { return ShellIntercept.echo(command); }
-
     //
     //End of Shell Intercept
     //
 
-    //
-    //String Utils
-    //
-
-    //public boolean isValidCollection(Collection<?>)
-
-    @SuppressWarnings("unused")
-    public String joinArray(String[] array) { return StringUtil.joinDelimiter(" ", array); }
-
-    @SuppressWarnings("unused")
-    public String joinList(List<String> list) { return StringUtil.joinDelimiter(" ", list); }
-
-    //
-    //End of String Utils
-    //
 
     //
     //Start of Memory/CPU Functions
@@ -274,6 +252,25 @@ public class XParam {
     //
 
     //
+    //Start of Bluetooth Functions
+    //
+
+    @SuppressWarnings("unused")
+    public static Set<BluetoothDevice> filterSavedBluetoothDevices(Set<BluetoothDevice> devices, List<String> allowList) { return ListFilterUtil.filterSavedBluetoothDevices(devices, allowList); }
+
+    @SuppressWarnings("unused")
+    public static List<ScanResult> filterWifiScanResults(List<ScanResult> results, List<String> allowList) { return ListFilterUtil.filterWifiScanResults(results, allowList); }
+
+    @SuppressWarnings("unused")
+    public static List<WifiConfiguration> filterSavedWifiNetworks(List<WifiConfiguration> results, List<String> allowList) { return ListFilterUtil.filterSavedWifiNetworks(results, allowList); }
+
+
+
+    //
+    //End of Bluetooth Functions
+    //
+
+    //
     //Start of Display Functions
     //
 
@@ -295,19 +292,7 @@ public class XParam {
     public String generateRandomString(int min, int max) { return generateRandomString(ThreadLocalRandom.current().nextInt(min, max + 1)); }
 
     @SuppressWarnings("unused")
-    public String generateRandomString(int length) {
-        String characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-        Random random = new Random();
-        StringBuilder stringBuilder = new StringBuilder(length);
-
-        for (int i = 0; i < length; i++) {
-            int index = random.nextInt(characters.length());
-            char randomChar = characters.charAt(index);
-            stringBuilder.append(randomChar);
-        }
-
-        return stringBuilder.toString();
-    }
+    public String generateRandomString(int length) { return RandomStringGenerator.generateRandomAlphanumericString(length); }
 
     @SuppressWarnings("unused")
     public byte[] getIpAddressBytes(String ipAddress) { return NetworkUtil.stringIpAddressToBytes(ipAddress); }
@@ -336,6 +321,7 @@ public class XParam {
     public String[] extractSelectionArgs() {
         String[] sel = null;
         if(paramTypes[2].getName().equals(Bundle.class.getName())){
+            //ContentResolver.query26
             Bundle bundle = (Bundle) getArgument(2);
             if(bundle != null) {
                 sel = bundle.getStringArray("android:query-arg-sql-selection-args");
@@ -370,8 +356,11 @@ public class XParam {
                         return false;
 
                     for(String arg : args) {
+                        Log.d(TAG, "matrix=" + arg);
                         if(arg.equals("android_id")) {
-                            setResult(new MatrixCursor(ret.getColumnNames()));
+                            String newId = getSetting("unique.gsf.id", "FMZIYEVGXZDCENRO");
+                            Log.d(TAG, "GSF new=" + newId);//" column modify=" + modify)
+                            setResult(CursorUtil.copyKeyValue(ret, "android_id", newId));
                             return true;
                         }
                     }
@@ -397,24 +386,16 @@ public class XParam {
     }
 
     @SuppressWarnings("unused")
-    public int getUid() {
-        return this.context.getApplicationInfo().uid;
-    }
+    public int getUid() { return this.context.getApplicationInfo().uid; }
 
     @SuppressWarnings("unused")
-    public Object getScope() {
-        return this.param;
-    }
+    public Object getScope() { return this.param; }
 
     @SuppressWarnings("unused")
-    public int getSDKCode() {
-        return Build.VERSION.SDK_INT;
-    }
+    public int getSDKCode() { return Build.VERSION.SDK_INT; }
 
     @SuppressWarnings("unused")
-    public void printFileContents(String filePath) {
-        FileUtil.printContents(filePath);
-    }
+    public void printFileContents(String filePath) { FileUtil.printContents(filePath); }
 
     //
     //Start of REFLECT Functions
@@ -444,16 +425,50 @@ public class XParam {
     @SuppressWarnings("unused")
     public Class<?> getClassType(String className) { return ReflectUtil.getClassType(className); }
 
+
+    // local fake = luajava.newInstance('java.util.ArrayList')
+
+
+    @SuppressWarnings("unused")
+    public static int getContainerSize(Object o) { return CollectionUtil.getSize(o); }
+
+
     @SuppressWarnings("unused")
     public Object createReflectArray(String className, int size) { return ReflectUtil.createArray(className, size); }
 
     @SuppressWarnings("unused")
     public Object createReflectArray(Class<?> classType, int size) { return ReflectUtil.createArray(classType, size); }
 
+    @SuppressWarnings("unused")
+    public String joinArray(String[] array) { return StringUtil.joinDelimiter(" ", array); }
+
+    @SuppressWarnings("unused")
+    public String joinList(List<String> list) { return StringUtil.joinDelimiter(" ", list); }
+
+    @SuppressWarnings("unused")
+    public byte[] stringToUTF8Bytes(String s) { return StringUtil.getUTF8Bytes(s); }
+
+    @SuppressWarnings("unused")
+    public String bytesToUTF8String(byte[] bs) { return StringUtil.getUTF8String(bs); }
+
+    @SuppressWarnings("unused")
+    public byte[] stringToRawBytes(String s) { return StringUtil.stringToRawBytes(s); }
+
+    @SuppressWarnings("unused")
+    public String rawBytesToHexString(byte[] bs) { return StringUtil.rawBytesToHex(bs); }
+
+    @SuppressWarnings("unused")
+    public String bytesToSHA256Hash(byte[] bs) { return StringUtil.getBytesSHA256Hash(bs); }
+
+    @SuppressWarnings("unused")
+    public List<String> stringToList(String s, String del) { return StringUtil.stringToList(s, del); }
+
+    @SuppressWarnings("unused")
+    public boolean listHasString(List<String> lst, String s) { return StringUtil.listHasString(lst, s);  }
+
     //
     //End of REFLECT Functions
     //
-
 
     //
     //START OF LONG HELPER FUNCTIONS
@@ -567,6 +582,32 @@ public class XParam {
     @SuppressWarnings("unused")
     public void setResultByteArray(Byte[] result) throws Throwable { setResult(result); }
 
+    public void setResultBytes(byte[] result) throws Throwable {
+        if(result == null) {
+            Log.e(TAG, "Set Bytes is NULL ??? fix");
+            return;
+        }
+
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "Setting as Bytes...");
+            Log.i(TAG, "Bytes Set " + this.getPackageName() + ":" + this.getUid() +
+                    " result size=" + result.length + " return=" + this.returnType);
+        }
+
+        try {
+            Object res2 = coerceValue(this.returnType, result);
+            Log.w(TAG, "Res2 = " + res2 + " clas=" + res2.getClass().getName());
+        }catch (Exception e) { Log.e(TAG, "Failed to read ccv e=" + e); }
+
+        try {
+            boolean boxTyp = !boxType(this.returnType).isInstance(result);
+            Log.w(TAG, "Is bytes shit box type ? " + boxTyp);
+        }catch (Exception e) { Log.e(TAG, "Failed to read is box type e=" + e); }
+
+        if (this.field == null) this.param.setResult(result);
+        else this.field.set(null, result);
+    }
+
     @SuppressWarnings("unused")
     public void setResult(Object result) throws Throwable {
         //Do Note they have support if you pass a LONG String
@@ -574,6 +615,7 @@ public class XParam {
         if (BuildConfig.DEBUG)
             Log.i(TAG, "Set " + this.getPackageName() + ":" + this.getUid() +
                     " result=" + result + " return=" + this.returnType);
+
         if (result != null && !(result instanceof Throwable) && this.returnType != null) {
             result = coerceValue(this.returnType, result);
             if (!boxType(this.returnType).isInstance(result))
@@ -699,10 +741,14 @@ public class XParam {
     } else if (Double.class.equals(value.getClass())) {
         if (float.class.equals(type))
             return (float) (double) value;
-    } else if (value instanceof String && int.class.equals(type))
+    } else if (value instanceof String && int.class.equals(type)) {
+            Log.i(TAG, "IS String or Int class");
             return Integer.parseInt((String) value);
-        else if (value instanceof String && long.class.equals(type))
+        }
+        else if (value instanceof String && long.class.equals(type)) {
+            Log.i(TAG, "IS String or Long class");
             return Long.parseLong((String) value);
+        }
         else if (value instanceof String && float.class.equals(type))
             return Float.parseFloat((String) value);
         else if (value instanceof String && double.class.equals(type))

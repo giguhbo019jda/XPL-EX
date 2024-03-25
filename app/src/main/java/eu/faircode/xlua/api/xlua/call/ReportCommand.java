@@ -49,10 +49,18 @@ public class ReportCommand extends CallCommandHandler {
             PackageManager pm = ctx.getPackageManager();
             Resources resources = pm.getResourcesForApplication(BuildConfig.APPLICATION_ID);
 
+            boolean notify = report.getNotify(commandData.getDatabase());
+            Log.i(TAG, "hook is null ? =" + (hook == null) + " use=" + report.event.equals("use") + " get restricted=" + report.getRestricted() + " report notify=" + notify + " used=" + used);
+
+            if(hook != null) {
+                Log.i(TAG, "hook do notify ? =" + hook.doNotify());
+            }
+
             //Notify Usage
             if(hook != null && report.event.equals("use") && report.getRestricted() == 1
                     && (hook.doNotify() || (report.getNotify(commandData.getDatabase()) && used < 0))) {
 
+                Log.i(TAG, "Usage notification invoking...");
                 Notification.Builder builder = XNotify.buildUsageNotification(ctx, hook, report, pm, resources);
                 XUtil.notifyAsUser(ctx, "xlua_use_" + hook.getGroup(), report.uid, builder.build(), report.getUserId());
             }

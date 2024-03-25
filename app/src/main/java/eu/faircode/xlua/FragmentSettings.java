@@ -42,7 +42,7 @@ import eu.faircode.xlua.utilities.SettingUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
-public class FragmentSettings  extends ViewFloatingAction implements View.OnClickListener {
+public class FragmentSettings  extends ViewFloatingAction implements View.OnClickListener, View.OnLongClickListener {
     private static final String TAG = "XLua.FragmentSettings";
 
     private ProgressBar progressBar;
@@ -69,7 +69,7 @@ public class FragmentSettings  extends ViewFloatingAction implements View.OnClic
 
         super.initActions();
         super.bindTextViewsToAppId(main, R.id.ivSettingsAppIcon, R.id.tvSettingsPackageName, R.id.tvSettingsPackageFull, R.id.tvSettingsPackageUid);
-        super.setFloatingActionBars(this, main,  R.id.flSettingsButtonOne, R.id.flSettingsButtonTwo, R.id.flSettingsButtonThree, R.id.flSettingsButtonFour);
+        super.setFloatingActionBars(this, this, main,  R.id.flSettingsButtonOne, R.id.flSettingsButtonTwo, R.id.flSettingsButtonThree, R.id.flSettingsButtonFour, R.id.flSettingsButtonFive);
 
         //init Refresh
         progressBar = main.findViewById(R.id.pbSettings);
@@ -131,6 +131,35 @@ public class FragmentSettings  extends ViewFloatingAction implements View.OnClic
         return main;
     }
 
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onLongClick(View v) {
+        int code = v.getId();
+        Log.i(TAG, "onLongClick=" + code);
+        switch (code) {
+            case R.id.flSettingsButtonTwo:
+                Toast.makeText(getContext(), "Randomize All Selected", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flSettingsButtonThree:
+                Toast.makeText(getContext(), "Add Setting", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flSettingsButtonFour:
+                Toast.makeText(getContext(), "Save Un-Saved Settings", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.flSettingsButtonFive:
+                Toast.makeText(getContext(), "Delete ONLY Selected settings", Toast.LENGTH_SHORT).show();
+                break;
+                //case R.id.flActionConfigImport:
+            //    Toast.makeText(getContext(), "Import Config", Toast.LENGTH_SHORT).show();
+            //    break;
+            case R.id.flSettingsButtonOne:
+                Toast.makeText(getContext(), "Options", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        return true;
+    }
+
     @SuppressLint("NonConstantResourceId") @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -171,6 +200,9 @@ public class FragmentSettings  extends ViewFloatingAction implements View.OnClic
                 break;
             case R.id.flSettingsButtonFour:
                 rvAdapter.saveAll(v.getContext());
+                break;
+            case R.id.flSettingsButtonFive:
+                rvAdapter.deleteSelected(v.getContext());
                 break;
         }
 

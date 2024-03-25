@@ -395,6 +395,8 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                                 }
                             }
                         });
+                    }else {
+                        Log.e(TAG, "Member NULL: hook=" + hook.getName() + " id=" + hook.getId());
                     }
                 }
                 // Report install

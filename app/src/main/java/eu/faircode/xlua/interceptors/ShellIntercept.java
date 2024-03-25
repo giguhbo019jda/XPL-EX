@@ -8,6 +8,8 @@ import java.util.List;
 import eu.faircode.xlua.interceptors.shell.CommandInterceptor;
 import eu.faircode.xlua.interceptors.shell.handlers.GetPropIntercept;
 import eu.faircode.xlua.interceptors.shell.ShellInterceptionResult;
+import eu.faircode.xlua.interceptors.shell.handlers.MemInfoIntercept;
+import eu.faircode.xlua.interceptors.shell.handlers.SuIntercept;
 
 public class ShellIntercept {
     private static final String TAG = "XLua.ShellIntercept";
@@ -34,6 +36,8 @@ public class ShellIntercept {
     public static List<CommandInterceptor> getInterceptors() {
         if(interceptors.isEmpty()) {
             interceptors.add(new GetPropIntercept());
+            interceptors.add(new MemInfoIntercept());
+            interceptors.add(new SuIntercept());
         }
 
         return interceptors;

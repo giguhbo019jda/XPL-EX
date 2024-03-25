@@ -30,10 +30,15 @@ public class AppGeneric {
     private String packageName;
 
     public static AppGeneric from(Bundle b, Context context) {
-        if(b == null || !b.containsKey("packageName"))
-            return new AppGeneric(null, context);
+        if(b == null || !b.containsKey("packageName")) {
+            Log.i(TAG, "App From NULL (using global)");
+            return DEFAULT;
+            //return new AppGeneric(null, context);
+        }
 
-        return new AppGeneric(b.getString("packageName"), context);
+        String pName = b.getString("packageName");
+        Log.i(TAG, "pkg=" + pName);
+        return new AppGeneric(pName, context);
     }
 
     public AppGeneric(String packageName, Context context) {

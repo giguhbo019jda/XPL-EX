@@ -48,6 +48,7 @@ import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.api.hook.XLuaHook;
 
 import eu.faircode.xlua.api.app.XLuaApp;
+import eu.faircode.xlua.utilities.SettingUtil;
 
 
 public class AdapterGroup extends RecyclerView.Adapter<AdapterGroup.ViewHolder> {
@@ -221,7 +222,8 @@ public class AdapterGroup extends RecyclerView.Adapter<AdapterGroup.ViewHolder> 
         holder.tvUsed.setVisibility(group.lastUsed() < 0 ? View.GONE : View.VISIBLE);
         holder.tvUsed.setText(DateUtils.formatDateTime(context, group.lastUsed(),
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_ABBREV_ALL));
-        holder.tvGroup.setText(group.title);
+        //holder.tvGroup.setText(group.title);
+        holder.tvGroup.setText(SettingUtil.cleanSettingName(group.title));
         holder.cbAssigned.setChecked(group.hasAssigned());
         holder.cbAssigned.setButtonTintList(ColorStateList.valueOf(resources.getColor(
                 group.allAssigned() ? R.color.colorAccent : android.R.color.darker_gray, null)));

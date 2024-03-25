@@ -6,7 +6,7 @@ function after(hook, param)
 
     local fakeString = param:getSetting("gsm.setting.network.esim", "false")
     local fake = false
-    if fakeString == "true"
+    if fakeString == "true" then
         fake = true
     end
 

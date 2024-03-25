@@ -41,11 +41,11 @@
                 android:singleLine="true"
                 android:text="android"
                 android:textAppearance="@android:style/TextAppearance.Small"
-                app:layout_constraintStart_toEndOf="@+id/tvCongisPackageUid"
-                app:layout_constraintTop_toTopOf="@+id/tvCongisPackageUid" />
+                app:layout_constraintStart_toEndOf="@+id/tvConfigsPackageUid"
+                app:layout_constraintTop_toTopOf="@+id/tvConfigsPackageUid" />
 
             <TextView
-                android:id="@+id/tvCongisPackageUid"
+                android:id="@+id/tvConfigsPackageUid"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"

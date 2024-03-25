@@ -26,7 +26,7 @@
   { "settingName": "android.build.user", "propNames": [ "ro.build.user" ] },
   { "settingName": "android.build.patch", "propNames": [ "ro.build.version.security_patch" ] },
   { "settingName": "android.build.codename", "propNames": [ "ro.vendor_dlkm.build.name", "ro.vendor.product.name", "ro.product.name","ro.product.odm.name","ro.product.system_ext.name","ro.product.vendor.name"] },
-  { "settingName": "android.build.fingerprint", "propNames": ["ro.vendor_dlkm.build.fingerprint", "ro.odm.build.fingerprint","ro.system.build.fingerprint","ro.system_ext.build.fingerprint","ro.vendor.build.fingerprint"] },
+  { "settingName": "android.build.fingerprint", "propNames": ["ro.build.fingerprint", "ro.vendor_dlkm.build.fingerprint", "ro.odm.build.fingerprint","ro.system.build.fingerprint","ro.system_ext.build.fingerprint","ro.vendor.build.fingerprint"] },
 
   //Java VM Settings
   { "settingName": "java.vendor", "propNames": [ "java.vendor", "java.specification.vendor", "java.vm.vendor", "java.vm.specification.vendor" ] },
@@ -54,6 +54,7 @@
   { "settingName": "cpu.base.band", "propNames": [ "ro.baseband", "ro.baseband.arch" ] },
   { "settingName": "cpu.hardware.name", "propNames": [ "ro.hardware" ] },
   { "settingName": "cpu.soc.model", "propNames": [ "ro.soc.model" ] },
+  { "settingName": "cpu.soc.manufacturer", "propNames": [ "ro.soc.manufacturer" ] },
   { "settingName": "cpu.cpuid", "propNames": [ "ro.boot.cpuid" ] },
 
   //Android ROM Specific Settings
@@ -87,13 +88,12 @@
   { "settingName": "bluetooth.soc", "propNames": [ "vendor.bluetooth.soc" ] },
 
   //Unique Identifiers
-  { "settingName": "unique.serial.no", "propNames": [   "ro.build.serial", "persist.odm.ril.oem.sno", "persist.odm.ril.oem.psno", "persist.odm.ril.odm.ril.oem.psno", "ro.ril.oem.psno", "ro.ril.oem.sno","ro.serialno", "ro.boot.serialno", "ril.serialnumber", "gsm.sn1", "sys.serialnumber" ] },
+  { "settingName": "unique.serial.no", "propNames": [  "ro.kernel.androidboot.serialno", "ro.build.serial", "persist.odm.ril.oem.sno", "persist.odm.ril.oem.psno", "persist.odm.ril.odm.ril.oem.psno", "ro.ril.oem.psno", "ro.ril.oem.sno","ro.serialno", "ro.boot.serialno", "ril.serialnumber", "gsm.sn1", "sys.serialnumber" ] },
   { "settingName": "unique.gsm.imei", "propNames": [ "ro.ril.miui.imei2", "ro.ril.miui.imei1", "ro.ril.miui.imei0", "ro.ril.miui.imei", "persist.radio.imei2", "persist.radio.imei1", "persist.radio.imei0", "persist.radio.imei", "persist.odm.ril.oem.imei2", "persist.odm.ril.oem.imei1", "persist.odm.ril.oem.imei0", "persist.odm.ril.oem.imei", "persist.radio.imei1", "persist.radio.imei0", "ro.ril.oem.imei", "ro.ril.oem.imei0", "ro.ril.oem.imei1", "ro.ril.oem.imei2" ] },
   { "settingName": "unique.gsm.meid", "propNames": [ "ro.ril.oem.meid" ] },
   { "settingName": "unique.gsm.icc.id", "propNames": [ "gsm.sim.preiccid_0", "gsm.sim.preiccid_1", "persist.vendor.cfu.iccid.0", "persist.vendor.radio.cfu.iccid.1" ] },
   { "settingName": "unique.network.mac.address", "propNames": [ "ro.ril.oem.btmac", "persist.odm.ril.oem.btmac", "ro.ril.oem.wifimac", "persist.odm.ril.oem.wifimac" ] },
   { "settingName": "unique.netd.secret.key", "propNames": [ "persist.netd.stable_secret" ] },
-
 
 
   //Zone Settings (Time, Date, Region, Language)

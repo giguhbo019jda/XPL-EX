@@ -24,7 +24,7 @@ public class MemInfoIntercept extends CommandInterceptor implements ICommandInte
         if(result != null && result.isValueValid()) {
             UserContextMaps maps = result.getUserMaps();
             if(maps != null) {
-                if(!keepGoing(maps, MEMORY_INTERCEPT_SETTING) || !maps.isPropSettingsValid()) return true;
+                if(!keepGoing(maps, MEMORY_INTERCEPT_SETTING)) return true;
 
                 int total = maps.getSettingInteger(MEMORY_TOTAL_SETTING, 100);
                 int available = maps.getSettingInteger(MEMORY_AVAILABLE_SETTING, 80);

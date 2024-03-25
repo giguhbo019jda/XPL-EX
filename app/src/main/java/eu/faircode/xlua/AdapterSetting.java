@@ -62,7 +62,8 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
     private FragmentManager fragmentManager;
 
     //Filter / Divider VARs
-    private boolean isRandomizingAll = false;
+    private boolean isRandomizingAll = false;;
+
     private boolean isSearching = false;
     private boolean hasChanged = false;
 
@@ -71,6 +72,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
 
     public class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener,
+            View.OnLongClickListener,
             TextWatcher,
             CompoundButton.OnCheckedChangeListener,
             AdapterView.OnItemSelectedListener, ISettingUpdate {
@@ -119,6 +121,8 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         }
 
         private void unWire() {
+            //For these add some cool concept to building like your Service Thing
+            //.addOnClickListener(item).addOnClickListener
             itemView.setOnClickListener(null);
             ivBtRandomize.setOnClickListener(null);
             ivBtSave.setOnClickListener(null);
@@ -128,6 +132,12 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             ivReset.setOnClickListener(null);
             cbSelected.setOnCheckedChangeListener(null);
             spRandomSelector.setOnItemSelectedListener(null);
+
+            cbSelected.setOnLongClickListener(null);
+            ivBtRandomize.setOnLongClickListener(null);
+            ivBtSave.setOnLongClickListener(null);
+            ivBtDelete.setOnLongClickListener(null);
+            ivReset.setOnLongClickListener(null);
         }
 
         private void wire() {
@@ -140,6 +150,49 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             ivReset.setOnClickListener(this);
             cbSelected.setOnCheckedChangeListener(this);
             spRandomSelector.setOnItemSelectedListener(this);
+
+            cbSelected.setOnLongClickListener(this);
+            ivBtRandomize.setOnLongClickListener(this);
+            ivBtSave.setOnLongClickListener(this);
+            ivBtDelete.setOnLongClickListener(this);
+            ivReset.setOnLongClickListener(this);
+        }
+
+        @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
+        @Override
+        public boolean onLongClick(View v) {
+            int code = v.getId();
+            Log.i(TAG, "onLongClick=" + code);
+            final LuaSettingExtended setting = filtered.get(getAdapterPosition());
+
+            switch (code) {
+                case R.id.ivBtRandomSettingValue:
+                    Toast.makeText(v.getContext(), "Randomize Setting Value (wont save unless clicked to save)", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.ivBtSaveSettingSetting:
+                    Toast.makeText(v.getContext(), "Save Setting Modified Value", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.ivBtDeleteSetting:
+                    Toast.makeText(v.getContext(), "Delete the Setting", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.ivBtSaveSettingReset:
+                    Toast.makeText(v.getContext(), "Reset Setting value assuming was not saved and applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.cbSettingEnabled:
+                    String gId = setting.getGroupId();
+                    boolean isSelected = setting.isEnabled();
+                    Toast.makeText(v.getContext(), "Selecting/De-Selecting all settings in group=" + gId, Toast.LENGTH_SHORT).show();
+                    unWire();
+                    for(LuaSettingExtended s : filtered) {
+                        if(s.getGroupId().equalsIgnoreCase(gId))
+                            s.setIsEnabled(isSelected);
+                    }
+
+                    notifyDataSetChanged();
+                    wire();
+            }
+
+            return true;
         }
 
         @SuppressLint("NonConstantResourceId")
@@ -197,8 +250,9 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
 
         @Override
         public void afterTextChanged(Editable editable) {
-            if(!isRandomizingAll) {
-                LuaSettingExtended setting = filtered.get(getAdapterPosition());
+            LuaSettingExtended setting = filtered.get(getAdapterPosition());
+            if(!isRandomizingAll || setting.isBusy()) {
+                //isBusy
                 String s = editable.toString();
                 if(TextUtils.isEmpty(s)) setting.setModifiedValue(null);
                 else setting.setModifiedValue(editable.toString());
@@ -311,7 +365,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
     public void onException(Context context, Exception e, LuaSettingExtended setting) { }
 
     @Override
-    public void onBatchFinished(Context context, List<LuaSettingExtended> successful, List<LuaSettingExtended> failed) { AlertMessage.displayMessageBatch(context, successful, failed); }
+    public void onBatchFinished(Context context, List<LuaSettingExtended> successful, List<LuaSettingExtended> failed) { AlertMessage.displayMessageBatch(context, successful, failed, application); }
 
     @SuppressLint("NotifyDataSetChanged")
     void randomizeAll(Context context) {
@@ -331,12 +385,28 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         notifyDataSetChanged();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    void deleteSelected(Context context) {
+        Log.i(TAG, "Delete Selected settings... filtered=" + filtered.size());
+        List<LuaSettingExtended> batch = new ArrayList<>();
+        for(LuaSettingExtended e : filtered)
+            if(!e.isValueNull() && e.isEnabled()) { batch.add(e); e.setIsBusy(true); }
+
+        notifyDataSetChanged();
+        if(!batch.isEmpty()) {
+            Log.i(TAG, "settings=" + settings.size() + " batch size=" + batch.size());
+            settingsQue.batchUpdate(context, batch, true, this);
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     void saveAll(Context context) {
         Log.i(TAG, "Saving all settings... filtered=" + filtered.size());
         List<LuaSettingExtended> batch = new ArrayList<>();
         for(LuaSettingExtended e : filtered)
             if(e.isModified()) { batch.add(e); e.setIsBusy(true); }
 
+        notifyDataSetChanged();
         if(!batch.isEmpty()) {
             Log.i(TAG, "settings=" + settings.size() + " batch size=" + batch.size());
             settingsQue.batchUpdate(context, batch, false, this);

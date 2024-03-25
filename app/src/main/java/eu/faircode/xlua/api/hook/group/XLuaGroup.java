@@ -2,6 +2,7 @@ package eu.faircode.xlua.api.hook.group;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class XLuaGroup extends XLuaGroupBase implements IDBSerial {
 
     @Override
     public ContentValues createContentValues() {
+        Log.i("XLua.XLuaGroup", "PKG=" + packageName + " UID=" + uid + " NAME=" + name + " USED=" + used);
         ContentValues cv = new ContentValues();
         cv.put("package", packageName);
         cv.put("uid", uid);
