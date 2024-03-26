@@ -1,24 +1,16 @@
 package eu.faircode.xlua.utilities;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Icon;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.AppGeneric;
 import eu.faircode.xlua.R;
@@ -31,9 +23,9 @@ import eu.faircode.xlua.api.xlua.XLuaCall;
 
 public class SettingUtil {
 
-
-    public static final List<String> allUpperNamesCapitalized = Arrays.asList("Wifi", "Vpn", "Ex", "Io", "Su", "Arch", "Cpuid", "Db", "Egl", "Ab", "Gms",  "Hw", "Sms", "Icc", "No", "Sys", "Isp", "Cid", "Lac", "Mac", "Net", "Ad", "Drm", "Gsf", "Lcc", "Meid", "Imei", "Bssid", "Ssid", "Esim", "Sim", "Sku", "Lac", "Cid", "Msin", "Mnc", "Mcc", "Adb", "Os", "Utc", "Abi", "Gps", "Dns", "Vm", "Id", "Gsm", "Cpu", "Gpu", "Fp", "Rom", "Nfc", "Soc", "Url", "Dev", "Sdk", "Iso");
-    public static final List<String> xpSettings = Arrays.asList("show", "value.imei", "value.meid", "value.email", "value.android_id", "value.serial", "value.phone_number", "collection", "theme", "restrict_new_apps", "notify_new_apps", "notify");
+    public static final List<String> EX_NAMES = Arrays.asList("Index", "Vortex");
+    public static final List<String> UPPER_PAIRS = Arrays.asList("Wifi", "Vpn", "Ex", "Io", "Su", "Arch", "Cpuid", "Db", "Egl", "Ab", "Gms",  "Hw", "Sms", "Icc", "No", "Sys", "Isp", "Cid", "Lac", "Mac", "Net", "Ad", "Drm", "Gsf", "Lcc", "Meid", "Imei", "Bssid", "Ssid", "Esim", "Sim", "Sku", "Lac", "Cid", "Msin", "Mnc", "Mcc", "Adb", "Os", "Utc", "Abi", "Gps", "Dns", "Vm", "Id", "Gsm", "Cpu", "Gpu", "Fp", "Rom", "Nfc", "Soc", "Url", "Dev", "Sdk", "Iso");
+    public static final List<String> XP_SETTINGS = Arrays.asList("show", "value.imei", "value.meid", "value.email", "value.android_id", "value.serial", "value.phone_number", "collection", "theme", "restrict_new_apps", "notify_new_apps", "notify");
 
     public static boolean isBooleanTypeSetting(String settingName) { return settingName.endsWith(".bool") || settingName.contains(".bool.") || settingName.startsWith("bool."); }
 
@@ -123,11 +115,11 @@ public class SettingUtil {
     }
 
     public static boolean isBuiltInSetting(String settingName) {
-        return xpSettings.contains(settingName) ||
+        return XP_SETTINGS.contains(settingName) ||
                 settingName.endsWith(".randomize") || settingName.equalsIgnoreCase("lac,cid"); }
 
     public static String handleLowerHalf(String name) {
-        for (String s : allUpperNamesCapitalized)
+        for (String s : UPPER_PAIRS)
             if(s.equals(name))
                 return name.toUpperCase();
 
@@ -137,7 +129,7 @@ public class SettingUtil {
         if(name.equalsIgnoreCase("timezone"))
             return "TimeZone";
 
-        if(name.endsWith("ex") && name.length() > 3)
+        if((!EX_NAMES.contains(name)) &&  name.endsWith("ex") && name.length() > 3)
             return name.substring(0, name.length() -2) + " EX";
 
         return name;

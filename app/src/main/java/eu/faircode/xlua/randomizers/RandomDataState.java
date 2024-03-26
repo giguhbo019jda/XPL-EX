@@ -1,7 +1,5 @@
 package eu.faircode.xlua.randomizers;
 
-import android.os.Build;
-import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 
 import androidx.annotation.NonNull;
@@ -12,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import eu.faircode.xlua.randomizers.elements.DataNullElement;
-import eu.faircode.xlua.randomizers.elements.DataStateElement;
+import eu.faircode.xlua.randomizers.elements.DataNameValueElement;
 import eu.faircode.xlua.randomizers.elements.ISpinnerElement;
 
 public class RandomDataState implements IRandomizer {
@@ -30,13 +28,13 @@ public class RandomDataState implements IRandomizer {
     public RandomDataState() {
         int code = android.os.Build.VERSION.SDK_INT;
         dataStates.add(DataNullElement.EMPTY_ELEMENT);
-        if(code >= 33) dataStates.add(DataStateElement.create("DATA_ENABLED_REASON_UNKNOWN", -1));
-        dataStates.add(DataStateElement.create(code >= 31 ? "DATA_ENABLED_REASON_USER" : "DATA_DISCONNECTED", 0));
-        dataStates.add(DataStateElement.create(code >= 31 ? "DATA_ENABLED_REASON_POLICY" : "DATA_CONNECTING", 1));
-        dataStates.add(DataStateElement.create(code >= 31 ? "DATA_ENABLED_REASON_CARRIER" : "DATA_CONNECTED", 2));
-        dataStates.add(DataStateElement.create(code >= 31 ? "DATA_ENABLED_REASON_THERMAL" : "DATA_SUSPENDED", 3));
-        dataStates.add(DataStateElement.create(code >= 30 ? "DATA_DISCONNECTING" : "DATA_ACTIVITY_DORMANT", 4));
-        if(code >= 33) dataStates.add(DataStateElement.create("DATA_HANDOVER_IN_PROGRESS", 5));
+        if(code >= 33) dataStates.add(DataNameValueElement.create("DATA_ENABLED_REASON_UNKNOWN", -1));
+        dataStates.add(DataNameValueElement.create(code >= 31 ? "DATA_ENABLED_REASON_USER" : "DATA_DISCONNECTED", 0));
+        dataStates.add(DataNameValueElement.create(code >= 31 ? "DATA_ENABLED_REASON_POLICY" : "DATA_CONNECTING", 1));
+        dataStates.add(DataNameValueElement.create(code >= 31 ? "DATA_ENABLED_REASON_CARRIER" : "DATA_CONNECTED", 2));
+        dataStates.add(DataNameValueElement.create(code >= 31 ? "DATA_ENABLED_REASON_THERMAL" : "DATA_SUSPENDED", 3));
+        dataStates.add(DataNameValueElement.create(code >= 30 ? "DATA_DISCONNECTING" : "DATA_ACTIVITY_DORMANT", 4));
+        if(code >= 33) dataStates.add(DataNameValueElement.create("DATA_HANDOVER_IN_PROGRESS", 5));
     }
 
     @Override
@@ -52,12 +50,12 @@ public class RandomDataState implements IRandomizer {
 
     @Override
     public String getID() {
-        return "%gsmstate%";
+        return "%gsm_data_state%";
     }
 
     @Override
     public String generateString() {
-        ISpinnerElement el = dataStates.get(ThreadLocalRandom.current().nextInt(0, dataStates.size()));
+        ISpinnerElement el = dataStates.get(ThreadLocalRandom.current().nextInt(1, dataStates.size()));
         return el.getValue();
     }
 

@@ -3,36 +3,37 @@ package eu.faircode.xlua.randomizers;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import eu.faircode.xlua.randomizers.elements.DataBoolElement;
+import eu.faircode.xlua.randomizers.elements.DataNameValueElement;
 import eu.faircode.xlua.randomizers.elements.DataNullElement;
 import eu.faircode.xlua.randomizers.elements.ISpinnerElement;
 
-public class RandomBoolean implements IRandomizer {
+public class RandomSubUsage implements IRandomizer {
     private final List<ISpinnerElement> dataStates = new ArrayList<>();
-    public RandomBoolean() {
+    public RandomSubUsage() {
         dataStates.add(DataNullElement.EMPTY_ELEMENT);
-        dataStates.add(DataBoolElement.FALSE);
-        dataStates.add(DataBoolElement.TRUE);
+        dataStates.add(DataNameValueElement.create("UNKNOWN", -1));
+        dataStates.add(DataNameValueElement.create("DEFAULT", 0));
+        dataStates.add(DataNameValueElement.create("VOICE_CENTRIC", 1));
+        dataStates.add(DataNameValueElement.create("DATA_CENTRIC", 2));
     }
 
     @Override
-    public boolean isSetting(String setting) { return setting.endsWith(".bool") || setting.startsWith(".bool") || setting.contains(".bool."); }
+    public boolean isSetting(String setting) { return setting.equalsIgnoreCase(getSettingName()); }
 
     @Override
-    public String getSettingName() {  return ".bool"; }
+    public String getSettingName() {  return "gsm.subscription.usage.setting"; }
 
     @Override
     public String getName() {
-        return "Boolean";
+        return "SUB Usage";
     }
 
     @Override
     public String getID() {
-        return "%bool%";
+        return "%gsm_sim_usage%";
     }
 
     @Override

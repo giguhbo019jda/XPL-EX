@@ -41,7 +41,21 @@ public class GlobalRandoms {
         putRandomizer(new RandomHostName());
         putRandomizer(new RandomHostName());
         putRandomizer(new RandomSerial());
+        putRandomizer(new RandomCarrierName());
+        putRandomizer(new RandomMSIN());
+        putRandomizer(new RandomSIMID());
+        putRandomizer(new RandomSIMType());
+        putRandomizer(new RandomSubUsage());
+        putRandomizer(new RandomSIMState());
+        putRandomizer(new RandomSIMCount());
+        putRandomizer(new RandomAlphaNumeric());
+        putRandomizer(new RandomPhoneType());
+        putRandomizer(new Random3DigitNumber());
+        putRandomizer(new RandomNetworkType());
+
         putRandomizer(new RandomDataState());
+
+        putRandomizer(new RandomBoolean());
     }
 
     public static void putRandomizer(IRandomizer randomizer) {

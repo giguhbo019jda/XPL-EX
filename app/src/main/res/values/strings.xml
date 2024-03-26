@@ -41,6 +41,7 @@
 
     <string name="whats_new" translatable="false">
         Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v1)
+        <![CDATA[<br><br>]]> !!!Warning this is BETA it WILL have Bugs but over time code will be cleaned and things will be fixed!!!
         <![CDATA[<br><br>]]> Privacy will never be lost I wont stop til each app is FULLY black boxed.
         <![CDATA[<br>]]>This is my Art, Quality over Quantity so be patience pls and thanks to all who are patient!.
         <![CDATA[<br>]]>Free, Open Source, No Analytics, No Servers, offline ...
@@ -67,7 +68,7 @@
         <![CDATA[<br>]]> [+] Added some of the Pro Features within the Main Application
         <![CDATA[<br>]]> [+] Added More Hashes to the Caller Security Check (allow more patched XPrivacyLua Pro versions)
         <![CDATA[<br>]]> [+] Added a Hook Group Name Cleaner (make names of hooks look better UI)
-        <![CDATA[<br>]]> [+] Added total (271) Build prop Properties
+        <![CDATA[<br>]]> [+] Added total (272) Build prop Properties
         <![CDATA[<br>]]> [+] Added Bluetooth List Hook
         <![CDATA[<br>]]> [+] Added Wifi List Hook
         <![CDATA[<br>]]> [+] Added More Privacy Hooks!
@@ -75,7 +76,7 @@
         <![CDATA[<br>]]> [+] Many more Hooks + Code Fixed + Cleaned
         <![CDATA[<br>]]> [+] Added Shell Interception (getprop, su, meminfo)..
         <![CDATA[<br>]]> [+] Added Settings UI [advance ;) ]
-        <![CDATA[<br>]]> [+] Added Randomizers (17+)
+        <![CDATA[<br>]]> [+] Added Randomizers (20+)
         <![CDATA[<br>]]> [+] Added better Properties UI
         <![CDATA[<br>]]> [+] Added Settings Config UI
         <![CDATA[<br>]]> [+] Changes Command System to be Similar to that one of a C2
@@ -131,7 +132,7 @@
     <string name="title_hook_exclude" translatable="false">Exclude packages</string>
     <string name="title_hook_settings" translatable="false">Settings</string>
 
-    <string name="menu_props" translatable="false">Prop Values 2.1</string>
+    <string name="menu_props" translatable="false">Prop Values</string>
     <string name="menu_settings" translatable="false">Setting Values</string>
     <string name="menu_configs" translatable="false">Config Editor</string>
     <string name="menu_dark" translatable="false">Dark Mode</string>

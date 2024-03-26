@@ -3,36 +3,35 @@ package eu.faircode.xlua.randomizers;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import eu.faircode.xlua.randomizers.elements.DataBoolElement;
 import eu.faircode.xlua.randomizers.elements.DataNullElement;
+import eu.faircode.xlua.randomizers.elements.DataNameValueElement;
 import eu.faircode.xlua.randomizers.elements.ISpinnerElement;
 
-public class RandomBoolean implements IRandomizer {
+public class RandomSIMType implements IRandomizer {
     private final List<ISpinnerElement> dataStates = new ArrayList<>();
-    public RandomBoolean() {
+    public RandomSIMType() {
         dataStates.add(DataNullElement.EMPTY_ELEMENT);
-        dataStates.add(DataBoolElement.FALSE);
-        dataStates.add(DataBoolElement.TRUE);
+        dataStates.add(DataNameValueElement.create("LOCAL_SIM", 0));
+        dataStates.add(DataNameValueElement.create("REMOTE_SIM", 1));
     }
 
     @Override
-    public boolean isSetting(String setting) { return setting.endsWith(".bool") || setting.startsWith(".bool") || setting.contains(".bool."); }
+    public boolean isSetting(String setting) { return setting.equalsIgnoreCase(getSettingName()); }
 
     @Override
-    public String getSettingName() {  return ".bool"; }
+    public String getSettingName() {  return "gsm.sim.type"; }
 
     @Override
     public String getName() {
-        return "Boolean";
+        return "SIM Type";
     }
 
     @Override
     public String getID() {
-        return "%bool%";
+        return "%sim_type%";
     }
 
     @Override

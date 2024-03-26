@@ -4,16 +4,13 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import eu.faircode.xlua.randomizers.IRandomizer;
-
-public class DataStateElement implements ISpinnerElement {
-    public static DataStateElement create(String name, Integer value) { return new DataStateElement(name, value); }
-
+/*public class DataSubUsageElement implements ISpinnerElement {
+    public static DataSubUsageElement create(String name, Integer value) { return new DataSubUsageElement(name, value); }
     private String displayName;
     private Integer value;
 
-    public DataStateElement() { }
-    public DataStateElement(String name, Integer value) {
+    public DataSubUsageElement() { }
+    public DataSubUsageElement(String name, Integer value) {
         this.displayName = name;
         this.value = value;
     }
@@ -47,4 +44,4 @@ public class DataStateElement implements ISpinnerElement {
     @NonNull
     @Override
     public String toString() { return this.displayName; }
-}
+}*/

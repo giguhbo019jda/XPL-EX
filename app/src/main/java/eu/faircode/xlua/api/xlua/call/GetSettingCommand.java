@@ -14,6 +14,7 @@ import eu.faircode.xlua.utilities.BundleUtil;
 
 
 public class GetSettingCommand extends CallCommandHandler {
+
     public static GetSettingCommand create() { return new GetSettingCommand(); };
     public GetSettingCommand() {
         name = "getSetting";
@@ -43,6 +44,11 @@ public class GetSettingCommand extends CallCommandHandler {
         }
     }
 
+    public static Bundle invoke(Context context, Bundle b) {
+        return XProxyContent.luaCall(
+            context,
+            "getSetting", b);
+    }
     public static Bundle invoke(Context context, LuaSettingPacket packet) {
         return XProxyContent.luaCall(
                         context,

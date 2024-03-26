@@ -197,7 +197,7 @@ public class ActivityMain extends ActivityBase {
         drawerArray.add(new DrawerItem(this, R.string.menu_readme, new DrawerItem.IListener() {
             @Override
             public void onClick(DrawerItem item) {
-                Intent browse = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/M66B/XPrivacyLua"));
+                Intent browse = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/0bbedCode/XPL-EX"));
                 if (browse.resolveActivity(getPackageManager()) == null)
                     Snackbar.make(findViewById(android.R.id.content), getString(R.string.msg_no_browser), Snackbar.LENGTH_LONG).show();
                 else
@@ -208,7 +208,7 @@ public class ActivityMain extends ActivityBase {
         drawerArray.add(new DrawerItem(this, R.string.menu_faq, new DrawerItem.IListener() {
             @Override
             public void onClick(DrawerItem item) {
-                Intent browse = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/M66B/XPrivacyLua/blob/master/FAQ.md"));
+                Intent browse = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/0bbedCode/XPL-EX/blob/master/FAQ.md"));
                 if (browse.resolveActivity(getPackageManager()) == null)
                     Snackbar.make(findViewById(android.R.id.content), getString(R.string.msg_no_browser), Snackbar.LENGTH_LONG).show();
                 else
@@ -216,7 +216,7 @@ public class ActivityMain extends ActivityBase {
             }
         }));
 
-        drawerArray.add(new DrawerItem(this, R.string.menu_donate, new DrawerItem.IListener() {
+        /*drawerArray.add(new DrawerItem(this, R.string.menu_donate, new DrawerItem.IListener() {
             @Override
             public void onClick(DrawerItem item) {
                 Intent browse = new Intent(Intent.ACTION_VIEW, Uri.parse("https://lua.xprivacy.eu/"));
@@ -224,6 +224,13 @@ public class ActivityMain extends ActivityBase {
                     Snackbar.make(findViewById(android.R.id.content), getString(R.string.msg_no_browser), Snackbar.LENGTH_LONG).show();
                 else
                     startActivity(browse);
+            }
+        }));*/
+
+        drawerArray.add(new DrawerItem(this, R.string.menu_whats_new_button, new DrawerItem.IListener() {
+            @Override
+            public void onClick(DrawerItem item) {
+                whatsNew();
             }
         }));
 
@@ -244,14 +251,7 @@ public class ActivityMain extends ActivityBase {
             @Override
             public void onClick(DrawerItem item) {
                 setDebugState(item.isCheckable());
-                drawerArray.notifyDataSetChanged();//do we need this ?
-                //Hmm do note this is local context to the NON ROOT Hook on Settings :P
-                //Context may differ ?
-                //Hmm for now ignore it, the UI components at least can use this check
-                //We CAN send through the packet Debug Flag ?
-                //If different from last then replace else continue executing the Hook
-                //Actually we do need to make this a setting for the DATABASE since it will reset after restart
-                //Also default should be on (incase startup fails)
+                drawerArray.notifyDataSetChanged();//fix context issues
             }
         }));
 
@@ -260,7 +260,6 @@ public class ActivityMain extends ActivityBase {
             @Override
             public void onClick(DrawerItem item) {
                 menuProps();
-                //Intent intent = new Intent(ActivityMain.this, ActivityProps.class);
             }
         }));
 
@@ -285,19 +284,12 @@ public class ActivityMain extends ActivityBase {
             }
         }));
 
-        drawerArray.add(new DrawerItem(this, R.string.menu_whats_new_button, new DrawerItem.IListener() {
-            @Override
-            public void onClick(DrawerItem item) {
-                whatsNew();
-            }
-        }));
-
         drawerList.setAdapter(drawerArray);
         //whatsNew
 
         checkFirstRun();
     }
-    //Clean all this fucking code up pls
+
     public void setDebugState(boolean enabled) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         prefs.edit().putBoolean("verbosedebug", enabled).apply();
@@ -358,10 +350,7 @@ public class ActivityMain extends ActivityBase {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        //for top menu add function fuck whatdgkjshdflkhsdkjfh
         Log.i(TAG, "Prepare options");
-
-        // Search
         MenuItem menuSearch = menu.findItem(R.id.menu_search);
         final SearchView searchView = (SearchView) menuSearch.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

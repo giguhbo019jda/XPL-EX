@@ -41,6 +41,7 @@ import org.luaj.vm2.Varargs;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -64,6 +65,8 @@ import eu.faircode.xlua.hooks.LuaHookWrapper;
 import eu.faircode.xlua.hooks.LuaScriptHolder;
 import eu.faircode.xlua.hooks.XReporter;
 import eu.faircode.xlua.hooks.XResolved;
+import eu.faircode.xlua.randomizers.GlobalRandoms;
+import eu.faircode.xlua.randomizers.IRandomizer;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 import eu.faircode.xlua.api.hook.XLuaHook;
@@ -269,6 +272,20 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
 
         final Map<String, String> settings = XLuaQuery.getGlobalSettings(context, uid);
         settings.putAll(XLuaQuery.getSettings(context, uid, pName, true));
+
+        List<IRandomizer> randomizers = GlobalRandoms.getRandomizers();
+        for(Map.Entry<String, String> s : settings.entrySet()) {
+            if(s.getValue().equalsIgnoreCase("%random%") || s.getValue().equalsIgnoreCase("%randomize%")) {
+                for(IRandomizer r : randomizers) {
+                    if(r.isSetting(s.getKey())) {
+                        String nv = r.generateString();
+                        settings.put(s.getKey(), nv);
+                        break;
+                    }
+                }
+            }
+        }
+
         //why global settings ? I suspect if null still use ?
         //nvm global is good, as in defined for all, then ovveride if need with the putAll
         //can be 0 globals to how ever many

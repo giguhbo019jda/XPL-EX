@@ -2,43 +2,57 @@
   {
     "name": "Samsung Galaxy Note 9 (SM-N960U) Device",
     "settings": {
-      "cpu.soc.model": "sdm845",                  //[Aida64][System] Board
+      "cpu.platform.name": "SDM845",
+      "cpu.soc.model": "SDM845",                  //[Aida64][System] Board
+      "cpu.soc.manufacturer": "Qualcomm",            //[ru.andr7e.deviceinfohw][Device Info HW][SOC] Model
+      "cpu.hardware.name" : "qcom",                //[Aida64][System] Hardware
+      "cpu.arch": "aarch64",                 //Termux "uname -a" or [ru.andr7e.deviceinfohw][Device Info HW][SOC] Machine
+      "cpu.abi": "arm64-v8a",              //NA
+      "cpu.abilist": "",                      //NA
+      "cpu.processor.count": "8",
+
+      "device.manufacturer": "samsung",          //[Aida64][System] Manufacturer
+      "device.model": "SM-N960U",                //[Aida64][System] Model
       "device.bootloader": "N960USQU2CSI1",      //[Aida64][Android] Bootloader
       "device.brand": "samsung",                 //[Aida64][System] Brand
       "device.codename": "Crown",                //[Aida64][System] Device Codename
       "device.nick.name": "crownqItesq",            //[Aida64][System] Device
-      "android.build.display.id": "PPR1.180610.011.N960USQU2CSI1", //[Aida64][Android] Build ID
-      "android.build.fingerprint": "samsung/crownqItesq/crownqItesq:9/PPR1.180610.011/N960USQU2CSI1:user/release-keys", //[Android] Fingerprint
-      "cpu.hardware.name" : "qcom",                //[Aida64][System] Hardware
+
+
+      "gpu.egl.code.name" : "adreno",
+
+      "android.build.date": "Tue Sep 3 13:18:51 KST 2019",
+      "android.build.date.utc" : "1567484331",
+      "android.build.date.one": "2018.08.15", //Not needed
+      "android.build.date.two": "20180815", //Not needed
+      "android.build.dev.codename": "REL", //This can be this value no need to change
+
+      "android.build.flavor": "crownqItesq-user",
+      "android.build.description": "crownqItesq-user 9 PPR1.180610.011 N960USQU2CSI1 release-keys",
+      "android.build.base.os": "Android", // //This can be this value no need to change
+      "android.build.version.sdk": "28",
+      "android.build.version.min.sdk": "17",
       "android.build.host": "SWDH7920",                 //[com.ghuman.apps.batterynotifier][Device Info][Device] Host
       "android.build.id": "PPE1.180610.011",            //[Aida64][Android] ID
       "android.build.incremental": "N960USQU2CSI1",     //[Aida64][Android] Incremental
-      "device.manufacturer": "samsung",          //[Aida64][System] Manufacturer
-      "device.model": "SM-N960U",                //[Aida64][System] Model
       "android.build.codename": "crownqItesq",           //[Aida64][System] Product
       "android.build.radio": "unknown",                 //NA
       "android.build.version": "9",                     //[Aida64][Android] Android Version
       "android.build.patch" : "2019-09-01",    //[Aida64][Android] Android Security Patch Level
-      "unique.serial.no": "RF8K81K25RW",            //[Aida64][System] Serial
-      "android.build.tags": "Qualcomm",            //[ru.andr7e.deviceinfohw][Device Info HW][SOC] Model
-      "build.TAGS": "release-keys",             //[Aida64][Android] Tags
-      "android.build.date.utc": "1609459200000",            //Unix Epoch Time Stamp
+      "android.build.tags": "release-keys",             //[Aida64][Android] Tags
       "android.build.type": "user",                     //[Aida64][Android] Type
       "android.build.user": "dpi",                      //[ru.andr7e.deviceinfohw][Device Info HW][SYSTEM] Builder (before the '@' symbol)
-
-      "memory.total": "8",                      //8GB
-      "memory.available": "7",                  //7GB
-
-      "cpu.abi": "arm64-v8a",              //NA
-      "cpu.abilist": "",                      //NA
-
-      "cpu.processor.count": "8",
-
+      "android.build.display.id": "PPR1.180610.011.N960USQU2CSI1", //[Aida64][Android] Build ID
+      "android.build.fingerprint": "samsung/crownqItesq/crownqItesq:9/PPR1.180610.011/N960USQU2CSI1:user/release-keys", //[Android] Fingerprint
       "android.kernel.sys.name": "Linux",                   //Termux "uname -a"
       "android.kernel.node.name": "localhost",              //Termux "uname -a"
       "android.kernel.release": "4.9.112-16352588",        //[ru.andr7e.deviceinfohw][Device Info HW][GENERAL] Kernel (before the '#' symbol)
       "android.kernel.version": "#2 SMP PREEMPT Tue Sep 3 14:02:52 KST 2019", //[ru.andr7e.deviceinfohw][Device Info HW][GENERAL] Kernel (begining '#' symbol)
-      "cpu.arch": "aarch64"                 //Termux "uname -a" or [ru.andr7e.deviceinfohw][Device Info HW][SOC] Machine
+
+      "memory.total": "8",                      //8GB
+      "memory.available": "7",                  //7GB
+
+      "unique.serial.no": "RF8K81K25RW"            //[Aida64][System] Serial
     }
   },
   //FOR ones with constants have a drop down
@@ -53,7 +67,7 @@
       "unique.gsm.meid": "%random%",     //CDMA
       "gsm.operator.mcc": "274",
       "gsm.operator.mnc": "299",
-      "gsm.operator.msin": "842762952",
+      "unique.gsm.operator.msin": "842762952",
       "gsm.operator.id": "",   //Not needed if MCC and MNC and MSIN Set
       "gsm.network.carrier": "Siminn",      //Carrier Name
       "unique.gsm.sim.serial": "%random%",

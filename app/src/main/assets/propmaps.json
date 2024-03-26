@@ -14,8 +14,12 @@
   { "settingName": "android.build.version.min.sdk", "propNames": ["ro.product.first_api_level", "ro.build.version.min_supported_target_sdk"]},
   { "settingName": "android.build.tags", "propNames": ["ro.vendor_dlkm.build.tags", "ro.build.tags","ro.system.build.tags","ro.system_ext.build.tags","ro.vendor.build.tags"] },
   { "settingName": "android.build.type", "propNames": [ "ro.vendor_dlkm.build.type", "ro.build.type","ro.system.build.type","ro.system_ext.build.type","ro.vendor.build.type"] },
-  { "settingName": "android.build.date.utc",  "propNames": ["ro.build.date.utc","ro.odm.build.date.utc","ro.system.build.date.utc","ro.system_ext.build.date.utc","ro.vendor.build.date.utc"] },
-  { "settingName": "android.build.date", "propNames": ["ro.vendor_dlkm.build.date", "ro.build.date","ro.odm.build.date","ro.system.build.date","ro.system_ext.build.date","ro.vendor.build.date"] },
+  { "settingName": "android.build.date.utc",  "propNames": ["ro.bootimage.build.date.utc", "ro.build.date.utc","ro.odm.build.date.utc","ro.system.build.date.utc","ro.system_ext.build.date.utc","ro.vendor.build.date.utc"] },
+  { "settingName": "android.build.date", "propNames": ["persist.sys.ccm.date", "persist.sys.drs.date", "persist.sys.kap.date", "persist.sys.knoxvpn.date", "ro.bootimage.build.date", "ro.vendor_dlkm.build.date", "ro.build.date","ro.odm.build.date","ro.system.build.date","ro.system_ext.build.date","ro.vendor.build.date"] },
+  { "settingName": "android.build.date.one", "propNames": [ "ril.rfcal_date" ] },
+  { "settingName": "android.build.date.two", "propNames": [ "ril.manufacturedate" ] },
+
+
   { "settingName": "android.build.dev.codename", "propNames": [ "ro.build.version.codename", "ro.build.version.preview_sdk_fingerprint", "ro.build.version.all_codenames", "" ] },
   { "settingName": "android.build.incremental", "propNames": ["ro.vendor_dlkm.build.version.incremental", "ro.build.version.incremental","ro.system.build.version.incremental","ro.system_ext.build.version.incremental"] },
   { "settingName": "android.build.description", "propNames": [ "ro.build.description" ] },
@@ -26,7 +30,7 @@
   { "settingName": "android.build.user", "propNames": [ "ro.build.user" ] },
   { "settingName": "android.build.patch", "propNames": [ "ro.build.version.security_patch" ] },
   { "settingName": "android.build.codename", "propNames": [ "ro.vendor_dlkm.build.name", "ro.vendor.product.name", "ro.product.name","ro.product.odm.name","ro.product.system_ext.name","ro.product.vendor.name"] },
-  { "settingName": "android.build.fingerprint", "propNames": ["ro.build.fingerprint", "ro.vendor_dlkm.build.fingerprint", "ro.odm.build.fingerprint","ro.system.build.fingerprint","ro.system_ext.build.fingerprint","ro.vendor.build.fingerprint"] },
+  { "settingName": "android.build.fingerprint", "propNames": ["ro.bootimage.build.fingerprint", "ro.build.fingerprint", "ro.vendor_dlkm.build.fingerprint", "ro.odm.build.fingerprint","ro.system.build.fingerprint","ro.system_ext.build.fingerprint","ro.vendor.build.fingerprint"] },
 
   //Java VM Settings
   { "settingName": "java.vendor", "propNames": [ "java.vendor", "java.specification.vendor", "java.vm.vendor", "java.vm.specification.vendor" ] },
@@ -53,7 +57,7 @@
   { "settingName": "cpu.platform.name", "propNames": [ "ro.board.platform", "ro.product.board" ] },
   { "settingName": "cpu.base.band", "propNames": [ "ro.baseband", "ro.baseband.arch" ] },
   { "settingName": "cpu.hardware.name", "propNames": [ "ro.hardware" ] },
-  { "settingName": "cpu.soc.model", "propNames": [ "ro.soc.model" ] },
+  { "settingName": "cpu.soc.model", "propNames": [ "ro.soc.model", "ro.hardware.chipname" ] },
   { "settingName": "cpu.soc.manufacturer", "propNames": [ "ro.soc.manufacturer" ] },
   { "settingName": "cpu.cpuid", "propNames": [ "ro.boot.cpuid" ] },
 
@@ -65,11 +69,11 @@
   { "settingName": "android.rom.enforce", "propNames": [ "ro.control_privapp_permissions" ] },
   { "settingName": "android.rom.flash.locked", "propNames": [ "ro.boot.flash.locked" ] },
   { "settingName": "android.rom.verified.boot", "propNames": [ "ro.boot.verifiedbootstate" ] },
-  { "settingName": "android.rom.root.image", "propNames": [ "ro.build.system_root_image" ] },
+  { "settingName": "android.rom.root.image.bool", "propNames": [ "ro.build.system_root_image" ] },
   { "settingName": "android.rom.netflix", "propNames": [ "ro.netflix.bsp_rev" ] },
 
-  { "settingName": "android.system.supports.ab", "propNames": [ "ro.build.ab_update" ] },
-  { "settingName": "android.system.treble.enabled", "propNames": [ "ro.treble.enabled" ] },
+  { "settingName": "android.system.supports.ab.bool", "propNames": [ "ro.build.ab_update" ] },
+  { "settingName": "android.system.treble.enabled.bool", "propNames": [ "ro.treble.enabled" ] },
 
 
   //System hardware Settings
@@ -117,17 +121,16 @@
   //CakeWallet
 
   //Emulator Virtual props
-  { "settingName": "qemu.emulator*", "propNames": [ "ro.kernel.qemu", "init.svc.qemu-props", "qemu.hw.mainkeys", "qemu.sf.fake_camera", "qemu.sf.lcd_density", "ro.kernel.android.qemud", "qmu.adb.secure", "qemu.gles", "qemu.logcat", "qemu.timezone", "ro.kernel.qemu.encrypt", "ro.kernel.qemu.gles", "ro.kernel.qemu.gltransport", "ro.kernel.qemu.opengles.version", "ro.kernel.qemu.vsync", "ro.kernel.qemu.wifi", "ro.qemu.initrc" ] },
+  { "settingName": "qemu.emulator*.bool", "propNames": [ "ro.kernel.qemu", "init.svc.qemu-props", "qemu.hw.mainkeys", "qemu.sf.fake_camera", "qemu.sf.lcd_density", "ro.kernel.android.qemud", "qmu.adb.secure", "qemu.gles", "qemu.logcat", "qemu.timezone", "ro.kernel.qemu.encrypt", "ro.kernel.qemu.gles", "ro.kernel.qemu.gltransport", "ro.kernel.qemu.opengles.version", "ro.kernel.qemu.vsync", "ro.kernel.qemu.wifi", "ro.qemu.initrc" ] },
 
 
   //GSM Settings
-  { "settingName": "gsm.operator.id", "propNames": [ "gsm.operator.numeric", "gsm.sim.operator.numeric" ] },
   { "settingName": "gsm.network.type", "propNames": [ "gsm.network.type" ] },
   { "settingName": "gsm.network.carrier", "propNames": [ "ro.carrier", "ro.cdma.home.operator.alpha", "gsm.operator.alpha", "gsm.sim.operator.alpha"] },
   { "settingName": "gsm.phone.type", "propNames": [ "gsm.current.phone-type" , "gsm.phone.type"] },
   { "settingName": "gsm.sim.state", "propNames": [ "gsm.sim.state" ] },
-  { "settingName": "gsm.setting.network.roaming", "propNames": [ "gsm.operator.isroaming" ] },
-  { "settingName": "gsm.operator.id", "propNames": [  "vendor.gsm.ril.uicc.mccmnc", "vendor.gsm.ril.uicc.mccmnc.1", "persist.vendor.mtk.provision.mccmnc.0", "persist.vendor.mtk.provision.mccmnc.1" ] },
+  { "settingName": "gsm.setting.network.roaming.bool", "propNames": [ "gsm.operator.isroaming" ] },
+  { "settingName": "gsm.operator.id", "propNames": [ "gsm.operator.numeric", "gsm.sim.operator.numeric", "vendor.gsm.ril.uicc.mccmnc", "vendor.gsm.ril.uicc.mccmnc.1", "persist.vendor.mtk.provision.mccmnc.0", "persist.vendor.mtk.provision.mccmnc.1" ] },
 
   { "settingName": "gsm.operator.mcc", "propNames": [  "ro.miui.mcc" ] },
   { "settingName": "gsm.operator.mnc", "propNames": [  "ro.miui.mnc" ] },

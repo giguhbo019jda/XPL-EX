@@ -108,41 +108,45 @@ public class XLuaHookDatabase {
     public static long report(XReport report, XLuaHook hook, XDatabase db) {
         Log.i(TAG , "Updating Assignment: " + report);
 
-        //Update Assignment , make it a function ?
-
-
         long used = -1;
         if(!DatabaseHelp.updateItem(db, LuaAssignment.Table.name, report.generateQuery(), report))
             Log.w(TAG, "Error updating Assignment: " + report);
 
         //Update Group
         if(hook != null && report.event.equals("use") && report.getRestricted() == 1 && report.getNotify(db)) {
-            Log.i(TAG, " cool invokging shit");
             used = SqlQuerySnake
                     .create(db , "`group`")
                     .whereColumns("package", "uid", "name")
-                    .whereColumnValues(report.packageName, Integer.toString(report.getUserId()), hook.getGroup())
+                    .whereColumnValues(report.packageName, Integer.toString(report.uid), hook.getGroup())
                     .queryGetFirstLong("used", true);
             //Integer.toString(report.uid)
 
-            Log.i(TAG, " used count=" + used + " hook group=" + hook.getGroup() + " pkg=" + report.packageName + " uid=" + report.uid + " uid resolved=" + Integer.toString(report.getUserId()));
+            Log.i(TAG, " used count=" + used + " hook group=" + hook.getGroup() + " pkg=" + report.packageName + " uid=" + report.uid + " uid resolved=" + Integer.toString(report.getUserId()) + " time=" + report.time);
 
             //ahh fix this ugly code
             //dupes too many standardize query snake
-            if(!DatabaseHelp.insertItem(db, "`group`",  report.createGroupObject(hook, used)))
-                Log.e(TAG, "Error inserting group: " + report);
+            //if(!DatabaseHelp.insertItem(db, "`group`",  report.createGroupObject(hook, used)))
+            //    Log.e(TAG, "Error inserting group: " + report);
+
+            db.beginTransaction(true);
 
             ContentValues cv = new ContentValues();
             cv.put("package", report.packageName);
-            cv.put("uid", report.getUserId());
+            cv.put("uid", report.uid);
             cv.put("name", hook.getGroup());
-            cv.put("used", time);
-            long rows = db.insertWithOnConflict("`group`", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+            cv.put("used", report.time);
+            long rows = db.getDatabase().insertWithOnConflict("`group`", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
             if (rows < 0)
-                //throw new Throwable("Error inserting group");
+                Log.e(TAG, "Error inserting group: " + report);
+
+
+            Log.i(TAG, "Updated Group, returned=" + rows);
+            db.endTransaction(true, !(rows < 0));
+            //throw new Throwable("Error inserting group");
 
         }
 
+        Log.i(TAG, "Report returning: " + used);
         return used;
     }
 }

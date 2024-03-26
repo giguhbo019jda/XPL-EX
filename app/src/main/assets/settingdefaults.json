@@ -9,13 +9,18 @@
   { "name": "device.boot.mode", "description": "Boot Mode", "value": "normal" },
 
   //Android Build Settings
+  { "name": "android.build.date.one", "description": "These do not have to be set, they dont seem to be build date but something else.? YEAR.MONTH.DAY (2000.03.15)",  "value": "2018.08.15" },
+  { "name": "android.build.date.two", "description": "These do not have to be set, they dont seem to be build date but something else.? YEARMONTHDAY (20000315)",  "value": "20180815" },
+
+  { "name": "android.build.date.utc", "description": "Android ROM Build Date (Unix Epoc TimeStamp)",  "value": "1696343919" },
+  { "name": "android.build.date", "description": "Android ROM Build Date (WEEKDAY MONTH DAY HOUR:MINUTE:SECOND YEAR)", "value": "Tue Oct 3 17:38:39 IDT 2023" },
+
+
   { "name": "android.build.version", "description": "Android version Determined by Number", "value": "13" },
   { "name": "android.build.version.sdk", "description": "Android version Determined by Number", "value": "33" },
   { "name": "android.build.version.min.sdk", "description": "Android version Build minimum SDK Version Number", "value": "23"},
   { "name": "android.build.tags", "description": "Android version Build Tags (release-keys)", "value": "release-keys" },
   { "name": "android.build.type", "description": "Android version Build Type (user)", "value": "user" },
-  { "name": "android.build.date.utc", "description": "Android ROM Build Date (Unix Epoc TimeStamp)",  "value": "1696343919" },
-  { "name": "android.build.date", "description": "Android ROM Build Date (WEEKDAY MONTH DAY HOUR:MINUTE:SECOND YEAR)", "value": "Tue Oct 3 17:38:39 IDT 2023" },
   { "name": "android.build.dev.codename", "description": "The version string visible in the development phase", "value": "REL" },
   { "name": "android.build.incremental", "description": "Android ROM Build Incremental ID", "value": "eng.ido.20231003.173955" },
   { "name": "android.build.description", "description": "Android ROM Build description", "value": "yaap_guacamoles-user 13 TQ3A.230805.001" },
@@ -70,11 +75,11 @@
   { "name": "android.rom.enforce", "description": "SELinux Mode", "value": "enforce" },
   { "name": "android.rom.flash.locked", "description": "Is Flash Locked ?", "value": "1" },
   { "name": "android.rom.verified.boot", "description": "Verified Boot State", "value": "green" },
-  { "name": "android.rom.root.image", "description": "I dunno", "value":  "true"  },
+  { "name": "android.rom.root.image.bool", "description": "I dunno", "value":  "true"  },
   { "name": "android.rom.netflix", "description": "This prop makes Netflix select L1 instead of L3.", "value": "Q855-16947-1" },
 
-  { "name": "android.system.supports.ab", "description": "Does system support A/B partitions", "value": "true" },
-  { "name": "android.system.treble.enabled", "description": "Is Treble Enabled on the Device", "value": "true" },
+  { "name": "android.system.supports.ab.bool", "description": "Does system support A/B partitions", "value": "true" },
+  { "name": "android.system.treble.enabled.bool", "description": "Is Treble Enabled on the Device", "value": "true" },
 
 
   //System hardware Default Settings
@@ -113,8 +118,9 @@
   { "name": "unique.gsf.id", "description": "Google Services Framework ID", "value": "FMZIYEVGXZDCENRO" },
   { "name": "unique.google.game.id", "description": "Google Games Game User ID thing", "value": "FFP3" },
   { "name": "unique.network.ssid", "description": "Wifi SSID", "value": "Starbucks Free-Wifi" },
-  //stable_secret contains RFC 7217 secret key which should never be
   { "name": "unique.netd.secret.key", "description": "stable_secret contains RFC 7217 secret key which should never be leaked", "value": "90f8:f587:2bb7:db9b:e5:306a:67d7:a155" },
+  { "name": "unique.gsm.operator.msin", "description": "Mobile Subscription Identification Number (MSIN) is a 10-digit unique numeric code ", "value": "1234567890" },
+
 
 
   //Zone Default Settings (Time, Date, Region, Language)
@@ -138,18 +144,17 @@
 
 
   //GSM Default Settings (re-checl all of these with the properties)
-  { "name": "gsm.operator.id", "description": "Operator ID", "value": "573" }, //274+299
+  { "name": "gsm.operator.id", "description": "Operator ID (MCC + MNC)", "value": "573" }, //274+299
   { "name": "gsm.operator.mcc", "description": "Operator MCC Value", "value": "274" },
   { "name": "gsm.operator.mnc", "description": "Operator MNC Value", "value": "299" },
-  { "name": "gsm.operator.msin", "description": "Mobile Subscription Identification Number (MSIN) is a 10-digit unique numeric code ", "value": "1234567890" },
 
   { "name": "gsm.cell.location.lac", "description": "Location Area Code", "value": "0" },
   { "name": "gsm.cell.location.cid", "description": "Cell ID", "value": "0" },
 
 
-  { "name": "gsm.setting.network.roaming", "description": "Is Network Roaming", "value": "false" },
-  { "name": "gsm.setting.network.opportunistic", "description": "An opportunistic subscription connects to a network that is limited in functionality and / or coverage.", "value": "true" },
-  { "name": "gsm.setting.network.esim", "description": "true if the subscription is from eSIM.", "value": "false" },
+  { "name": "gsm.setting.network.roaming.bool", "description": "Is Network Roaming", "value": "false" },
+  { "name": "gsm.setting.network.opportunistic.bool", "description": "An opportunistic subscription connects to a network that is limited in functionality and / or coverage.", "value": "true" },
+  { "name": "gsm.setting.network.esim.bool", "description": "true if the subscription is from eSIM.", "value": "false" },
   { "name": "gsm.setting.display.name", "description": "The name displayed to the user that identifies this subscription. This name is used in Settings page and can be renamed by the user.", "value": "Rob" },
 
   { "name": "gsm.network.type",  "description": "Indicates the available radio technology. (unknown, GPRS, EDGE, UMTS)", "value": "GPRS" },
@@ -179,7 +184,7 @@
 
 
   //Emulator stuff
-  { "name": "qemu.emulator*", "description": "Control of all Emulator Functions (Hide/Skip....)", "value": "true" },
+  { "name": "qemu.emulator*.bool", "description": "Control of all Emulator Functions (Hide/Skip....)", "value": "true" },
   { "name": "qemu.emulator.kernel", "description": "Emulator Qemu Kernel", "value": "N/A" },
   { "name": "qemu.emulator.props", "description": "Emulator Qemu Props", "value": "N/A" },
   { "name": "qemu.emulator.hw.main.keys", "description": "Emulator Qemu Hardware Keys", "value": "N/A" },

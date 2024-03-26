@@ -70,6 +70,7 @@ public class XReport implements IDBSerial {
         if(notify == null)//This is where error can arrive , context is null and context is used and abused alot :P
             notify = LuaSettingsDatabase.getSettingBoolean(null, db, "notify", getUserId(), packageName);
 
+        //Log.i("XLua.XReport", "XXR use=true,  (pkg=" + packageName + " userId=" + getUserId() + " uid=" + uid + " notify=" + notify + " )");
         return notify;
     }
 

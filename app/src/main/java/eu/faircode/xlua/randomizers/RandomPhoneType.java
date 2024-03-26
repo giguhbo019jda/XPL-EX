@@ -3,43 +3,41 @@ package eu.faircode.xlua.randomizers;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import eu.faircode.xlua.randomizers.elements.DataBoolElement;
+import eu.faircode.xlua.randomizers.elements.DataNameValueElement;
 import eu.faircode.xlua.randomizers.elements.DataNullElement;
 import eu.faircode.xlua.randomizers.elements.ISpinnerElement;
 
-public class RandomBoolean implements IRandomizer {
+public class RandomPhoneType implements IRandomizer {
     private final List<ISpinnerElement> dataStates = new ArrayList<>();
-    public RandomBoolean() {
+    public RandomPhoneType() {
         dataStates.add(DataNullElement.EMPTY_ELEMENT);
-        dataStates.add(DataBoolElement.FALSE);
-        dataStates.add(DataBoolElement.TRUE);
+        dataStates.add(DataNameValueElement.create("NONE", 0));
+        dataStates.add(DataNameValueElement.create("GSM", 1));
+        dataStates.add(DataNameValueElement.create("CDMA", 2));
+        dataStates.add(DataNameValueElement.create("SIP", 3));
     }
 
     @Override
-    public boolean isSetting(String setting) { return setting.endsWith(".bool") || setting.startsWith(".bool") || setting.contains(".bool."); }
+    public boolean isSetting(String setting) { return setting.equalsIgnoreCase(getSettingName()); }
 
     @Override
-    public String getSettingName() {  return ".bool"; }
+    public String getSettingName() {  return "gsm.phone.type"; }
 
     @Override
     public String getName() {
-        return "Boolean";
+        return "Phone Type";
     }
 
     @Override
     public String getID() {
-        return "%bool%";
+        return "%phone_type%";
     }
 
     @Override
-    public String generateString() {
-        ISpinnerElement el = dataStates.get(ThreadLocalRandom.current().nextInt(1, dataStates.size()));
-        return el.getValue();
-    }
+    public String generateString() { return dataStates.get(ThreadLocalRandom.current().nextInt(1, dataStates.size())).getValue(); }
 
     @Override
     public int generateInteger() { return 0; }

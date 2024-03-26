@@ -335,7 +335,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_subscriptioninfo_isembedded",
-    "settings":[ "gsm.setting.network.esim" ]
+    "settings":[ "gsm.setting.network.esim.bool" ]
   },
   {
     "builtin": false,
@@ -356,7 +356,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_subscriptioninfo_isopportunistic",
-    "settings":[ "gsm.setting.network.opportunistic" ]
+    "settings":[ "gsm.setting.network.opportunistic.bool" ]
   },
   {
     "builtin": false,

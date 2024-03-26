@@ -503,7 +503,7 @@
     "usage":true,
     "notify":false,
     "luaScript": "@id_telephony_subscriberid_two",
-    "settings":[ "gsm.operator.mcc", "gsm.operator.mnc", "gsm.operator.msin", "unique.gsm.subscription.id" ]
+    "settings":[ "gsm.operator.mcc", "gsm.operator.mnc", "unique.gsm.operator.msin", "unique.gsm.subscription.id" ]
   },
   /*{
     "builtin": false,
