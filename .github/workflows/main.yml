@@ -58,7 +58,6 @@ jobs:
       - name: Build APK(s) Release from bundle using bundletool (Path same with bundle output)
         #run: java -jar ".github/lib/bundletool.jar" build-apks --bundle=${{ env.main_project_module }}/build/outputs/bundle/release/${{ env.generated_name_aab }}.aab --output=${{ env.main_project_module }}/build/outputs/bundle/release/${{ env.generated_name_aab }}.apks --mode=universal --ks="app/${{ env.ks_path }}" --ks-pass=pass:${{ env.ks_store_pass }} --ks-key-alias=${{ env.ks_alias }} --key-pass=pass:${{ env.ks_alias_pass }}
         run: |
-          java -jar ".github/lib/uber-apk-signer-1.3.0.jar" -a ${{ env.main_project_module }}/build/outputs/apk/debug/ --out ${{ env.main_project_module }}/build/outputs/apk/debug/signed
           java -jar ".github/lib/uber-apk-signer-1.3.0.jar" -a ${{ env.main_project_module }}/build/outputs/apk/release/ --out ${{ env.main_project_module }}/build/outputs/apk/release/signed
 
       # Upload Artifact Build
