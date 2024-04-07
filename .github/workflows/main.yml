@@ -79,9 +79,12 @@ jobs:
         run: |
           zip --junk-paths my-artifact README.md
 
-      - name: Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: 'latest'
+          name: 'Release'
           files: |
-            ${{ env.main_project_module }}/build/outputs/apk/release/signed/${{ env.signedapk }}.apk
+            ./${{ env.main_project_module }}/build/outputs/apk/release/signed/${{ env.signedapk }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
