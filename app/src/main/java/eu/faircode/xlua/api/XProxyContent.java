@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import eu.faircode.xlua.XSecurity;
-import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
+import eu.faircode.xlua.api.xstandard.database.SqlQuerySnake;
 
 public class XProxyContent {
     private static final String TAG = "XLua.XProxyContent";

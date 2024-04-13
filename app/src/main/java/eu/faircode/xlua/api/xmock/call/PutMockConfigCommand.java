@@ -5,10 +5,10 @@ import android.os.Bundle;
 
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.XResult;
-import eu.faircode.xlua.api.configs.MockConfigDatabase;
+import eu.faircode.xlua.api.xmock.database.MockConfigManager;
 import eu.faircode.xlua.api.configs.MockConfigPacket;
-import eu.faircode.xlua.api.standard.CallCommandHandler;
-import eu.faircode.xlua.api.standard.command.CallPacket;
+import eu.faircode.xlua.api.xstandard.CallCommandHandler;
+import eu.faircode.xlua.api.xstandard.command.CallPacket;
 
 public class PutMockConfigCommand extends CallCommandHandler {
     public static PutMockConfigCommand create() { return new PutMockConfigCommand(); };
@@ -26,7 +26,7 @@ public class PutMockConfigCommand extends CallCommandHandler {
         switch (packet.getCode()) {
             case MockConfigPacket.CODE_DELETE_CONFIG:
             case MockConfigPacket.CODE_APPLY_CONFIG:
-                return MockConfigDatabase.putMockConfig(commandData.getContext(), commandData.getDatabase(), packet).toBundle();
+                return MockConfigManager.putMockConfig(commandData.getContext(), commandData.getDatabase(), packet).toBundle();
         }
 
         return XResult.create().setMethodName("putMockConfig").setFailed("Failed to find Command Handler for Mock Config Packet! Code=" + packet.getCode()).toBundle();

@@ -15,9 +15,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import eu.faircode.xlua.XDatabase;
-import eu.faircode.xlua.api.standard.database.SqlQuerySnake;
-import eu.faircode.xlua.api.standard.interfaces.IDBQuery;
-import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
+import eu.faircode.xlua.api.xstandard.database.SqlQuerySnake;
+import eu.faircode.xlua.api.xstandard.interfaces.IDBQuery;
+import eu.faircode.xlua.api.xstandard.interfaces.IJsonSerial;
 import eu.faircode.xlua.utilities.BundleUtil;
 import eu.faircode.xlua.utilities.ContentValuesUtil;
 import eu.faircode.xlua.utilities.CursorUtil;
@@ -64,8 +64,9 @@ public class MockPropSetting extends MockPropMap implements IJsonSerial, IDBQuer
     public Integer getValue() { return value; }
     public MockPropSetting setValue(Integer value) { if(value != null) this.value = value; return this; }
 
-    public boolean isSkip() { return this.value != null && this.value == PROP_SKIP; }
-    public boolean isHide() { return this.value != null && this.value == PROP_HIDE; }
+    public boolean isSkip() { return isCode(true, PROP_SKIP); }
+    public boolean isHide() { return isCode(true, PROP_HIDE);}
+    public boolean isForce() { return isCode(true, PROP_FORCE); }
     public boolean isNullOrEmptyValue() { return this.value == null || this.value == PROP_NULL; }
 
     @Override

@@ -17,9 +17,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
+import eu.faircode.xlua.api.xstandard.interfaces.IJsonSerial;
 import eu.faircode.xlua.random.IRandomizer;
 import eu.faircode.xlua.random.IRandomizerManager;
 import eu.faircode.xlua.random.elements.ISpinnerElement;
@@ -244,4 +247,12 @@ public class LuaSettingExtended extends LuaSettingDefault implements IJsonSerial
     @NonNull
     @Override
     public String toString() { return new StringBuilder(super.toString()).append(" enabled=").append(this.enabled).toString(); }
+
+    public static Map<String, LuaSettingExtended> toMap(Collection<LuaSettingExtended> managed_settings) {
+        Map<String, LuaSettingExtended> m = new HashMap<>();
+        for(LuaSettingExtended s : managed_settings)
+            m.put(s.getName(), s);
+
+        return m;
+    }
 }

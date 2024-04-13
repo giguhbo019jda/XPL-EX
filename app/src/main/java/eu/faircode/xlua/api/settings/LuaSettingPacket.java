@@ -5,8 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import eu.faircode.xlua.AppGeneric;
-import eu.faircode.xlua.api.standard.interfaces.IPacket;
-import eu.faircode.xlua.api.standard.interfaces.IUserPacket;
 
 public class LuaSettingPacket extends LuaSettingExtended  {
     public static LuaSettingPacket create(LuaSetting setting) { return new LuaSettingPacket(setting); }

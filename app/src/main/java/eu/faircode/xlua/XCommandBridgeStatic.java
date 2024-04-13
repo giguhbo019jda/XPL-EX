@@ -3,14 +3,11 @@ package eu.faircode.xlua;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
-
-import java.lang.reflect.Method;
 
 import de.robv.android.xposed.XC_MethodHook;
-import eu.faircode.xlua.api.standard.CommanderService;
-import eu.faircode.xlua.api.standard.command.CallPacket;
-import eu.faircode.xlua.api.standard.command.QueryPacket;
+import eu.faircode.xlua.api.xstandard.CommanderService;
+import eu.faircode.xlua.api.xstandard.command.CallPacket;
+import eu.faircode.xlua.api.xstandard.command.QueryPacket;
 import eu.faircode.xlua.api.xlua.XLuaDatabase;
 import eu.faircode.xlua.api.xlua.call.AssignHooksCommand;
 import eu.faircode.xlua.api.xlua.call.ClearAppCommand;

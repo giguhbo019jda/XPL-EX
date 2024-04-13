@@ -12,14 +12,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import eu.faircode.xlua.api.standard.interfaces.IJsonSerial;
+import eu.faircode.xlua.api.settings.LuaSettingExtended;
+import eu.faircode.xlua.api.xstandard.interfaces.IJsonSerial;
 import eu.faircode.xlua.utilities.CursorUtil;
 
 public class XLuaHook extends XLuaHookBase implements IJsonSerial, Parcelable {
     private static final String TAG = "XLua.Hook";
+
+    private List<LuaSettingExtended> managed_settings = new ArrayList<>();
 
     public XLuaHook() { }
     public XLuaHook(Parcel in) { fromParcel(in); }
@@ -32,6 +38,20 @@ public class XLuaHook extends XLuaHookBase implements IJsonSerial, Parcelable {
         }catch (Exception e) {
             Log.e(TAG, "Error converting xHook to Hook Packet! e=" + e + "\n" + Log.getStackTraceString(e));
             return null;
+        }
+    }
+
+    public List<LuaSettingExtended> getManagedSettings() { return this.managed_settings; }
+    public void initSettings(Map<String, LuaSettingExtended> settings) {
+        if(this.settings != null) {
+            managed_settings.clear();
+            for (String s : this.settings) {
+                if(settings.containsKey(s)) {
+                    LuaSettingExtended luaSetting = settings.get(s);
+                    if(luaSetting == null) continue;
+                    managed_settings.add(luaSetting);
+                }
+            }
         }
     }
 

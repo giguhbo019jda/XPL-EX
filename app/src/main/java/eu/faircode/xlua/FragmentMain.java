@@ -153,8 +153,6 @@ public class FragmentMain extends Fragment {
             }
         });
 
-
-        //BTNRESTRICT is when you select a group it turns into a button
         btnRestrict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,21 +175,18 @@ public class FragmentMain extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
         IntentFilter ifPackage = new IntentFilter();
         ifPackage.addAction(Intent.ACTION_PACKAGE_ADDED);
         ifPackage.addAction(Intent.ACTION_PACKAGE_CHANGED);
         ifPackage.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
         ifPackage.addDataScheme("package");
         getContext().registerReceiver(packageChangedReceiver, ifPackage);
-
         loadData();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
         getContext().unregisterReceiver(packageChangedReceiver);
     }
 
@@ -201,13 +196,11 @@ public class FragmentMain extends Fragment {
 
     public void setShow(AdapterApp.enumShow value) {
         this.show = value;
-        if (rvAdapter != null)
-            rvAdapter.setShow(value);
+        if (rvAdapter != null)  rvAdapter.setShow(value);
     }
 
     public void filter(String query) {
-        if (rvAdapter != null)
-            rvAdapter.getFilter().filter(query);
+        if (rvAdapter != null) rvAdapter.getFilter().filter(query);
     }
 
     private void loadData() {
@@ -235,18 +228,6 @@ public class FragmentMain extends Fragment {
                 show = data.show;
                 rvAdapter.setShow(data.show);
                 rvAdapter.set(data.collection, data.hooks, data.apps);
-
-                /*XUiConfig con1 = new XUiConfig();
-                con1.name = "NONE";
-
-                XUiConfig con2 = new XUiConfig();
-                con2.name = "Cool";
-
-                List<XUiConfig> confs = new ArrayList<>();
-                confs.add(con1);
-                confs.add(con2);
-
-                rvAdapter.setConfigs(confs);*/
 
                 swipeRefresh.setRefreshing(false);
                 pbApplication.setVisibility(View.GONE);
@@ -345,13 +326,10 @@ public class FragmentMain extends Fragment {
                 all.title = getContext().getString(R.string.title_all);
                 data.groups.add(0, all);
 
-                Log.i(TAG, "Getting Hooks");
                 // Load hooks
                 Collection<XLuaHook> hooksCopy = XLuaQuery.getHooks(getContext(), true);
                 Log.i(TAG, "Hooks loaded=" + hooksCopy.size());
                 data.hooks.addAll(hooksCopy);
-
-                Log.i(TAG, "Getting Apps");
                 // Load apps
                 Collection<XLuaApp> appsCopy = XLuaQuery.getApps(getContext(), true);
                 Log.i(TAG, "Apps loaded=" + appsCopy.size());

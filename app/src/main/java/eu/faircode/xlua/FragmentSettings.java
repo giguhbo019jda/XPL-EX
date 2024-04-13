@@ -17,6 +17,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
@@ -35,6 +37,7 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.api.xmock.call.KillAppCommand;
+import eu.faircode.xlua.ui.ILoader;
 import eu.faircode.xlua.ui.dialogs.SettingAddDialog;
 import eu.faircode.xlua.ui.ViewFloatingAction;
 import eu.faircode.xlua.utilities.CollectionUtil;
@@ -42,7 +45,7 @@ import eu.faircode.xlua.utilities.SettingUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
-public class FragmentSettings  extends ViewFloatingAction implements View.OnClickListener, View.OnLongClickListener {
+public class FragmentSettings extends ViewFloatingAction implements View.OnClickListener, View.OnLongClickListener, ILoader {
     private static final String TAG = "XLua.FragmentSettings";
 
     private ProgressBar progressBar;
@@ -149,9 +152,6 @@ public class FragmentSettings  extends ViewFloatingAction implements View.OnClic
             case R.id.flSettingsButtonFive:
                 Toast.makeText(getContext(), "Delete ONLY Selected settings", Toast.LENGTH_SHORT).show();
                 break;
-                //case R.id.flActionConfigImport:
-            //    Toast.makeText(getContext(), "Import Config", Toast.LENGTH_SHORT).show();
-            //    break;
             case R.id.flSettingsButtonOne:
                 Toast.makeText(getContext(), "Options", Toast.LENGTH_SHORT).show();
                 break;
@@ -208,6 +208,13 @@ public class FragmentSettings  extends ViewFloatingAction implements View.OnClic
 
     }
 
+    @Override
+    public FragmentManager getManager() {  return getFragmentManager(); }
+
+    @Override
+    public Fragment getFragment() { return this; }
+
+    @Override
     public void filter(String query) { if (rvAdapter != null) rvAdapter.getFilter().filter(query); }
 
     private void wire() {
@@ -229,6 +236,7 @@ public class FragmentSettings  extends ViewFloatingAction implements View.OnClic
     @Override
     public void onPause() { super.onPause(); }
 
+    @Override
     public void loadData() {
         Log.i(TAG, "Starting data loader");
         LoaderManager manager = getActivity().getSupportLoaderManager();
