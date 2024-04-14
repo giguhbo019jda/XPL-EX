@@ -1,0 +1,17 @@
+[
+  {
+    "old": "PrivacyEx.InetAddress.getHostName",
+    "new": "",
+    "description": "Name change from (InetAddress) to (LinkProperties) 4/13/24"
+  },
+  {
+    "old": "PrivacyEx.CPUINFO/Param",
+    "new": "",
+    "description": "Updated LUA Script (1.4.2.3) 4/5/24"
+  },
+  {
+    "old": "PrivacyEx.CPUINFO/Param",
+    "new": "",
+    "description": "Updated LUA Script (1.4.2.3) 4/5/24"
+  }
+]

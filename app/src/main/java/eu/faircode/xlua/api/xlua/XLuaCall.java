@@ -12,7 +12,7 @@ import eu.faircode.xlua.api.app.AppPacket;
 import eu.faircode.xlua.api.app.XLuaApp;
 import eu.faircode.xlua.api.hook.LuaHookPacket;
 import eu.faircode.xlua.api.settings.LuaSettingPacket;
-import eu.faircode.xlua.api.standard.UserIdentityPacket;
+import eu.faircode.xlua.api.xstandard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.call.AssignHooksCommand;
 import eu.faircode.xlua.api.xlua.call.ClearAppCommand;
 import eu.faircode.xlua.api.xlua.call.ClearDataCommand;

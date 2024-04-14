@@ -58,7 +58,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import eu.faircode.xlua.api.standard.UserIdentityPacket;
+import eu.faircode.xlua.api.xstandard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.utilities.PrefUtil;

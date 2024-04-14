@@ -1,13 +1,11 @@
 package eu.faircode.xlua.api.hook.assignment;
 
 import android.os.Bundle;
-import android.os.Parcel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.faircode.xlua.api.standard.UserIdentityPacket;
-import eu.faircode.xlua.api.standard.interfaces.ISerial;
+import eu.faircode.xlua.api.xstandard.UserIdentityPacket;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 //Seperate communication ? like this ?

@@ -21,7 +21,7 @@ public class XLuaHookBase {
         return XHookUtil.readHooksEx(apk);
     }
     private final static String TAG = "XLua.XHook";
-    //we can jsut do a key exchange system
+    //we can just do a key exchange system
 
     protected Boolean builtin = false;
     protected String collection;
@@ -53,9 +53,7 @@ public class XLuaHookBase {
 
     public final static int FLAG_WITH_DB = 5;
     public final static int FLAG_WITH_LUA = 2; // =PARCELABLE_ELIDE_DUPLICATES
-    public String getId() {
-        return this.collection + "." + this.name;
-    }
+    public String getId() { return this.collection + "." + this.name; }
 
     public boolean isBuiltin() {
         return this.builtin;
@@ -91,6 +89,27 @@ public class XLuaHookBase {
     }
     public String getLuaScript() {
         return this.luaScript;
+    }
+
+    public boolean containsQuery(String query, boolean checkSettings, boolean checkMethod, boolean checkClass, boolean falseIfGroupContains) {
+        if(falseIfGroupContains && this.group != null && this.group.toLowerCase().contains(query))
+            return false;
+        if(this.name != null && this.name.toLowerCase().contains(query))
+            return true;
+        if(this.getId() != null && this.getId().toLowerCase().contains(query))
+            return true;
+        if(checkMethod && this.methodName != null && this.methodName.toLowerCase().contains(query))
+            return true;
+        if(checkClass && this.className != null && this.className.toLowerCase().contains(query))
+            return true;
+        if(checkSettings && this.settings != null && this.settings.length > 0) {
+            for(String s : settings) {
+                if(s.toLowerCase().contains(query))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean isAvailable(int versionCode) { return (versionCode >= this.minApk && versionCode <= maxApk); }

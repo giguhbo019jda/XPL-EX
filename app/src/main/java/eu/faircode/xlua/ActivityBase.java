@@ -43,9 +43,7 @@ public class ActivityBase extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
-    String getThemeName() {
-        return (theme == null ? "light" : theme);
-    }
+    public String getThemeName() { return (theme == null ? "light" : theme); }
 
     void setDarkMode() { setThemeName("dark"); }
     void setLightMode() { setThemeName("light"); }

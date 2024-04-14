@@ -10,16 +10,23 @@ import androidx.annotation.NonNull;
 
 import org.json.JSONObject;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobals;
+import eu.faircode.xlua.XUtil;
+import eu.faircode.xlua.api.hook.LuaHookUpdate;
 import eu.faircode.xlua.api.hook.XLuaHook;
-import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
-import eu.faircode.xlua.api.standard.interfaces.IInitDatabase;
+import eu.faircode.xlua.api.xmock.database.LuaSettingsManager;
+import eu.faircode.xlua.api.xstandard.JsonHelper;
+import eu.faircode.xlua.api.xstandard.database.DatabaseHelp;
+import eu.faircode.xlua.api.xstandard.database.SqlQuerySnake;
+import eu.faircode.xlua.api.xstandard.interfaces.IInitDatabase;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
+import eu.faircode.xlua.utilities.StringUtil;
 
 public class XLuaDatabase implements IInitDatabase {
     private XDatabase db = null;
@@ -63,7 +70,7 @@ public class XLuaDatabase implements IInitDatabase {
         }
 
         if(!init) {
-            if(!check_1) check_1 = LuaSettingsDatabase.forceDatabaseCheck(context, db);
+            if(!check_1) check_1 = LuaSettingsManager.forceDatabaseCheck(context, db);
             DatabasePathUtil.log("XLUA init settings=" + check_1, false);
             init = check_1;
             //Make a centralized core for logs
@@ -183,23 +190,22 @@ public class XLuaDatabase implements IInitDatabase {
                 //deleteHook(_db, "Privacy.ContentResolver/query16");
                 //deleteHook(_db, "Privacy.ContentResolver/query26");
 
-                renameHook(_db, "TelephonyManager/getDeviceId", "TelephonyManager.getDeviceId");
-                renameHook(_db, "TelephonyManager/getDeviceId/slot", "TelephonyManager.getDeviceId/slot");
-                renameHook(_db, "TelephonyManager/getGroupIdLevel1", "TelephonyManager.getGroupIdLevel1");
-                renameHook(_db, "TelephonyManager/getImei", "TelephonyManager.getImei");
-                renameHook(_db, "TelephonyManager/getImei/slot", "TelephonyManager.getImei/slot");
-                renameHook(_db, "TelephonyManager/getLine1Number", "TelephonyManager.getLine1Number");
-                renameHook(_db, "TelephonyManager/getMeid", "TelephonyManager.getMeid");
-                renameHook(_db, "TelephonyManager/getMeid/slot", "TelephonyManager.getMeid/slot");
-                renameHook(_db, "TelephonyManager/getNetworkSpecifier", "TelephonyManager.getNetworkSpecifier");
-                renameHook(_db, "TelephonyManager/getSimSerialNumber", "TelephonyManager.getSimSerialNumber");
-                renameHook(_db, "TelephonyManager/getSubscriberId", "TelephonyManager.getSubscriberId");
-                renameHook(_db, "TelephonyManager/getVoiceMailAlphaTag", "TelephonyManager.getVoiceMailAlphaTag");
-                renameHook(_db, "TelephonyManager/getVoiceMailNumber", "TelephonyManager.getVoiceMailNumber");
-                renameHook(_db, "Settings.Secure.getString", "Settings.Secure.getString/android_id");
-                renameHook(_db, "SystemProperties.get", "SystemProperties.get/serial");
-                renameHook(_db, "SystemProperties.get/default", "SystemProperties.get.default/serial");
-
+                renameHookId(_db, "TelephonyManager/getDeviceId", "TelephonyManager.getDeviceId");
+                renameHookId(_db, "TelephonyManager/getDeviceId/slot", "TelephonyManager.getDeviceId/slot");
+                renameHookId(_db, "TelephonyManager/getGroupIdLevel1", "TelephonyManager.getGroupIdLevel1");
+                renameHookId(_db, "TelephonyManager/getImei", "TelephonyManager.getImei");
+                renameHookId(_db, "TelephonyManager/getImei/slot", "TelephonyManager.getImei/slot");
+                renameHookId(_db, "TelephonyManager/getLine1Number", "TelephonyManager.getLine1Number");
+                renameHookId(_db, "TelephonyManager/getMeid", "TelephonyManager.getMeid");
+                renameHookId(_db, "TelephonyManager/getMeid/slot", "TelephonyManager.getMeid/slot");
+                renameHookId(_db, "TelephonyManager/getNetworkSpecifier", "TelephonyManager.getNetworkSpecifier");
+                renameHookId(_db, "TelephonyManager/getSimSerialNumber", "TelephonyManager.getSimSerialNumber");
+                renameHookId(_db, "TelephonyManager/getSubscriberId", "TelephonyManager.getSubscriberId");
+                renameHookId(_db, "TelephonyManager/getVoiceMailAlphaTag", "TelephonyManager.getVoiceMailAlphaTag");
+                renameHookId(_db, "TelephonyManager/getVoiceMailNumber", "TelephonyManager.getVoiceMailNumber");
+                renameHookId(_db, "Settings.Secure.getString", "Settings.Secure.getString/android_id");
+                renameHookId(_db, "SystemProperties.get", "SystemProperties.get/serial");
+                renameHookId(_db, "SystemProperties.get/default", "SystemProperties.get.default/serial");
 
                 if(DebugUtil.isDebug())
                     DatabasePathUtil.log("Database version=" + _db.getVersion(), false);
@@ -220,6 +226,44 @@ public class XLuaDatabase implements IInitDatabase {
 
             try {
                 XGlobals.loadHooks(context, db);
+                Map<String, XLuaHook> hooks = XGlobals.getAllHooks(context, db);
+                for (Map.Entry<String, XLuaHook> hSet : hooks.entrySet()) {
+                    XLuaHook h = hSet.getValue();
+                    String id = hSet.getKey();
+                    String a = h.getAuthor().toLowerCase();
+                    if(a.contains("obc") || a.contains("obbed")) {
+                        XLuaHook hookDb = SqlQuerySnake
+                                .create(db, "hook")
+                                .whereColumn("id", id)
+                                .queryGetFirstAs(XLuaHook.class, true);
+                        if(hookDb != null) {
+                            if(!hookDb.toJSON().equals(h.toJSON())) {
+                                SqlQuerySnake snake = SqlQuerySnake
+                                        .create(db, "hook")
+                                        .whereColumn("id", id);
+                                DatabaseHelp.updateItem(snake, h);
+                            }
+                        }
+                    }
+                }
+
+                /*Collection<LuaHookUpdate> updates = JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), "updates.json", true, LuaHookUpdate.class);
+                for(LuaHookUpdate lUpdate : updates) {
+                    if(StringUtil.isValidAndNotWhitespaces(lUpdate.getOldId())) {
+                        if(StringUtil.isValidAndNotWhitespaces(lUpdate.getNewId())) {
+                            //first check for old exists
+                            //if so then replace with new
+                        }else {
+
+                        }
+                    }
+
+
+                    //if new is null BUT old is not NULL then
+                    //that means the actual script stuff
+                }*/
+
+                //for(Map.Entry<String, XLuaHook> hook)
             }catch (Throwable ex) {
                 DatabasePathUtil.log("Failed to load in hooks: " + ex, true);
             }
@@ -228,7 +272,7 @@ public class XLuaDatabase implements IInitDatabase {
         return init;
     }
 
-    private static void renameHook(SQLiteDatabase _db, String oldId, String newId) {
+    private static void renameHookId(SQLiteDatabase _db, String oldId, String newId) {
         try {
             ContentValues cv = new ContentValues();
             cv.put("hook", newId);
@@ -237,6 +281,17 @@ public class XLuaDatabase implements IInitDatabase {
         } catch (Throwable ex) {
             DatabasePathUtil.log("Renamed hook " + oldId + " into " + newId + " ex=" + ex.getMessage(), true);
         }
+    }
+
+    //assignment
+    //pkg, uid, hook (ID) not Name
+    //
+    //hook (ID) not name
+    //
+    //this.collection + "." + this.name;
+
+    public static void updateInternalHooks(SQLiteDatabase _db, String oldId, String newId) {
+
     }
 
     @Override

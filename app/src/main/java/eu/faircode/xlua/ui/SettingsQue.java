@@ -1,16 +1,12 @@
 package eu.faircode.xlua.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,7 +14,7 @@ import eu.faircode.xlua.AppGeneric;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.settings.LuaSettingPacket;
-import eu.faircode.xlua.api.standard.interfaces.ISettingUpdate;
+import eu.faircode.xlua.api.xstandard.interfaces.ISettingUpdate;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 
 public class SettingsQue {

@@ -7,9 +7,9 @@ import android.util.Log;
 import eu.faircode.xlua.BuildConfig;
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.settings.LuaSettingPacket;
-import eu.faircode.xlua.api.settings.LuaSettingsDatabase;
-import eu.faircode.xlua.api.standard.CallCommandHandler;
-import eu.faircode.xlua.api.standard.command.CallPacket;
+import eu.faircode.xlua.api.xmock.database.LuaSettingsManager;
+import eu.faircode.xlua.api.xstandard.CallCommandHandler;
+import eu.faircode.xlua.api.xstandard.command.CallPacket;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 
@@ -30,14 +30,14 @@ public class GetSettingCommand extends CallCommandHandler {
             Log.i("XLua.GetSettingCommand", "handler packet=" + packet);
 
         if(packet.isGetObject()) {
-            return LuaSettingsDatabase.getSetting(
+            return LuaSettingsManager.getSetting(
                     commandData.getDatabase(),
                     packet.getName(),
                     packet.getUser(),
                     packet.getCategory()).toBundle();
         }else {
             return BundleUtil.createSingleString("value",
-                    LuaSettingsDatabase.getSettingValue(
+                    LuaSettingsManager.getSettingValue(
                             commandData.getContext(),
                             commandData.getDatabase(),
                             packet));

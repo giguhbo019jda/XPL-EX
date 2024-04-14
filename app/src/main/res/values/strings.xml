@@ -40,7 +40,7 @@
     <string name="menu_whats_new_button" translatable="false">Whats New!</string>
 
     <string name="whats_new" translatable="false">
-        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v1) TEST v88
+        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v1) TEST v55
         <![CDATA[<br><br>]]> !!!Warning this is BETA it WILL have Bugs but over time code will be cleaned and things will be fixed!!!
         <![CDATA[<br><br>]]> Privacy will never be lost I wont stop til each app is FULLY black boxed.
         <![CDATA[<br>]]>This is my Art, Quality over Quantity so be patience pls and thanks to all who are patient!.
@@ -50,16 +50,15 @@
 
         <![CDATA[<br><br>]]><![CDATA[<a href="https://t.me/xplexex">XPL-EX Announcements</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://t.me/XPLEXCHAT">XPL-EX Chat</a>]]>
-        <![CDATA[<br>]]><![CDATA[<a href="https://github.com/0bbedCode/XPL-EX">Github</a>]]>
+        <![CDATA[<br>]]><![CDATA[<a href="https://github.com/0bbedCode/XPL-EX">GitHub</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://xdaforums.com/t/xpl-ex-xprivacylua-ex-android-privacy-manager-hooking-manager-extended.4652573/">XDA</a>]]>
-        <![CDATA[<br>]]><![CDATA[<a href="https://github.com/0bbedCode/XPL-EX">Github</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://discord.gg">Discord (ObbedCode)</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://www.instagram.com/obbedcode">Instagram (ObbedCode)</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://www.nulled.to/user/1216641-obbedcode">Nulled</a>]]>
 
-
         <![CDATA[<br><br>]]> VDInfos. Grabbing your own Device info cool dev
-        <![CDATA[<br>]]><![CDATA[<a href="https://xdaforums.com/t/app-v1-10-vd-infos-package-com-vitaodoidao-vdinfos.4097379/">VDInfos</a>]]>
+        <![CDATA[<br>]]><![CDATA[<a href="https://xdaforums.com/t/app-vdinfos.4097379/">XDA</a>]]>
+        <![CDATA[<br>]]><![CDATA[<a href="https://github.com/VD171/VD-Infos">GitHub</a>]]>
 
         <![CDATA[<br><br>]]> 1.4.2.2 Changes
         <![CDATA[<br>]]> [+] Fixed the 411dpi Hardcoded Hook Groups Recycler View Bug
@@ -97,6 +96,13 @@
     <string name="title_help_persistent">Applying restrictions requires a device restart</string>
     <string name="title_help_exception">Applying restriction failed (tap icon to see why)</string>
 
+    <string name="title_groups" translatable="false">Groups</string>
+    <string name="menu_filter" translatable="false">Search Filter</string>
+    <string name="menu_filter_settings" translatable="false">Settings</string>
+    <string name="menu_filter_groups" translatable="false">Groups</string>
+    <string name="menu_filter_hooks" translatable="false">Hooks</string>
+    <string name="menu_filter_all" translatable="false">All</string>
+
     <string name="menu_show">Show</string>
     <string name="menu_show_user">Show user apps</string>
     <string name="menu_show_icon">Show apps with icon</string>
@@ -110,11 +116,31 @@
     <string name="menu_faq">FAQ</string>
     <string name="menu_donate">Donate</string>
 
+
     <string name="menu_show_priv" translatable="false">Privacy</string>
     <string name="menu_show_rev" translatable="false">Reverse Engineering</string>
     <string name="menu_show_byp" translatable="false">Bypass/Hide</string>
 
-    title_hook_script
+    <string name="button_hooks_group_hint" translatable="false">Application Hook Group view to see all assigned Hooks and Groups with their Settings</string>
+    <string name="button_configs_hint" translatable="false">Configs Menu, modify application settings via Configs</string>
+    <string name="button_settings_ex_hint" translatable="false">Advance Settings UI not from the Pro App</string>
+    <string name="button_props_hint" translatable="false">Properties UI to control Properties Interceptor</string>
+
+    <string name="check_prop_hide_hint" translatable="false">Hide Specific Property from Build Props</string>
+    <string name="check_prop_skip_hint" translatable="false">Skip/Ignore Specific Property from Build Props</string>
+    <string name="check_prop_force_hint" translatable="false">Force to push Build Property even if it does not exist.</string>
+
+
+    <string name="text_hide" translatable="false">Hide</string>
+    <string name="text_skip" translatable="false">Skip</string>
+    <string name="text_force" translatable="false">Force</string>
+
+
+    <string name="error_no_activity" translatable="false">Application has no Start Activity...</string>
+    <string name="error_no_description_hook" translatable="false">Hook does not have a Description sorry...</string>
+    <string name="error_no_description_setting" translatable="false">Setting does not have a Description sorry...</string>
+    <string name="error_no_settings_hook" translatable="false">Hook does not have any settings...</string>
+
     <string name="title_hook_script" translatable="false">Lua script</string>
     <string name="title_hook_collection" translatable="false">Collection</string>
     <string name="title_hook_group" translatable="false">Group</string>
@@ -137,6 +163,7 @@
     <string name="title_hook_exclude" translatable="false">Exclude packages</string>
     <string name="title_hook_settings" translatable="false">Settings</string>
 
+    <string name="menu_hooks" translatable="false">Hook App Control</string>
     <string name="menu_props" translatable="false">Prop Values</string>
     <string name="menu_settings" translatable="false">Setting Values</string>
     <string name="menu_configs" translatable="false">Config Editor</string>
