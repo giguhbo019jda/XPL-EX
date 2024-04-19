@@ -38,7 +38,7 @@ public class LuaSettingsManager {
         XResult res = XResult.create().setMethodName("putSetting").setExtra(setting.toString());
         setting.ensureIdentification();
         boolean result =
-                !setting.isDelete() ?
+                !setting.isDeleteSetting() ?
                         DatabaseHelp.insertItem(
                                 db,
                                 LuaSetting.Table.name,

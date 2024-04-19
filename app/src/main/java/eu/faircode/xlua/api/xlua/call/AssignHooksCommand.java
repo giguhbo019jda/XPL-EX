@@ -10,6 +10,7 @@ import eu.faircode.xlua.api.xstandard.CallCommandHandler;
 import eu.faircode.xlua.api.xstandard.command.CallPacket;
 import eu.faircode.xlua.api.xlua.database.LuaHookManager;
 import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
+import eu.faircode.xlua.logger.XLog;
 
 public class AssignHooksCommand extends CallCommandHandler {
     public static AssignHooksCommand create() { return new AssignHooksCommand(); };
@@ -21,7 +22,9 @@ public class AssignHooksCommand extends CallCommandHandler {
     @Override
     public Bundle handle(CallPacket commandData) throws Throwable {
         LuaAssignmentPacket packet = commandData.readExtrasAs(LuaAssignmentPacket.class);
+        XLog.i("Command packet got=" + packet);
         if(packet == null) return XResult.fromInvalidPacket(name, LuaSimplePacket.class).toBundle();
+        XLog.i("handle Command packet=" + packet);
         return LuaHookManager.assignHooks(
                 commandData.getContext(),
                 commandData.getDatabase(),

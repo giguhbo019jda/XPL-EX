@@ -34,11 +34,10 @@ import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.random.GlobalRandoms;
 import eu.faircode.xlua.random.IRandomizer;
 import eu.faircode.xlua.ui.AlertMessage;
-import eu.faircode.xlua.ui.ISettingTransaction;
+import eu.faircode.xlua.ui.interfaces.ISettingTransaction;
 import eu.faircode.xlua.ui.SettingsQue;
 import eu.faircode.xlua.ui.dialogs.SettingDeleteDialog;
 import eu.faircode.xlua.utilities.SettingUtil;
-import eu.faircode.xlua.utilities.StringUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 

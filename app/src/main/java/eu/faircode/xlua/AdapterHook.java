@@ -12,17 +12,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import eu.faircode.xlua.api.hook.XLuaHook;
-import eu.faircode.xlua.api.properties.MockPropGroupHolder;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.ui.HookGroup;
+import eu.faircode.xlua.ui.interfaces.IHookTransactionEx;
+import eu.faircode.xlua.ui.transactions.HookTransactionResult;
 import eu.faircode.xlua.utilities.StringUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
@@ -30,18 +34,22 @@ import eu.faircode.xlua.utilities.ViewUtil;
 public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
     private static final String TAG = "XLua.AdapterGroupHooks";
 
+    private final HashMap<String, Boolean> expanded = new HashMap<>();
     private List<XLuaHook> hooks = new ArrayList<>();
 
     private HookGroup group;
 
-    private final HashMap<String, Boolean> expanded = new HashMap<>();
-    private CharSequence query = null;
-    private String query_lower = null;
     private AppGeneric application;
     private FragmentManager fragmentManager;
 
+    private String query;
+
     public class ViewHolder extends RecyclerView.ViewHolder
-            implements CompoundButton.OnCheckedChangeListener, View.OnClickListener, View.OnLongClickListener {
+            implements
+            CompoundButton.OnCheckedChangeListener,
+            View.OnClickListener,
+            View.OnLongClickListener,
+            IHookTransactionEx {
 
         final View view;
         final TextView tvHookName;
@@ -85,28 +93,11 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
             Log.i(TAG, "onClick=" + code);
             try {
                 final XLuaHook hook = hooks.get(getAdapterPosition());
-                for(Map.Entry<String, Boolean> e : expanded.entrySet()) {
-                    XLog.w("(3) EXPANDEE=" + e.getKey() + " expnd=" + (e.getValue()));
-                }
                 switch (code) {
                     case R.id.itemViewHooks:
                     case R.id.tvHookName:
-                        XLog.e("BEEN INVOKED FROM AdapaterHook: " + code + " is empty=" + hook.getManagedSettings().isEmpty() + " pos=" + getAdapterPosition() + " hook=" + hook.getId(), new Throwable(), true);
                         ViewUtil.internalUpdateExpanded(expanded, hook.getId());
                         updateExpanded();
-
-                        /*if(!hook.getManagedSettings().isEmpty()) {
-                            ViewUtil.internalUpdateExpanded(expanded, hook.getId());
-                            for(Map.Entry<String, Boolean> e : expanded.entrySet()) {
-                                XLog.w("(4) EXPANDEE=" + e.getKey() + " expnd=" + (e.getValue()));
-                            }
-                            updateExpanded();
-                            for(Map.Entry<String, Boolean> e : expanded.entrySet()) {
-                                XLog.w("(5) EXPANDEE=" + e.getKey() + " expnd=" + (e.getValue()));
-                            }
-                        }else {
-                            Snackbar.make(view, R.string.error_no_settings_hook, Snackbar.LENGTH_LONG).show();
-                        }*/
                         break;
                 }
             }catch (Exception e) { XLog.e("onClick Failed: code=" + code, e); }
@@ -115,16 +106,20 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
         @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
         @Override
         public void onCheckedChanged(final CompoundButton cButton, final boolean isChecked) {
-
+            int code = cButton.getId();
+            XLog.i("onCheckedChanged code=" + code);
+            try {
+                int position = getAdapterPosition();
+                XLuaHook hook = hooks.get(position);
+                group.send(cButton.getContext(), hook, position, isChecked, this);
+            }catch (Exception e) { XLog.e("Failed to update assignment. code=" + code, e, true); }
         }
 
         void updateExpanded() {
             XLuaHook hook = hooks.get(getAdapterPosition());
             String name = hook.getId();
+            //expanded.getOrDefault()
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
-
-            XLog.e("FROM HOOK: " + " isExpanded=" + isExpanded + " name=" + name + " contains key=" + (expanded.containsKey(name)), new Throwable(), true);
-
             ViewUtil.setViewsVisibility(null, isExpanded, rvHookSettings);
         }
 
@@ -145,33 +140,71 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
             }catch (Exception e) { XLog.e("onLongClick Failed: code=" + code, e); }
             return false;
         }
+
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onHookUpdate(HookTransactionResult result) {
+            Snackbar.make(view, result.result.getResultMessage(), Snackbar.LENGTH_LONG).show();
+            if(result != null && result.hasAnySucceeded()) {
+                if (!result.getPacket().isDelete()) result.group.putAssignment(new LuaAssignment(result.getHook()));
+                else result.group.removeAssignment(new LuaAssignment(result.getHook()));
+                if(result.getAdapterPosition() > -1) {
+                    try {
+                        notifyItemChanged(result.getAdapterPosition());
+                    }catch (Exception e) {
+                        notifyDataSetChanged();
+                        XLog.e("Failed to update Hook: " + result.getHook().getId(), e, true);
+                    }
+                }
+                else notifyDataSetChanged();
+            }
+        }
     }
 
     AdapterHook() { setHasStableIds(true); }
     AdapterHook(FragmentManager manager, AppGeneric application) { this(); this.fragmentManager = manager; this.application = application;  }
-    public void set(HookGroup group) {
-        this.group = group;
-        //this.hooks = new ArrayList<>(group.getHooks());
-
-
-        for(Map.Entry<String, Boolean> e : expanded.entrySet()) {
-            XLog.w("(2) EXPANDEE=" + e.getKey() + " expnd=" + (e.getValue()));
-        }
-
-        this.hooks.clear();
-        this.hooks.addAll(group.getHooks());
-    }
-
-    //public void set(LuaHooksGroup group) {
-    //    this.group = group;
-    //    this.hooks = group.hooks;
-    //}
-    //public void set(List<XLuaHook> hooks, List<LuaAssignment> assignments) {
-        //this.hooks.clear();
-        //this.hooks.addAll(hooks);
-    //}
 
     @SuppressLint("NotifyDataSetChanged")
+    public void set(HookGroup group, List<XLuaHook> filtered_hooks) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new HooksDiffCallback(false, this.hooks, filtered_hooks));
+        this.group = group;
+        this.hooks = new ArrayList<>(filtered_hooks);
+        diffResult.dispatchUpdatesTo(this);
+    }
+
+    private static class HooksDiffCallback extends DiffUtil.Callback {
+        private final boolean refresh;
+        private final List<XLuaHook> prev;
+        private final List<XLuaHook> next;
+        HooksDiffCallback(boolean refresh, List<XLuaHook> prev, List<XLuaHook> next) {
+            this.refresh = refresh;
+            this.prev = prev;
+            this.next = next;
+        }
+
+        @Override
+        public int getOldListSize() { return prev.size(); }
+
+        @Override
+        public int getNewListSize() { return next.size(); }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            XLuaHook h1 = prev.get(oldItemPosition);
+            XLuaHook h2 = next.get(newItemPosition);
+            return (!refresh && h1.getId().equalsIgnoreCase(h2.getId()));
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            //XLuaHook h1 = prev.get(oldItemPosition);
+            //XLuaHook h2 = next.get(newItemPosition);
+            //return h1.getId().equalsIgnoreCase(h2.getId());
+            return true;
+        }
+    }
+
+    /*@SuppressLint("NotifyDataSetChanged")
     public void setQuery(CharSequence query) {
         boolean cleanInp = StringUtil.isValidAndNotWhitespaces(query);
         if(!cleanInp && this.query == null) return;
@@ -187,10 +220,10 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
         }
 
         //notifyDataSetChanged();
-    }
+    }*/
 
     @Override
-    public long getItemId(int position) { return hooks.get(position).hashCode(); }
+    public long getItemId(int position) { return hooks.get(position).getId().hashCode(); }
 
     @Override
     public int getItemCount() { return hooks.size(); }
@@ -203,33 +236,24 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.unWire();
         final XLuaHook hook = hooks.get(position);
-        boolean lastWas = false;
-        if(expanded.containsKey(hook.getId())) {
-            lastWas = true;
-            XLog.e("Is Expanded: " + hook.getId(), new Throwable(), true);
-        }
+        //hook.bindTextView(holder.tvHookName);
+        //hook.updateTextInputColor();
 
-        for(Map.Entry<String, Boolean> e : expanded.entrySet()) {
-            XLog.w("(1) EXPANDEE=" + e.getKey() + " expnd=" + (e.getValue()));
-        }
+        //if(hook.isMatchQuery) {
+        //    holder.tvHookName.setTextColor(XUtil.resolveColor(holder.itemView.getContext(), R.attr.colorAccent));
+        //}else {
+        //    holder.tvHookName.setTextColor(XUtil.resolveColor(holder.itemView.getContext(), R.attr.colorTextOne));
+        //}
 
         holder.tvHookName.setText(hook.getName());
         holder.tvHookName.setSelected(true);
-        if((this.query != null && this.query.length() > 0) && (hook.containsQuery(this.query_lower, true, true, true, true))) {
-            holder.tvHookName.setTextColor(XUtil.resolveColor(holder.tvHookName.getContext(), R.attr.colorAccent));
-        }else holder.tvHookName.setTextColor(XUtil.resolveColor(holder.tvHookName.getContext(), R.attr.colorTextOne));
+
+        //if((this.query != null && this.query.length() > 0) && (hook.containsQuery(this.query_lower, true, true, true, true))) {
+        //    holder.tvHookName.setTextColor(XUtil.resolveColor(holder.tvHookName.getContext(), R.attr.colorAccent));
+        //}else holder.tvHookName.setTextColor(XUtil.resolveColor(holder.tvHookName.getContext(), R.attr.colorTextOne));
         holder.adapterSettings.set(hook.getManagedSettings());
         holder.cbEnableHook.setChecked(this.group.containsAssignedHook(hook.getId()));
-
-        if(expanded.containsKey(hook.getId()) || lastWas) {
-            XLog.e("Is Expanded v2: " + hook.getId(), new Throwable(), true);
-        }
-
         holder.updateExpanded();
-        for(Map.Entry<String, Boolean> e : expanded.entrySet()) {
-            XLog.w("(7) EXPANDEE=" + e.getKey() + " expnd=" + (e.getValue()));
-        }
-
         holder.wire();
     }
 }

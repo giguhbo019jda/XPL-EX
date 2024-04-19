@@ -14,7 +14,7 @@ import eu.faircode.xlua.api.useragent.MockUserAgent;
 import eu.faircode.xlua.utilities.CollectionUtil;
 
 public class MockUserAgentManager {
-    public static final List<String> DEVICES = Arrays.asList(MockUserAgent.GET_UA_MACINTOSH, MockUserAgent.GET_UA_LINUX, MockUserAgent.GET_UA_ANDROID, MockUserAgent.GET_UA_WINDOWS, MockUserAgent.GET_UA_IPHONE, MockUserAgent.GET_UA_ALL);
+    public static final List<String> DEVICES = Arrays.asList(MockUserAgent.GET_UA_LINUX, MockUserAgent.GET_UA_ANDROID, MockUserAgent.GET_UA_WINDOWS, MockUserAgent.GET_UA_IPHONE, MockUserAgent.GET_UA_MACINTOSH, MockUserAgent.GET_UA_ALL);
     public static final int USER_AGENT_COUNT = 4900;
 
     public static MockUserAgent getRandomUserAgent(Context context, XDatabase db, String device) { return CollectionUtil.getRandomElement(getUserAgentGroup(context, db, device),  MockUserAgent.DEFAULT_UA, true); }

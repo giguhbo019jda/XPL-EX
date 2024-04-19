@@ -20,7 +20,7 @@
   { "settingName": "android.build.date.two", "propNames": [ "ril.manufacturedate" ] },
 
 
-  { "settingName": "android.build.dev.codename", "propNames": [ "ro.build.version.codename", "ro.build.version.preview_sdk_fingerprint", "ro.build.version.all_codenames", "" ] },
+  { "settingName": "android.build.dev.codename", "propNames": [ "ro.build.version.codename", "ro.build.version.preview_sdk_fingerprint", "ro.build.version.all_codenames"] },
   { "settingName": "android.build.incremental", "propNames": ["ro.vendor_dlkm.build.version.incremental", "ro.build.version.incremental","ro.system.build.version.incremental","ro.system_ext.build.version.incremental"] },
   { "settingName": "android.build.description", "propNames": [ "ro.build.description" ] },
   { "settingName": "android.build.id", "propNames": [ "ro.build.id", "ro.system.build.id", "ro.system_ext.build.id", "ro.vendor.build.id" ] },

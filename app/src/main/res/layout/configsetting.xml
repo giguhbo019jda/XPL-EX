@@ -4,7 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/itemViewConfig"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="-1dp">
+
+    <ImageView
+        android:id="@+id/ivBtResetConfigSettingValue"
+        android:layout_width="?android:attr/listPreferredItemHeightSmall"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:alpha="0.5"
+        android:clickable="false"
+        android:focusable="false"
+        android:src="@drawable/ic_remix_a_b"
+        app:layout_constraintBottom_toBottomOf="@+id/ivBtRandomConfigSettingValue"
+        app:layout_constraintStart_toEndOf="@+id/ivBtRandomConfigSettingValue"
+        app:layout_constraintTop_toTopOf="@+id/ivBtRandomConfigSettingValue"
+        app:layout_constraintVertical_bias="0.018" />
 
     <ImageView
         android:id="@+id/ivBtRandomConfigSettingValue"
@@ -15,8 +30,9 @@
         android:focusable="false"
         android:src="@drawable/ic_remix_dice_fill"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tiConfigSettingsValue"
-        app:layout_constraintTop_toTopOf="@+id/spConfigRandomSelection" />
+        app:layout_constraintStart_toStartOf="@+id/spConfigRandomSelection"
+        app:layout_constraintTop_toBottomOf="@+id/spConfigRandomSelection"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/tvConfigSettingDescription"
@@ -92,7 +108,7 @@
         android:id="@+id/spConfigRandomSelection"
         android:layout_width="wrap_content"
         android:layout_height="49dp"
-        app:layout_constraintEnd_toStartOf="@+id/ivBtRandomConfigSettingValue"
+        app:layout_constraintStart_toStartOf="@+id/tiConfigSettingsValue"
         app:layout_constraintTop_toBottomOf="@+id/tiConfigSettingsValue" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

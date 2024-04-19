@@ -37,7 +37,7 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.api.xmock.call.KillAppCommand;
-import eu.faircode.xlua.ui.ILoader;
+import eu.faircode.xlua.ui.interfaces.ILoader;
 import eu.faircode.xlua.ui.dialogs.SettingAddDialog;
 import eu.faircode.xlua.ui.ViewFloatingAction;
 import eu.faircode.xlua.utilities.CollectionUtil;
@@ -213,6 +213,9 @@ public class FragmentSettings extends ViewFloatingAction implements View.OnClick
 
     @Override
     public Fragment getFragment() { return this; }
+
+    @Override
+    public AppGeneric getApplication() { return this.application; }
 
     @Override
     public void filter(String query) { if (rvAdapter != null) rvAdapter.getFilter().filter(query); }

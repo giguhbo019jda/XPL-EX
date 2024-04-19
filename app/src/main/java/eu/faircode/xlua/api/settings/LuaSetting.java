@@ -58,6 +58,7 @@ public class LuaSetting extends UserIdentityPacket implements IJsonSerial, Parce
     public String getValue() { return this.value; }
     public LuaSetting setValue(String value) { if(value != null) this.value = value; return this; }
     public LuaSetting setValueForce(String value) { this.value = value; return this; }
+    public LuaSetting setValueToNull() { this.value = null; return this; }
 
     public boolean isValueNull() { return this.value == null; }
     public boolean isValueEmpty() { return this.value != null && TextUtils.isEmpty(this.value); }

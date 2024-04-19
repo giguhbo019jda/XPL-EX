@@ -1,7 +1,6 @@
 package eu.faircode.xlua;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,33 +22,19 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
-import eu.faircode.xlua.api.app.XLuaApp;
-import eu.faircode.xlua.api.hook.LuaHooksGroup;
-import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.api.xlua.XLuaCall;
-import eu.faircode.xlua.api.xlua.XLuaQuery;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.ui.HookGroup;
-import eu.faircode.xlua.ui.ILoader;
+import eu.faircode.xlua.ui.interfaces.ILoader;
 import eu.faircode.xlua.ui.ViewFloatingAction;
-import eu.faircode.xlua.utilities.CollectionUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 
 public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
     private static final String TAG = "XLua.FragmentAppControl";
 
-    private ProgressBar progressBar;
-    private SwipeRefreshLayout swipeRefresh;
     private AdapterGroupHooks rvAdapter;
     private TextView tvGroupsCount;
 
@@ -98,6 +83,9 @@ public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
     public Fragment getFragment() { return this; }
 
     @Override
+    public AppGeneric getApplication() { return this.application; }
+
+    @Override
     public void onResume() { super.onResume(); }
 
     @Override
@@ -118,18 +106,9 @@ public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
         public void onLoadFinished(@NonNull Loader<DataHolder> loader, DataHolder data) {
             try {
                 if (data.exception == null) {
-                    //UiUtil.initTheme(getActivity(), data.theme);
-                    ActivityBase activity = (ActivityBase) getActivity();
-                    if(activity != null) if (!data.theme.equals(activity.getThemeName())) activity.recreate();
-
-
+                    UiUtil.initTheme(getActivity(), data.theme);
                     rvAdapter.set(data.groups);
                     tvGroupsCount.setText(new StringBuilder().append(" - ").append(data.groups.size()));
-                    //application.setXLuaApp(data.app);
-                    //tvGroupsCount.setText(new StringBuilder()
-                    //        .append(" - ")
-                    //        .append(rvAdapter
-                    //                .set(data.app, data.hooks, data.collection, getContext())));
                     swipeRefresh.setRefreshing(false);
                     progressBar.setVisibility(View.GONE);
                 } else {
