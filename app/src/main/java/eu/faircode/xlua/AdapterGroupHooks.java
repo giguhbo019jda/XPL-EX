@@ -33,18 +33,14 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.ui.HookGroup;
 import eu.faircode.xlua.ui.interfaces.IHookTransaction;
+import eu.faircode.xlua.ui.interfaces.ILoader;
 import eu.faircode.xlua.utilities.SettingUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterGroupHooks extends RecyclerView.Adapter<AdapterGroupHooks.ViewHolder> implements Filterable {
-    private static final String TAG = "XLua.AdapterGroupHooks";
-
-    private AppGeneric application;
-    private FragmentManager fragmentManager;
-
-    private LinkedHashMap<HookGroup, List<XLuaHook>> all = new LinkedHashMap<>();
+    private final LinkedHashMap<HookGroup, List<XLuaHook>> all = new LinkedHashMap<>();
     private LinkedHashMap<HookGroup, List<XLuaHook>> filtered_max = new LinkedHashMap<>();
 
     private List<HookGroup> filtered_groups = new ArrayList<>();
@@ -54,6 +50,7 @@ public class AdapterGroupHooks extends RecyclerView.Adapter<AdapterGroupHooks.Vi
 
     private boolean dataChanged = false;
     private CharSequence query = null;
+    private ILoader fragmentLoader;
 
     public class ViewHolder extends RecyclerView.ViewHolder
             implements
@@ -65,9 +62,7 @@ public class AdapterGroupHooks extends RecyclerView.Adapter<AdapterGroupHooks.Vi
         final TextView tvGroupName, tvHooksCount, tvHooksSelectedCount;
         final CheckBox cbGroup;
         final ImageView ivExpander;
-
         final CardView cardView;
-
         final RecyclerView rvHooks;
         final AdapterHook adapterHook;
 
@@ -83,9 +78,7 @@ public class AdapterGroupHooks extends RecyclerView.Adapter<AdapterGroupHooks.Vi
             this.tvHooksSelectedCount = itemView.findViewById(R.id.tvHookGroupsHooksCountSelected);
 
             this.cardView = itemView.findViewById(R.id.cvHookGroups);
-
-            //init RV
-            adapterHook = new AdapterHook(fragmentManager, application);
+            adapterHook = new AdapterHook(fragmentLoader);
             UiUtil.initRv(itemView.getContext(), rvHooks, adapterHook);
         }
 
@@ -106,12 +99,12 @@ public class AdapterGroupHooks extends RecyclerView.Adapter<AdapterGroupHooks.Vi
         @SuppressLint("NonConstantResourceId")
         @Override
         public void onClick(final View view) {
-            int code = view.getId();
-            Log.i(TAG, "onClick=" + code);
+            int id = view.getId();
+            XLog.i("onClick id=" + id);
             try {
                 final HookGroup group = filtered_groups.get(getAdapterPosition());
                 final String name = group.name;
-                switch (code) {
+                switch (id) {
                     case R.id.itemViewGroupHooks:
                     case R.id.tvHookGroupName:
                     case R.id.ivExpanderGroup:
@@ -119,7 +112,7 @@ public class AdapterGroupHooks extends RecyclerView.Adapter<AdapterGroupHooks.Vi
                         updateExpanded();
                         break;
                 }
-            }catch (Exception e) { XLog.e("onClick Failed: code=" + code, e, true); }
+            }catch (Exception e) { XLog.e("onClick Failed: code=" + id, e, true); }
         }
 
         @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
@@ -150,7 +143,7 @@ public class AdapterGroupHooks extends RecyclerView.Adapter<AdapterGroupHooks.Vi
     }
 
     AdapterGroupHooks() { setHasStableIds(true); }
-    AdapterGroupHooks(FragmentManager manager, AppGeneric application) {  this(); this.fragmentManager = manager; this.application = application; }
+    AdapterGroupHooks(ILoader fragmentLoader) {  this(); this.fragmentLoader = fragmentLoader; }
 
     @Override
     public long getItemId(int position) { return filtered_groups.get(position).name.hashCode(); }

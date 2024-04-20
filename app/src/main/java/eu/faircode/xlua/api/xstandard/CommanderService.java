@@ -20,6 +20,7 @@ import eu.faircode.xlua.api.xstandard.command.TryQueryWrapper;
 import eu.faircode.xlua.api.xstandard.interfaces.IBridgePacketContext;
 import eu.faircode.xlua.api.xstandard.interfaces.IInitDatabase;
 import eu.faircode.xlua.api.xstandard.interfaces.ISecurityObject;
+import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
 
 public class CommanderService {

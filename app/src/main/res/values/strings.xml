@@ -40,7 +40,7 @@
     <string name="menu_whats_new_button" translatable="false">Whats New!</string>
 
     <string name="whats_new" translatable="false">
-        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v3) TEST Build v3422
+        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v3) TEST Build v55
         <![CDATA[<br><br>]]> !!!Warning this is BETA it WILL have Bugs but over time code will be cleaned and things will be fixed!!!
         <![CDATA[<br><br>]]> Privacy will never be lost I wont stop til each app is FULLY black boxed.
         <![CDATA[<br>]]>This is my Art, Quality over Quantity so be patience pls and thanks to all who are patient!.
@@ -67,6 +67,7 @@
         <![CDATA[<br>]]>    -> Finish String Translation (moved strings to resources to prepare)
         <![CDATA[<br><br>]]>        [Main UI]
         <![CDATA[<br>]]>    -> Added Navigation buttons under each App to the new UIs
+        <![CDATA[<br>]]>    -> Fixed the Scroll Up Bug (Was most likely caused by poor Theme Handling)
         <![CDATA[<br><br>]]>        [Hook UI]
         <![CDATA[<br>]]>    -> Added a NEW UI To Help Manage Hooks and Settings for Hooks!!
         <![CDATA[<br><br>]]>        [Config UI]
@@ -82,7 +83,7 @@
         <![CDATA[<br><br>]]>        [Randomizer]
         <![CDATA[<br>]]>    -> Added User-Agent Randomizer (5000 user agents)
         <![CDATA[<br>]]>    -> Added Randomizers for ALL Unique Settings
-        <![CDATA[<br>]]>    -> Enhanced Randomizer Core + Added more Randomizers
+        <![CDATA[<br>]]>    -> Enhanced Randomizer Core + Added more Randomizers (30+)
         <![CDATA[<br><br>]]>        [Bugs]
         <![CDATA[<br>]]>    -> Fixed GSF ID Bug and Advertising ID Bug
         <![CDATA[<br>]]>    -> Fixed Method Resolver Bug + Return Type Void Bug

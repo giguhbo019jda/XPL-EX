@@ -116,25 +116,8 @@ public class HookGroup {
             final boolean assign,
             final IHookTransactionEx iCallback) {
 
-        /*final ArrayList<String> hookIds = new ArrayList<>();
-        final ArrayList<LuaAssignment> assignments = new ArrayList<>();
-        final ArrayList<XLuaHook> hooksCopy = new ArrayList<>();
-        for (XLuaHook h : hooks.values()) {
-            if(containsAssignedHook(h.getId()) && !hook.getId().equalsIgnoreCase(h.getId())) {
-                assignments.add(new LuaAssignment(h));
-                hookIds.add(h.getId());
-                hooksCopy.add(h);
-            }
-        }*/
-
-        //if(assign) {
-            //hookIds.add(hook.getId());
-            //assignments.add(new LuaAssignment(hook));
-            //hooksCopy.add(hook);
-        //}
-
-
-        final List<String> hookIds = Collections.singletonList(hook.getId());
+        final List<String> hookIds = new ArrayList<>();
+        hookIds.add(hook.getId());
         final LuaAssignmentPacket packet = LuaAssignmentPacket.create(
                 application.getUid(),
                 application.getPackageName(),
@@ -152,16 +135,13 @@ public class HookGroup {
         result.code = packet.getCode();
         result.packets.add(packet);
         result.group = this;
-        //No point in locking when its a single fucking thread
 
         try {
             XLog.i("Assignment Packet created: Property packet=" + packet);
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
-                    XLog.i("EXECUTING>>>");
                     final XResult ret = XLuaCall.assignHooks(context, packet);
-                    XLog.i("EXECUTED: " + ret.getResultMessage());
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {

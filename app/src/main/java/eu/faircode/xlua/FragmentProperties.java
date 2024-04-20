@@ -125,7 +125,7 @@ public class FragmentProperties extends ViewFloatingAction implements
                 new PropertyAddDialogEx()
                         .setCallback(this)
                         .setPropertyQue(propertyQue)
-                        .show(Objects.requireNonNull(getFragmentManager()), String.valueOf(R.string.title_add_property));
+                        .show(Objects.requireNonNull(getFragmentManager()), view.getContext().getString(R.string.title_add_property));
                 break;
         }
     }

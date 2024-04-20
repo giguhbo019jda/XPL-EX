@@ -9,12 +9,23 @@ import eu.faircode.xlua.random.randomizers.Random3DigitNumber;
 import eu.faircode.xlua.random.randomizers.RandomAdID;
 import eu.faircode.xlua.random.randomizers.RandomAlphaNumeric;
 import eu.faircode.xlua.random.randomizers.RandomAndroidID;
+import eu.faircode.xlua.random.randomizers.RandomAndroidVersion;
+import eu.faircode.xlua.random.randomizers.RandomBaseOs;
 import eu.faircode.xlua.random.randomizers.RandomBluetoothState;
 import eu.faircode.xlua.random.randomizers.RandomBoolean;
+import eu.faircode.xlua.random.randomizers.RandomBuildID;
+import eu.faircode.xlua.random.randomizers.RandomBuildTags;
+import eu.faircode.xlua.random.randomizers.RandomBuildType;
+import eu.faircode.xlua.random.randomizers.RandomBuildUser;
 import eu.faircode.xlua.random.randomizers.RandomCarrierName;
 import eu.faircode.xlua.random.randomizers.RandomDNS;
 import eu.faircode.xlua.random.randomizers.RandomDRM;
 import eu.faircode.xlua.random.randomizers.RandomDataState;
+import eu.faircode.xlua.random.randomizers.RandomDateOne;
+import eu.faircode.xlua.random.randomizers.RandomDateThree;
+import eu.faircode.xlua.random.randomizers.RandomDateTwo;
+import eu.faircode.xlua.random.randomizers.RandomDateZero;
+import eu.faircode.xlua.random.randomizers.RandomDevCodeName;
 import eu.faircode.xlua.random.randomizers.RandomGSF;
 import eu.faircode.xlua.random.randomizers.RandomGameID;
 import eu.faircode.xlua.random.randomizers.RandomHostName;
@@ -23,12 +34,14 @@ import eu.faircode.xlua.random.randomizers.RandomIMEI;
 import eu.faircode.xlua.random.randomizers.RandomMAC;
 import eu.faircode.xlua.random.randomizers.RandomMEID;
 import eu.faircode.xlua.random.randomizers.RandomMSIN;
+import eu.faircode.xlua.random.randomizers.RandomManufacturer;
 import eu.faircode.xlua.random.randomizers.RandomMemory;
 import eu.faircode.xlua.random.randomizers.RandomNetAddress;
 import eu.faircode.xlua.random.randomizers.RandomNetD;
 import eu.faircode.xlua.random.randomizers.RandomNetworkType;
 import eu.faircode.xlua.random.randomizers.RandomPhoneNumber;
 import eu.faircode.xlua.random.randomizers.RandomPhoneType;
+import eu.faircode.xlua.random.randomizers.RandomSDKInit;
 import eu.faircode.xlua.random.randomizers.RandomSIMCount;
 import eu.faircode.xlua.random.randomizers.RandomSIMID;
 import eu.faircode.xlua.random.randomizers.RandomSIMState;
@@ -36,10 +49,12 @@ import eu.faircode.xlua.random.randomizers.RandomSIMType;
 import eu.faircode.xlua.random.randomizers.RandomSSID;
 import eu.faircode.xlua.random.randomizers.RandomSerial;
 import eu.faircode.xlua.random.randomizers.RandomSimSerial;
+import eu.faircode.xlua.random.randomizers.RandomStringOne;
 import eu.faircode.xlua.random.randomizers.RandomSubUsage;
 import eu.faircode.xlua.random.randomizers.RandomSubscriberID;
 import eu.faircode.xlua.random.randomizers.RandomUserAgentManager;
 import eu.faircode.xlua.random.randomizers.RandomVoiceMailID;
+import eu.faircode.xlua.random.randomizers.RandomDateEpoch;
 
 public class GlobalRandoms {
     private static final Object lock = new Object();
@@ -91,5 +106,23 @@ public class GlobalRandoms {
         putRandomizer(new RandomVoiceMailID());
         putRandomizer(new RandomGameID());
         putRandomizer(new RandomBoolean());
+        putRandomizer(new RandomManufacturer());
+        putRandomizer(new RandomBaseOs());
+        putRandomizer(new RandomDateZero());
+        putRandomizer(new RandomDateEpoch());
+        putRandomizer(new RandomDateOne());
+        putRandomizer(new RandomDateTwo());
+        putRandomizer(new RandomBuildID());
+        putRandomizer(new RandomDevCodeName());
+        putRandomizer(new RandomDateThree());
+        putRandomizer(new RandomBuildTags());
+        putRandomizer(new RandomBuildType());
+        putRandomizer(new RandomBuildUser());
+        putRandomizer(new RandomAndroidVersion());
+        putRandomizer(new RandomSDKInit());
+        //Collection Sort these ??????
+
+
+        putRandomizer(new RandomStringOne());
     }
 }

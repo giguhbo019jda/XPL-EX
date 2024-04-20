@@ -144,7 +144,7 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
                                 .addSetting(setting)
                                 .addCallback(this)
                                 .addPropertyQue(propertiesQue)
-                                .show(fragmentLoader.getManager(), String.valueOf(R.string.title_delete_property));
+                                .show(fragmentLoader.getManager(), v.getContext().getString(R.string.title_delete_property));
                         break;
                 }
             }catch (Exception e) { XLog.e("Failed to Invoke onClick: code=" + code, e, true);  }

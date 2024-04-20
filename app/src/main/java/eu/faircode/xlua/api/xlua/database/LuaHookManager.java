@@ -44,9 +44,7 @@ public class LuaHookManager {
         String packageName = packet.getCategory();
         int uid = packet.getUser();
 
-        XLog.i("Lua Assignment Packet=" + packet);
-
-         XResult res = XResult.create().setMethodName("assignHooks").setExtra(packet.toString());
+        XResult res = XResult.create().setMethodName("assignHooks").setExtra(packet.toString());
         //Assign Hook(s) to a App (package name, uid)
         List<String> groups = new ArrayList<>();
         XLuaAssignmentDataHelper assignmentData = new XLuaAssignmentDataHelper(packageName, uid);

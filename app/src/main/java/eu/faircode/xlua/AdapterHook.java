@@ -26,23 +26,17 @@ import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.ui.HookGroup;
 import eu.faircode.xlua.ui.interfaces.IHookTransactionEx;
+import eu.faircode.xlua.ui.interfaces.ILoader;
 import eu.faircode.xlua.ui.transactions.HookTransactionResult;
 import eu.faircode.xlua.utilities.StringUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
-    private static final String TAG = "XLua.AdapterGroupHooks";
-
     private final HashMap<String, Boolean> expanded = new HashMap<>();
     private List<XLuaHook> hooks = new ArrayList<>();
-
     private HookGroup group;
-
-    private AppGeneric application;
-    private FragmentManager fragmentManager;
-
-    private String query;
+    private ILoader fragmentLoader;
 
     public class ViewHolder extends RecyclerView.ViewHolder
             implements
@@ -64,7 +58,7 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
             this.rvHookSettings = view.findViewById(R.id.rvHookSettings);
             this.cbEnableHook = view.findViewById(R.id.cbHook);
 
-            adapterSettings = new AdapterHookSettings(fragmentManager, application);
+            adapterSettings = new AdapterHookSettings(fragmentLoader);
             UiUtil.initRv(itemView.getContext(), rvHookSettings, adapterSettings);
         }
 
@@ -89,36 +83,35 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
         @SuppressLint("NonConstantResourceId")
         @Override
         public void onClick(final View view) {
-            int code = view.getId();
-            Log.i(TAG, "onClick=" + code);
+            int id = view.getId();
+            XLog.i("onClick id=" + id);
             try {
                 final XLuaHook hook = hooks.get(getAdapterPosition());
-                switch (code) {
+                switch (id) {
                     case R.id.itemViewHooks:
                     case R.id.tvHookName:
                         ViewUtil.internalUpdateExpanded(expanded, hook.getId());
                         updateExpanded();
                         break;
                 }
-            }catch (Exception e) { XLog.e("onClick Failed: code=" + code, e); }
+            }catch (Exception e) { XLog.e("onClick Failed: code=" + id, e); }
         }
 
         @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
         @Override
         public void onCheckedChanged(final CompoundButton cButton, final boolean isChecked) {
-            int code = cButton.getId();
-            XLog.i("onCheckedChanged code=" + code);
+            int id = cButton.getId();
+            XLog.i("onCheckedChanged id=" + id);
             try {
                 int position = getAdapterPosition();
                 XLuaHook hook = hooks.get(position);
                 group.send(cButton.getContext(), hook, position, isChecked, this);
-            }catch (Exception e) { XLog.e("Failed to update assignment. code=" + code, e, true); }
+            }catch (Exception e) { XLog.e("Failed to update assignment. code=" + id, e, true); }
         }
 
         void updateExpanded() {
             XLuaHook hook = hooks.get(getAdapterPosition());
             String name = hook.getId();
-            //expanded.getOrDefault()
             boolean isExpanded = expanded.containsKey(name) && Boolean.TRUE.equals(expanded.get(name));
             ViewUtil.setViewsVisibility(null, isExpanded, rvHookSettings);
         }
@@ -126,26 +119,27 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
         @SuppressLint("NonConstantResourceId")
         @Override
         public boolean onLongClick(View v) {
-            int code = view.getId();
-            Log.i(TAG, "onLongClick=" + code);
+            int id = view.getId();
+            XLog.i("onLongClick id=" + id);
             try {
                 final XLuaHook hook = hooks.get(getAdapterPosition());
-                switch (code) {
+                switch (id) {
                     case R.id.itemViewHooks:
                     case R.id.tvHookName:
                         if(StringUtil.isValidAndNotWhitespaces(hook.getDescription())) Toast.makeText(view.getContext(), hook.getDescription(), Toast.LENGTH_SHORT).show();
                         else Toast.makeText(view.getContext(), R.string.error_no_description_hook, Toast.LENGTH_SHORT).show();
                         return true;
                 }
-            }catch (Exception e) { XLog.e("onLongClick Failed: code=" + code, e); }
+            }catch (Exception e) { XLog.e("onLongClick Failed: code=" + id, e); }
             return false;
         }
 
         @SuppressLint("NotifyDataSetChanged")
         @Override
         public void onHookUpdate(HookTransactionResult result) {
+            if(result == null) return;
             Snackbar.make(view, result.result.getResultMessage(), Snackbar.LENGTH_LONG).show();
-            if(result != null && result.hasAnySucceeded()) {
+            if(result.hasAnySucceeded()) {
                 if (!result.getPacket().isDelete()) result.group.putAssignment(new LuaAssignment(result.getHook()));
                 else result.group.removeAssignment(new LuaAssignment(result.getHook()));
                 if(result.getAdapterPosition() > -1) {
@@ -162,7 +156,7 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
     }
 
     AdapterHook() { setHasStableIds(true); }
-    AdapterHook(FragmentManager manager, AppGeneric application) { this(); this.fragmentManager = manager; this.application = application;  }
+    AdapterHook(ILoader loader) { this(); this.fragmentLoader = loader;  }
 
     @SuppressLint("NotifyDataSetChanged")
     public void set(HookGroup group, List<XLuaHook> filtered_hooks) {
@@ -204,24 +198,6 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
         }
     }
 
-    /*@SuppressLint("NotifyDataSetChanged")
-    public void setQuery(CharSequence query) {
-        boolean cleanInp = StringUtil.isValidAndNotWhitespaces(query);
-        if(!cleanInp && this.query == null) return;
-        if(cleanInp) {
-            String s = query.toString();
-            if(this.query != null && s.equalsIgnoreCase(this.query.toString())) return;
-            this.query = query;
-            this.query_lower = s.toLowerCase().trim();
-            XLog.i("Query Has Changed: " + this.query_lower);
-        }else {
-            this.query = null;
-            this.query_lower = null;
-        }
-
-        //notifyDataSetChanged();
-    }*/
-
     @Override
     public long getItemId(int position) { return hooks.get(position).getId().hashCode(); }
 
@@ -236,21 +212,8 @@ public class AdapterHook extends RecyclerView.Adapter<AdapterHook.ViewHolder> {
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.unWire();
         final XLuaHook hook = hooks.get(position);
-        //hook.bindTextView(holder.tvHookName);
-        //hook.updateTextInputColor();
-
-        //if(hook.isMatchQuery) {
-        //    holder.tvHookName.setTextColor(XUtil.resolveColor(holder.itemView.getContext(), R.attr.colorAccent));
-        //}else {
-        //    holder.tvHookName.setTextColor(XUtil.resolveColor(holder.itemView.getContext(), R.attr.colorTextOne));
-        //}
-
         holder.tvHookName.setText(hook.getName());
         holder.tvHookName.setSelected(true);
-
-        //if((this.query != null && this.query.length() > 0) && (hook.containsQuery(this.query_lower, true, true, true, true))) {
-        //    holder.tvHookName.setTextColor(XUtil.resolveColor(holder.tvHookName.getContext(), R.attr.colorAccent));
-        //}else holder.tvHookName.setTextColor(XUtil.resolveColor(holder.tvHookName.getContext(), R.attr.colorTextOne));
         holder.adapterSettings.set(hook.getManagedSettings());
         holder.cbEnableHook.setChecked(this.group.containsAssignedHook(hook.getId()));
         holder.updateExpanded();

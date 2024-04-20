@@ -179,6 +179,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
                     case R.id.itemViewPropGroup:
                         ViewUtil.internalUpdateExpanded(expanded, name);
                         updateExpanded();
+
                         break;
                     case R.id.ivBtDeleteSettingFromProperties:
                         new SettingDeleteDialogEx()
@@ -187,7 +188,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
                                 .setSetting(setting)
                                 .setSettingsQue(settingsQue)
                                 .setCallback(this)
-                                .show(fragmentLoader.getManager(), String.valueOf(R.string.title_delete_setting));
+                                .show(fragmentLoader.getManager(),  view.getContext().getString(R.string.title_delete_setting));
                         break;
                     case R.id.ivBtRandomSettingValueFromProperties:
                         setting.randomizeValue(view.getContext());
@@ -209,7 +210,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
                                 .setCallback(this)
                                 .setSettingName(setting.getName())
                                 .setPropertyQue(propertyQue)
-                                .show(Objects.requireNonNull(fragmentLoader.getManager()), String.valueOf(R.string.title_add_property));
+                                .show(Objects.requireNonNull(fragmentLoader.getManager()), view.getContext().getString(R.string.title_add_property));
                         break;
 
                 }
@@ -452,7 +453,7 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     public long getItemId(int position) { return filtered.get(position).hashCode(); }
 
     @Override
-    public int getItemCount() { return filtered.size(); }//i think this will determie how many times it loops ?
+    public int getItemCount() { return filtered.size(); }
 
     @NonNull
     @Override

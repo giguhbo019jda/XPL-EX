@@ -32,15 +32,13 @@ import eu.faircode.xlua.ui.interfaces.ILoader;
 import eu.faircode.xlua.ui.ViewFloatingAction;
 import eu.faircode.xlua.utilities.UiUtil;
 
-public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
-    private static final String TAG = "XLua.FragmentAppControl";
-
+public class FragmentAppControl extends ViewFloatingAction implements ILoader {
     private AdapterGroupHooks rvAdapter;
     private TextView tvGroupsCount;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View main = inflater.inflate(R.layout.hookrecyclerview, container, false);
-        this.TAG_ViewFloatingAction = TAG;
+        this.TAG_ViewFloatingAction = "XLua.FragmentAppControl";
         this.application = AppGeneric.from(getArguments(), getContext());
         super.bindTextViewsToAppId(main, R.id.ivAppControlAppIcon, R.id.tvAppControlPackageName, R.id.tvAppControlPackageFull, R.id.tvAppControlPackageUid);
 
@@ -53,7 +51,6 @@ public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
             @Override
             public void onRefresh() { loadData(); }
         });
-
         tvGroupsCount = main.findViewById(R.id.tvGroupCountAppControl);
 
         //init RecyclerView
@@ -67,7 +64,7 @@ public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
 
         llm.setAutoMeasureEnabled(true);
         rvList.setLayoutManager(llm);
-        rvAdapter = new AdapterGroupHooks(getFragmentManager(), this.application);
+        rvAdapter = new AdapterGroupHooks(this);
         rvList.setAdapter(rvAdapter);
         loadData();
         return main;
@@ -112,7 +109,7 @@ public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
                     swipeRefresh.setRefreshing(false);
                     progressBar.setVisibility(View.GONE);
                 } else {
-                    Log.e(TAG, Log.getStackTraceString(data.exception));
+                    XLog.e("Data loader Exception", data.exception, true);
                     Snackbar.make(Objects.requireNonNull(getView()), data.exception.toString(), Snackbar.LENGTH_LONG).show();
                 }
             }catch (Exception e) { XLog.e("Failed to load Groups for App Control. ", e); }
@@ -142,7 +139,7 @@ public class FragmentAppControl  extends ViewFloatingAction implements ILoader {
                 data.exception = ex;
             }
 
-            //XLog.i("Data loader finished hooks=" + data.hooks.size() + " apps=" + data.app);
+            XLog.i("Data loader Finished. groups=" + data.groups.size());
             return data;
         }
     }
