@@ -66,12 +66,9 @@ public class XResult {
     }
 
     public static XResult combine(XResult a, XResult b) {
-        if(a == null && b != null)
-            return b;
-        if(b == null && a != null)
-            return a;
-        if(a == null && b == null)
-            return XResult.create().setFailed("No Message");
+        if(a == null && b != null) return b;
+        if(b == null && a != null) return a;
+        if(a == null && b == null) return XResult.create().setFailed("No Message");
 
         XResult res = XResult.create();
         res.methodName = new StringBuilder()

@@ -1,6 +1,7 @@
 package eu.faircode.xlua.utilities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -34,6 +35,21 @@ import eu.faircode.xlua.random.elements.ISpinnerElement;
 public class UiUtil {
     private static final String TAG = "XLua.UiUtil";
     public static final int CIRCLE_DIAMETER = 64;
+
+    public static Intent createSaveFileIntent() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        return intent;
+    }
+
+    public static Intent createOpenFileIntent() { return createOpenFileIntent("*/*"); }
+    public static Intent createOpenFileIntent(String extension) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType(extension); // Use "image/*" for images, "application/pdf" for PDF, etc.
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        return intent;
+    }
 
     public static void initTheme(FragmentActivity activity, String theme) {
         try { initTheme((ActivityBase) activity, theme);
@@ -105,6 +121,39 @@ public class UiUtil {
         }
 
         return enable;
+    }
+
+    public static boolean handleSpinnerSelection(Spinner spRandomizer, LuaSettingExtended setting) {
+        IRandomizer selected = (IRandomizer) spRandomizer.getSelectedItem();
+        String name = selected.getName();
+        try {
+            if (name == null ? spRandomizer.getTag() != null : !name.equals(spRandomizer.getTag())) {
+                XLog.i("Selected Randomizer Drop Down spinner Modified. randomizer=" + name);
+                spRandomizer.setTag(name);
+            }
+
+            if(setting == null)
+                return false;
+
+            IRandomizer randomizer = setting.getRandomizer();
+            if(randomizer != null) {
+                List<ISpinnerElement> options = randomizer.getOptions();
+                if(options != null && !options.isEmpty() && (randomizer.isSetting(setting.getName()))) {
+                    if(selected instanceof ISpinnerElement) {
+                        ISpinnerElement element = (ISpinnerElement) selected;
+                        if(!element.getName().equals(DataNullElement.EMPTY_ELEMENT.getName())) {
+                            if(selected instanceof IManagedSpinnerElement) {
+                                IManagedSpinnerElement managedElement = (IManagedSpinnerElement)element;
+                                setting.setModifiedValue(managedElement.generateString(spRandomizer.getContext()), true);
+                            }else setting.setModifiedValue(element.getValue(), true);
+                            //SettingUtil.initCardViewColor(spRandomizer.getContext(), tvSettingName, cvSetting, setting);
+                            return true;
+                        }
+                    } return false;
+                }
+            } setting.bindRandomizer(selected);
+        }catch (Exception e) { XLog.e("Failed to Init Randomizer Drop Down Spinner.", e); }
+        return false;
     }
 
     public static boolean handleSpinnerSelection(Spinner spRandomizer, List<LuaSettingExtended> filtered, int position) {

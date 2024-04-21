@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -293,7 +294,7 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
                                     @Override
                                     public void run() {
                                         Toast.makeText(compoundButton.getContext(), ret.getResultMessage(), Toast.LENGTH_SHORT).show();
-                                        notifyDataSetChanged();
+                                        //notifyDataSetChanged();
                                     }
                                 });
                             }
@@ -394,7 +395,6 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
 
         all.clear();
         all.addAll(apps);
-
         getFilter().filter(query);
     }
 
@@ -611,7 +611,8 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
             XLuaApp app1 = prev.get(oldItemPosition);
             XLuaApp app2 = next.get(newItemPosition);
 
-            return (!refresh && app1.getPackageName().equals(app2.getPackageName()) && app1.getUid() == app2.getUid());
+            return (!refresh && app1.getPackageName().equals(app2.getPackageName()) && Objects.equals(app1.getUid(), app2.getUid()));
+            //return (!refresh && app1.getPackageName().equals(app2.getPackageName()) && app1.getUid() == app2.getUid());
         }
 
         @Override
@@ -619,7 +620,7 @@ public class AdapterApp extends RecyclerView.Adapter<AdapterApp.ViewHolder> impl
             XLuaApp app1 = prev.get(oldItemPosition);
             XLuaApp app2 = next.get(newItemPosition);
 
-            if (app1.getIcon() != app2.getIcon() ||
+            if (!Objects.equals(app1.getIcon(), app2.getIcon()) ||
                     !app1.getLabel().equals(app2.getLabel()) ||
                     app1.isEnabled() != app2.isEnabled() ||
                     app1.isPersistent() != app2.isPersistent() ||

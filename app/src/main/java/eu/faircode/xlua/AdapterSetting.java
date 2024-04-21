@@ -27,12 +27,12 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import eu.faircode.xlua.api.XResult;
 
@@ -40,12 +40,9 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xstandard.interfaces.IDividerKind;
 import eu.faircode.xlua.api.xstandard.interfaces.ISettingUpdate;
 import eu.faircode.xlua.logger.XLog;
-import eu.faircode.xlua.random.elements.IManagedSpinnerElement;
 import eu.faircode.xlua.ui.dialogs.SettingDeleteDialog;
 import eu.faircode.xlua.random.GlobalRandoms;
 import eu.faircode.xlua.random.IRandomizer;
-import eu.faircode.xlua.random.elements.DataNullElement;
-import eu.faircode.xlua.random.elements.ISpinnerElement;
 import eu.faircode.xlua.ui.AlertMessage;
 import eu.faircode.xlua.ui.SettingsQue;
 import eu.faircode.xlua.utilities.SettingUtil;
@@ -112,7 +109,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
 
             ivBtSave = itemView.findViewById(R.id.ivBtSaveSettingSetting);
             ivBtDelete = itemView.findViewById(R.id.ivBtDeleteSetting);
-            ivReset = itemView.findViewById(R.id.ivBtSaveSettingReset);
+            ivReset = itemView.findViewById(R.id.ivBtSettingReset);
 
             adapterRandomizer = new ArrayAdapter<>(itemView.getContext(), android.R.layout.simple_spinner_item);
             adapterRandomizer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -172,21 +169,21 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
 
             switch (code) {
                 case R.id.ivBtRandomSettingValue:
-                    Toast.makeText(v.getContext(), "Randomize Setting Value (wont save unless clicked to save)", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, R.string.menu_setting_random_hint, Snackbar.LENGTH_LONG).show();
                     break;
                 case R.id.ivBtSaveSettingSetting:
-                    Toast.makeText(v.getContext(), "Save Setting Modified Value", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, R.string.menu_setting_save_hint, Snackbar.LENGTH_LONG).show();
                     break;
                 case R.id.ivBtDeleteSetting:
-                    Toast.makeText(v.getContext(), "Delete the Setting", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, R.string.menu_setting_delete_hint, Snackbar.LENGTH_LONG).show();
                     break;
-                case R.id.ivBtSaveSettingReset:
-                    Toast.makeText(v.getContext(), "Reset Setting value assuming was not saved and applied", Toast.LENGTH_SHORT).show();
+                case R.id.ivBtSettingReset:
+                    Snackbar.make(v, R.string.menu_setting_reset_hint, Snackbar.LENGTH_LONG).show();
                     break;
                 case R.id.cbSettingEnabled:
                     String gId = setting.getGroupId();
                     boolean isSelected = setting.isEnabled();
-                    Toast.makeText(v.getContext(), "Selecting/De-Selecting all settings in group=" + gId, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(v.getContext(), R.string.menu_setting_selecting_all_hint + gId, Toast.LENGTH_SHORT).show();
                     unWire();
                     for(LuaSettingExtended s : filtered) {
                         if(s.getGroupId().equalsIgnoreCase(gId))
@@ -226,7 +223,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
                     SettingDeleteDialog setDialog = new SettingDeleteDialog(setting, application);
                     setDialog.show(fragmentManager, "Delete Setting");
                     break;
-                case R.id.ivBtSaveSettingReset:
+                case R.id.ivBtSettingReset:
                     if(setting.isModified()) {
                         setting.resetModified(true);
                         SettingUtil.initCardViewColor(view.getContext(), tvSettingName, cvSetting, setting);
@@ -256,8 +253,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         @Override
         public void afterTextChanged(Editable editable) {
             LuaSettingExtended setting = filtered.get(getAdapterPosition());
-            if(!isRandomizingAll || setting.isBusy()) {
-                //isBusy
+            if(!isRandomizingAll && !setting.isBusy()) {
                 String s = editable.toString();
                 if(TextUtils.isEmpty(s)) setting.setModifiedValue(null);
                 else setting.setModifiedValue(editable.toString());

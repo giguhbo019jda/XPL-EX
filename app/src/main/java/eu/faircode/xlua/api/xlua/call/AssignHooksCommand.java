@@ -2,6 +2,7 @@ package eu.faircode.xlua.api.xlua.call;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import eu.faircode.xlua.api.XProxyContent;
 import eu.faircode.xlua.api.XResult;
@@ -10,9 +11,9 @@ import eu.faircode.xlua.api.xstandard.CallCommandHandler;
 import eu.faircode.xlua.api.xstandard.command.CallPacket;
 import eu.faircode.xlua.api.xlua.database.LuaHookManager;
 import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
+import eu.faircode.xlua.logger.XLog;
 
 public class AssignHooksCommand extends CallCommandHandler {
-    public static AssignHooksCommand create() { return new AssignHooksCommand(); };
     public AssignHooksCommand() {
         name = "assignHooks";
         requiresPermissionCheck = true;

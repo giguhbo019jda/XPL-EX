@@ -25,10 +25,7 @@ public class GetSettingCommand extends CallCommandHandler {
     public Bundle handle(CallPacket commandData) throws Throwable {
         LuaSettingPacket packet = commandData.readExtrasAs(LuaSettingPacket.class);
         packet.resolveUserID();
-
-        if(BuildConfig.DEBUG)
-            Log.i("XLua.GetSettingCommand", "handler packet=" + packet);
-
+        if(BuildConfig.DEBUG) Log.i("XLua.GetSettingCommand", "handler packet=" + packet);
         if(packet.isGetObject()) {
             return LuaSettingsManager.getSetting(
                     commandData.getDatabase(),

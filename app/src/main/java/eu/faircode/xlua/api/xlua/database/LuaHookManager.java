@@ -22,6 +22,7 @@ import eu.faircode.xlua.api.xstandard.database.SqlQuerySnake;
 import eu.faircode.xlua.api.hook.assignment.XLuaAssignmentDataHelper;
 import eu.faircode.xlua.api.hook.group.XLuaGroupDataHelper;
 import eu.faircode.xlua.hooks.XReport;
+import eu.faircode.xlua.logger.XLog;
 
 public class LuaHookManager {
     private static final String TAG = "XLua.XHookDatabase";
@@ -43,7 +44,7 @@ public class LuaHookManager {
         String packageName = packet.getCategory();
         int uid = packet.getUser();
 
-         XResult res = XResult.create().setMethodName("assignHooks").setExtra(packet.toString());
+        XResult res = XResult.create().setMethodName("assignHooks").setExtra(packet.toString());
         //Assign Hook(s) to a App (package name, uid)
         List<String> groups = new ArrayList<>();
         XLuaAssignmentDataHelper assignmentData = new XLuaAssignmentDataHelper(packageName, uid);

@@ -80,7 +80,7 @@ public class AppGeneric {
     public String getName() { return name; }
     public String getPackageName() { return packageName; }
 
-    public boolean getForceStop() { return this.forceStop; }
+    public boolean getForceStop() { return !isGlobal() && this.forceStop; }
     public void setForceStop(boolean forceStop) { this.forceStop = forceStop; }
 
     public void initView(Context context, View view, int appIcon, int textViewPackageName, int textViewPackageNameFull, int textViewPackageUid) {

@@ -17,14 +17,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import eu.faircode.xlua.ActivityBase;
-import eu.faircode.xlua.FragmentSettings;
-import eu.faircode.xlua.R;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.settings.LuaSettingPacket;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.ui.dialogs.ISettingDialogListener;
+import eu.faircode.xlua.ui.interfaces.ILoader;
+import eu.faircode.xlua.ui.interfaces.ISettingTransaction;
 
 public class SettingsDialogCallbackActivity extends ActivityBase implements ISettingDialogListener {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();

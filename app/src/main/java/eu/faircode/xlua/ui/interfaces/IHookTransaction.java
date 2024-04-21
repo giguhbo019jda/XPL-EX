@@ -1,4 +1,4 @@
-package eu.faircode.xlua.ui;
+package eu.faircode.xlua.ui.interfaces;
 
 import java.util.List;
 

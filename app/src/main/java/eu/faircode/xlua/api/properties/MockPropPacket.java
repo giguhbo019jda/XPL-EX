@@ -79,4 +79,6 @@ public class MockPropPacket extends MockPropSetting {
                 .append(" code=")
                 .append(code).toString();
     }
+
+    public static int getPacketCodeForSetting(int code, boolean delete) { return delete ? MockPropPacket.CODE_DELETE_PROP_MAP_AND_SETTING : code == MockPropPacket.PROP_NULL ? MockPropPacket.CODE_DELETE_PROP_SETTING : MockPropPacket.CODE_INSERT_UPDATE_PROP_SETTING; }
 }

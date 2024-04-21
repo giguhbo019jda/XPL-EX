@@ -18,7 +18,7 @@ import eu.faircode.xlua.AppGeneric;
 import eu.faircode.xlua.R;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.settings.LuaSettingPacket;
-import eu.faircode.xlua.ui.ISettingTransaction;
+import eu.faircode.xlua.ui.interfaces.ISettingTransaction;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class SettingDeleteDialog extends AppCompatDialogFragment {

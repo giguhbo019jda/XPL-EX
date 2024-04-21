@@ -1,6 +1,7 @@
 package eu.faircode.xlua.api.xlua;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import eu.faircode.xlua.api.app.LuaSimplePacket;
 import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
 import eu.faircode.xlua.api.xmock.call.PutMockSettingCommand;
 import eu.faircode.xlua.hooks.XReport;
+import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.utilities.BundleUtil;
 
 public class XLuaCall {
@@ -79,8 +81,10 @@ public class XLuaCall {
 
     public static String getTheme(Context context) {
         String theme = getSettingValue(context, "theme");
-        if(theme == null)
+        if(theme == null || (!theme.equals("dark") && !theme.equals("light"))) {
             theme = "dark";
+            putSetting(context, "theme", theme);
+        }
 
         return theme;
     }

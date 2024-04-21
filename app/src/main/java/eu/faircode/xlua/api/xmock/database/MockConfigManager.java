@@ -19,9 +19,7 @@ public class MockConfigManager {
 
     public static XResult putMockConfig(Context context, XDatabase db, MockConfigPacket packet) {
         XResult res = XResult.create().setMethodName("putMockConfig").setExtra(packet.toString());
-        if(!StringUtil.isValidString(packet.getName()))
-            return res.setFailed("Mock Config Name is Null!");
-
+        if(!StringUtil.isValidString(packet.getName())) return res.setFailed("Mock Config Name is Null!");
         boolean result =
                 !packet.isDelete() ?
                         DatabaseHelp.insertItem(
@@ -31,11 +29,11 @@ public class MockConfigManager {
                                 prepareDatabaseTable(context, db)) :
                         DatabaseHelp.deleteItem(SqlQuerySnake
                                 .create(db, MockConfig.Table.name)
-                                .whereColumn("name", packet.getName()));
+                                .whereColumn(MockConfig.Table.FIELD_NAME, packet.getName()));
 
         if(packet.isDelete() && !result)
             result = SqlQuerySnake.create(db, MockPropMap.Table.name)
-                    .whereColumn("name", packet.getName())
+                    .whereColumn(MockConfig.Table.FIELD_NAME, packet.getName())
                     .exists();
 
         return res.setResult(result);

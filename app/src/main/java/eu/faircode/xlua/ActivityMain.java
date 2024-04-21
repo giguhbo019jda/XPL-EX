@@ -61,6 +61,7 @@ import androidx.fragment.app.FragmentTransaction;
 import eu.faircode.xlua.api.xstandard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
 import eu.faircode.xlua.api.xlua.XLuaCall;
+import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.utilities.PrefUtil;
 
 public class ActivityMain extends ActivityBase {
@@ -150,9 +151,8 @@ public class ActivityMain extends ActivityBase {
         // Initialize drawer
         boolean notifyNew = XLuaCall.getSettingBoolean(this, "notify_new_apps"); //XProvider.getSettingBoolean(this, "global", "notify_new_apps");
         boolean restrictNew = XLuaCall.getSettingBoolean(this, "restrict_new_apps"); //XProvider.getSettingBoolean(this, "global", "restrict_new_apps");
-        //String theme = XProvider.getSetting(this,"global", "theme");
-
-        boolean isDark = getThemeName().equals("dark");
+        String theme = XLuaCall.getTheme(this);
+        boolean isDark = theme.equalsIgnoreCase("dark");
         boolean isVerbose = getDebugState();
 
         final ArrayAdapterDrawer drawerArray = new ArrayAdapterDrawer(ActivityMain.this, R.layout.draweritem);
@@ -234,18 +234,20 @@ public class ActivityMain extends ActivityBase {
             }
         }));
 
-        drawerArray.add(new DrawerItem(this, R.string.menu_dark, isDark, new DrawerItem.IListener() {
-            @Override
-            public void onClick(DrawerItem item) {
-                //XProvider.putSettingBoolean(ActivityMain.this, "global", "notify_new_apps", item.isChecked());
-                //theme = XProvider.getSetting(this, "global", "theme");
-                if(item.isChecked())
-                    setDarkMode();
-                else
-                    setLightMode();
-                drawerArray.notifyDataSetChanged();
-            }
-        }));
+        if (!XposedUtil.isVirtualXposed())
+            drawerArray.add(new DrawerItem(this,R.string.menu_dark, isDark, new DrawerItem.IListener() {
+                @Override
+                public void onClick(DrawerItem item) {
+                    String oldTheme = XLuaCall.getTheme(ActivityMain.this);
+                    String newTheme = item.isChecked() ? "dark" : "light";
+                    XLuaCall.putSetting(ActivityMain.this, "theme", newTheme);
+                    drawerArray.notifyDataSetChanged();
+                    if(!oldTheme.equals(newTheme)) {
+                        setTheme("dark".equals(newTheme) ? R.style.AppThemeDark : R.style.AppThemeLight);
+                        recreate();
+                    }
+                }
+            }));
 
         drawerArray.add(new DrawerItem(this, R.string.menu_debug_logs, isVerbose, new DrawerItem.IListener() {
             @Override

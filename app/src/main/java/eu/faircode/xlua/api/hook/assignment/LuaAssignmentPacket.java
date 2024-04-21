@@ -1,6 +1,7 @@
 package eu.faircode.xlua.api.hook.assignment;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class LuaAssignmentPacket extends UserIdentityPacket {
     @Override
     public Bundle toBundle() {
         Bundle b = super.toBundle();
-        if(this.hookIds != null) b.putStringArrayList("hooks", (ArrayList<String>) hookIds);
+        if(this.hookIds != null) b.putStringArrayList("hooks", new ArrayList<>(this.hookIds));
         if(this.delete != null) b.putBoolean("delete", this.delete);
         writePacketHeaderBundle(b);
         return b;

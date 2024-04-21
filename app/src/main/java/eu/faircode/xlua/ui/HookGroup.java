@@ -7,6 +7,7 @@ import android.os.Looper;
 
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,14 +21,22 @@ import java.util.concurrent.Executors;
 import eu.faircode.xlua.AppGeneric;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.app.XLuaApp;
-import eu.faircode.xlua.api.hook.LuaHooksGroup;
 import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
+import eu.faircode.xlua.api.properties.MockPropPacket;
+import eu.faircode.xlua.api.properties.MockPropSetting;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xlua.XLuaQuery;
+import eu.faircode.xlua.api.xlua.call.AssignHooksCommand;
+import eu.faircode.xlua.api.xmock.XMockCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.logger.XLog;
+import eu.faircode.xlua.ui.interfaces.IHookTransaction;
+import eu.faircode.xlua.ui.interfaces.IHookTransactionEx;
+import eu.faircode.xlua.ui.transactions.HookTransactionResult;
+import eu.faircode.xlua.ui.transactions.PropTransactionResult;
 
 public class HookGroup {
     public int id;
@@ -54,7 +63,7 @@ public class HookGroup {
 
     private List<String> collection = new ArrayList<>();
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newFixedThreadPool(50);
     private final Object lock = new Object();
 
     public boolean hasException() { return this.exception; }
@@ -100,6 +109,59 @@ public class HookGroup {
         }
     }
 
+    public void send(
+            final Context context,
+            final XLuaHook hook,
+            final int adapterPosition,
+            final boolean assign,
+            final IHookTransactionEx iCallback) {
+
+        final List<String> hookIds = new ArrayList<>();
+        hookIds.add(hook.getId());
+        final LuaAssignmentPacket packet = LuaAssignmentPacket.create(
+                application.getUid(),
+                application.getPackageName(),
+                hookIds,
+                !assign,
+                !application.isGlobal() && application.getForceStop());
+
+        XLog.i("Packet=" + packet + " assign=" + assign + " pos=" + adapterPosition + " hood id=" + hook.getId());
+
+        final HookTransactionResult result = new HookTransactionResult();
+        result.context = context;
+        result.id = hook.getId().hashCode();
+        result.hooks.add(hook);
+        result.adapterPosition = adapterPosition;
+        result.code = packet.getCode();
+        result.packets.add(packet);
+        result.group = this;
+
+        try {
+            XLog.i("Assignment Packet created: Property packet=" + packet);
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    final XResult ret = XLuaCall.assignHooks(context, packet);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            result.result = ret;
+                            if(ret.succeeded()) result.succeeded.add(hook);
+                            else if(ret.failed()) result.failed.add(hook);
+                            if(iCallback != null) iCallback.onHookUpdate(result);
+                        }
+                    });
+                }
+            });
+        }catch (Exception e) {
+            XLog.e("Failed to Add Assignment: hook=" + hook.getId(), e, true);
+            result.result = XResult.create().setFailed("Failed to send assignments error!");
+            result.failed.add(hook);
+            try { if(iCallback != null) iCallback.onHookUpdate(result);
+            }catch (Exception ex) {  XLog.e("Failed to execute Callback! ", e, true); }
+        }
+    }
+
     public void sendAll(final Context context, final int position, final boolean assign, final IHookTransaction iCallback) {
         final ArrayList<String> hookIds = new ArrayList<>();
         final ArrayList<LuaAssignment> assignments = new ArrayList<>();
@@ -114,7 +176,12 @@ public class HookGroup {
             @Override
             public void run() {
                 final XResult res = XLuaCall.assignHooks(
-                        context, application.getUid(), application.getPackageName(), hookIds, !assign, application.getForceStop());
+                        context,
+                        application.getUid(),
+                        application.getPackageName(),
+                        hookIds,
+                        !assign,
+                        application.getForceStop());
 
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override

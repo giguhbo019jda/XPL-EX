@@ -64,9 +64,9 @@ public class MockPropSetting extends MockPropMap implements IJsonSerial, IDBQuer
     public Integer getValue() { return value; }
     public MockPropSetting setValue(Integer value) { if(value != null) this.value = value; return this; }
 
-    public boolean isSkip() { return isCode(true, PROP_SKIP); }
-    public boolean isHide() { return isCode(true, PROP_HIDE);}
-    public boolean isForce() { return isCode(true, PROP_FORCE); }
+    public boolean isSkip() { return !isNullOrEmptyValue() && this.value == PROP_SKIP; }
+    public boolean isHide() { return !isNullOrEmptyValue() && this.value == PROP_HIDE;}
+    public boolean isForce() { return !isNullOrEmptyValue() && this.value == PROP_FORCE; }
     public boolean isNullOrEmptyValue() { return this.value == null || this.value == PROP_NULL; }
 
     @Override

@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,6 +67,7 @@ import eu.faircode.xlua.utilities.CollectionUtil;
 
 import eu.faircode.xlua.api.hook.XLuaHook;
 import eu.faircode.xlua.api.app.XLuaApp;
+import eu.faircode.xlua.utilities.UiUtil;
 
 
 public class FragmentMain extends Fragment {
@@ -129,9 +131,7 @@ public class FragmentMain extends Fragment {
         spGroup.setAdapter(spAdapter);
         spGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateSelection();
-            }
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { updateSelection(); }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -180,14 +180,14 @@ public class FragmentMain extends Fragment {
         ifPackage.addAction(Intent.ACTION_PACKAGE_CHANGED);
         ifPackage.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
         ifPackage.addDataScheme("package");
-        getContext().registerReceiver(packageChangedReceiver, ifPackage);
+        Objects.requireNonNull(getContext()).registerReceiver(packageChangedReceiver, ifPackage);
         loadData();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getContext().unregisterReceiver(packageChangedReceiver);
+        Objects.requireNonNull(getContext()).unregisterReceiver(packageChangedReceiver);
     }
 
     public AdapterApp.enumShow getShow() {
@@ -209,19 +209,21 @@ public class FragmentMain extends Fragment {
         manager.restartLoader(ActivityMain.LOADER_DATA, new Bundle(), dataLoaderCallbacks).forceLoad();
     }
 
-    LoaderManager.LoaderCallbacks dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<DataHolder>() {
+    LoaderManager.LoaderCallbacks<DataHolder> dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<DataHolder>() {
+        @NonNull
         @Override
         public Loader<DataHolder> onCreateLoader(int id, Bundle args) {
             return new DataLoader(getContext());
         }
 
         @Override
-        public void onLoadFinished(Loader<DataHolder> loader, DataHolder data) {
+        public void onLoadFinished(@NonNull Loader<DataHolder> loader, DataHolder data) {
             if (data.exception == null) {
-                ActivityBase activity = (ActivityBase) getActivity();
-                if (!data.theme.equals(activity.getThemeName()))
-                    activity.recreate();
+                //ActivityBase activity = (ActivityBase) getActivity();
+                //if (!data.theme.equals(activity.getThemeName()))
+                //    activity.recreate();
 
+                UiUtil.initTheme(getActivity(), data.theme);
                 spAdapter.clear();
                 spAdapter.addAll(data.groups);
 
@@ -241,14 +243,12 @@ public class FragmentMain extends Fragment {
                 btnRestrict.setVisibility(group == null ? View.INVISIBLE : View.VISIBLE);
             } else {
                 Log.e(TAG, Log.getStackTraceString(data.exception));
-                Snackbar.make(getView(), data.exception.toString(), Snackbar.LENGTH_LONG).show();
+                Snackbar.make(Objects.requireNonNull(getView()), data.exception.toString(), Snackbar.LENGTH_LONG).show();
             }
         }
 
         @Override
-        public void onLoaderReset(Loader<DataHolder> loader) {
-            // Do nothing
-        }
+        public void onLoaderReset(@NonNull Loader<DataHolder> loader) { }
     };
 
     private static class DataLoader extends AsyncTaskLoader<DataHolder> {

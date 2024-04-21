@@ -28,7 +28,7 @@
   { "name": "android.build.display.id", "description": "Android ROM Build ID Displayed Version", "value": "TQ3A.230805.001 release-keys" },
   { "name": "android.build.flavor", "description": "Android ROM Build Name + Build Type (user)", "value": "yaap_guacamoles-user" },
   { "name": "android.build.host", "description": "Im not too sure rn", "value": "ido-X3999A" },
-  { "name": "android.build.user", "description": "Im not too sure rn", "value": "ido" },
+  { "name": "android.build.user", "description": "User name of the Build. Kinda like Logged in User", "value": "ido" },
   { "name": "android.build.patch", "description": "Android ROM Security Patch Date (YYYY-MM-DD)", "value": "2023-10-05" },
   { "name": "android.build.codename", "description": "Just like flavor, Android ROM Build Name no Build Type", "value": "yaap_guacamoles" },
   { "name": "android.build.fingerprint", "description": "Android ROM Build fingerprint", "value": "OnePlus/yaap_guacamoles/guacamoles:13/TQ3A.230805.001/ido10031738:user/release-keys" },
