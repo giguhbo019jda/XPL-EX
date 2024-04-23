@@ -36,9 +36,9 @@ public class RandomDateZero implements IRandomizer {
                 RandomUtil.getWeekDayAbbreviated(),                         //WeekDay
                 RandomUtil.getMonthAbbreviated(),                           //Month
                 RandomUtil.getInt(1, 29),            //Day
-                RandomUtil.getIntEnsureFormat(1, 25),//Hour
-                RandomUtil.getIntEnsureFormat(1, 60),//Minute
-                RandomUtil.getIntEnsureFormat(1, 60),//Second
+                RandomUtil.getIntEnsureFormat(1, 25),       //Hour
+                RandomUtil.getIntEnsureFormat(1, 60),       //Minute
+                RandomUtil.getIntEnsureFormat(1, 60),       //Second
                 RandomUtil.getTimeZoneAbbreviated(),                        //TimeZone
                 RandomUtil.getInt(1999, 2030));      //Year
     }

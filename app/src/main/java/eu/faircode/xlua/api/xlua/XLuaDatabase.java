@@ -70,7 +70,7 @@ public class XLuaDatabase implements IInitDatabase {
         }
 
         if(!init) {
-            if(!check_1) check_1 = LuaSettingsManager.forceDatabaseCheck(context, db);
+            if(!check_1) check_1 = LuaSettingsManager.forceDatabaseCheck(context, db) && LuaSettingsManager.compareJsonToDatabase(context, db);
             DatabasePathUtil.log("XLUA init settings=" + check_1, false);
             init = check_1;
             //Make a centralized core for logs
@@ -225,6 +225,7 @@ public class XLuaDatabase implements IInitDatabase {
             }
 
             try {
+                //Make sure I fiinsihed
                 XGlobals.loadHooks(context, db);
                 Map<String, XLuaHook> hooks = XGlobals.getAllHooks(context, db);
                 for (Map.Entry<String, XLuaHook> hSet : hooks.entrySet()) {

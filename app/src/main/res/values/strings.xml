@@ -21,6 +21,11 @@
     <string name="title_restrict">Restrict</string>
     <string name="title_bootloop">Restricting can cause a bootloop</string>
     <string name="title_force_stop">Force stop automatically</string>
+    <string name="title_use_default" translatable="false">Use Default Values for settings</string>
+    <string name="button_terminate" translatable="false">Terminate</string>
+    <string name="button_properties" translatable="false">Properties</string>
+    <string name="button_configs" translatable="false">Configs</string>
+
 
     <string name="title_help_instructions">
         Tap on an app icon or name and tick restrictions to apply them.
@@ -40,7 +45,7 @@
     <string name="menu_whats_new_button" translatable="false">Whats New!</string>
 
     <string name="whats_new" translatable="false">
-        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v3) TEST Build v55
+        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v3) v3
         <![CDATA[<br><br>]]> !!!Warning this is BETA it WILL have Bugs but over time code will be cleaned and things will be fixed!!!
         <![CDATA[<br><br>]]> Privacy will never be lost I wont stop til each app is FULLY black boxed.
         <![CDATA[<br>]]>This is my Art, Quality over Quantity so be patience pls and thanks to all who are patient!.
@@ -65,6 +70,7 @@
         <![CDATA[<br>]]>    -> Configs for Hooks ability to select Hooks for a Config and Apply
         <![CDATA[<br>]]>    -> Secure Key Exchange System prevent Fake Communication (IPC)
         <![CDATA[<br>]]>    -> Finish String Translation (moved strings to resources to prepare)
+        <![CDATA[<br>]]>    -> Add Option to Select Configs from the MAIN UI and or Option select apps to apply config too
         <![CDATA[<br><br>]]>        [Main UI]
         <![CDATA[<br>]]>    -> Added Navigation buttons under each App to the new UIs
         <![CDATA[<br>]]>    -> Fixed the Scroll Up Bug (Was most likely caused by poor Theme Handling)
@@ -73,22 +79,30 @@
         <![CDATA[<br><br>]]>        [Config UI]
         <![CDATA[<br>]]>    -> Fixed many Bugs
         <![CDATA[<br>]]>    -> Updated Log Messages to UI
+        <![CDATA[<br>]]>    -> Added Settings Description and Original Setting Name
+        <![CDATA[<br>]]>    -> Added Option to Delete Configs
+        <![CDATA[<br>]]>    -> Added Option to Delete Selected Config Settings from Config
         <![CDATA[<br>]]>    -> Enhanced Code
+        <![CDATA[<br><br>]]>        [Settings UI]
+        <![CDATA[<br>]]>    -> Enhanced Code
+        <![CDATA[<br>]]>    -> Added Options to Switch between using Default Values (when no setting value is present) or strictly use yours or NULL
         <![CDATA[<br><br>]]>        [Property UI]
         <![CDATA[<br>]]>    -> Added Better searching (search properties)
         <![CDATA[<br>]]>    -> Added Options to Add Property directly from Group
         <![CDATA[<br>]]>    -> Fixed Bugs and Enchained stability
         <![CDATA[<br>]]>    -> Added a new Prop setting Type (force)
-        <![CDATA[<br>]]>    -> Added more Properties to Intercept ...
+        <![CDATA[<br>]]>    -> Added EVEN MORE Properties to Intercept (10+) 291 Total
         <![CDATA[<br><br>]]>        [Randomizer]
         <![CDATA[<br>]]>    -> Added User-Agent Randomizer (5000 user agents)
         <![CDATA[<br>]]>    -> Added Randomizers for ALL Unique Settings
         <![CDATA[<br>]]>    -> Enhanced Randomizer Core + Added more Randomizers (30+)
         <![CDATA[<br><br>]]>        [Bugs]
         <![CDATA[<br>]]>    -> Fixed GSF ID Bug and Advertising ID Bug
+        <![CDATA[<br>]]>    -> Fixed LAC and CID Hook
         <![CDATA[<br>]]>    -> Fixed Method Resolver Bug + Return Type Void Bug
         <![CDATA[<br>]]>    -> Fixed Call User ID Bug for some Commands
         <![CDATA[<br>]]>    -> Fixed InetAddress Duplicate Hook
+        <![CDATA[<br>]]>    -> Fixed Default Settings JSON file rename (value) to (defaultValue)
         <![CDATA[<br><br>]]>        [Merges]
         <![CDATA[<br>]]>    -> Updated some Hooks and Links, merged from VDInfos
         <![CDATA[<br><br>]]>        [XLog]
@@ -96,8 +110,16 @@
         <![CDATA[<br><br>]]>        [Hooks]
         <![CDATA[<br>]]>    -> Added Logging Hooks for (IO and Shell) to Monitor / Log App Behaviour
         <![CDATA[<br>]]>    -> Cleaned up the Hook Folders and Groups to be more Simple
+        <![CDATA[<br>]]>    -> Added Clipboard , Accounts Hooks to PrivacyEx Collection
+        <![CDATA[<br>]]>    -> Added Package Manager Hooks (not all still use HMA)
+        <![CDATA[<br>]]>    -> Added WebView WebSettings Hooks
+        <![CDATA[<br>]]>    -> Added WebView OkHttp3 Hooks
+        <![CDATA[<br>]]>    -> Added WebView GeckoView Hooks
+        <![CDATA[<br>]]>    -> Added NetworkInfo (VPN) Hook
+        <![CDATA[<br>]]>    -> Added GPU Vendor Renderer Hooks (May Not always work)
         <![CDATA[<br>]]>    -> Added ID Hooks......
-
+        <![CDATA[<br><br>]]>        [ETC]
+        <![CDATA[<br>]]>    -> Added Functionality to Check JSON Contents with Database to ensure you get the latest updates!
 
         <![CDATA[<br><br>]]> 1.4.2.2 Changes
         <![CDATA[<br>]]> [+] Fixed the 411dpi Hardcoded Hook Groups Recycler View Bug
@@ -175,6 +197,15 @@
     <string name="menu_config_save_hint" translatable="false">Save the Modified Config to the Database (not settings!!)</string>
     <string name="menu_config_apply_hint" translatable="false">Apply the Modified Config to the Settings</string>
     <string name="menu_config_delete_hint" translatable="false">Delete the Config</string>
+    <string name="menu_settings_use_default_hint" translatable="false">When enabled Default Setting Values provided from the Developer will be used IF the setting for the Hook is not set by You as the user. Else return NULL if not set</string>
+
+
+    <string name="menu_settings_randomize_hint" translatable="false">Randomize selected Setting Values</string>
+    <string name="menu_settings_add_hint" translatable="false">Add new setting</string>
+    <string name="menu_settings_save_hint" translatable="false">Saved the Un-Saved settings to the Database</string>
+    <string name="menu_settings_delete_hint" translatable="false">Delete the selected Settings</string>
+    <string name="menu_settings_hint" translatable="false">Options</string>
+
 
     <string name="menu_config_hint" translatable="false">Options</string>
 

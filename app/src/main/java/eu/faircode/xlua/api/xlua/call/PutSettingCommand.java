@@ -21,7 +21,6 @@ public class PutSettingCommand extends CallCommandHandler {
     public Bundle handle(CallPacket commandData) throws Throwable {
         LuaSettingPacket packet = commandData.readExtrasAs(LuaSettingPacket.class);
         packet.resolveUserID();
-        Log.i("XLua.PutSettingCommand", " packet=" + packet);
         return LuaSettingsManager.putSetting(
                 commandData.getContext(),
                 commandData.getDatabase(),

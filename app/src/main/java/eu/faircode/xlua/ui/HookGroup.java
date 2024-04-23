@@ -265,8 +265,6 @@ public class HookGroup {
             @Override
             public int compare(HookGroup group1, HookGroup group2) { return collator.compare(group1.title, group2.title); }
         });
-
-
         return groupsList;
     }
 }

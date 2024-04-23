@@ -377,7 +377,7 @@ public class  FragmentConfig extends ViewFloatingAction implements
             PropsDataHolder data = new PropsDataHolder();
             try {
                 data.theme = XLuaCall.getTheme(getContext());
-                data.configs = new ArrayList<>(XMockQuery.getConfigs(getContext()));
+                data.configs = new ArrayList<>(XMockQuery.getConfigsEx(getContext()));
                 XLog.i("Configs Count=" + data.configs.size());
             }catch (Throwable ex) {
                 data.configs.clear();

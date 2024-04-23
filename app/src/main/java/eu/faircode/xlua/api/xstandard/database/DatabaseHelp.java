@@ -14,9 +14,11 @@ import java.util.Map;
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.xstandard.interfaces.IDBSerial;
+import eu.faircode.xlua.api.xstandard.interfaces.IJCompare;
 import eu.faircode.xlua.api.xstandard.interfaces.IJsonSerial;
 import eu.faircode.xlua.api.xstandard.JsonHelper;
 import eu.faircode.xlua.utilities.CollectionUtil;
+import eu.faircode.xlua.utilities.DatabasePathUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 
 public class DatabaseHelp {
@@ -26,6 +28,7 @@ public class DatabaseHelp {
     private static final String TAG_InsertUpdate = "updateOrInsertItem";
     private static final String TAG_InsertUpdateS = "insertOrUpdateItems";
     private static final String TAG_DELETE_ITEM = "deleteItem";
+    private static final String TAG_JSON = "compareJsonWithDatabase";
 
     private static final String ERROR_PREPARE = "Database not Prepared!";
     private static final String ERROR_READY = "Database not Ready!";
@@ -416,6 +419,58 @@ public class DatabaseHelp {
         return true;
     }
 
+    public static <T extends IJCompare> boolean compareJsonWithDatabase(
+            Context context,
+            XDatabase db,
+            String tableName,
+            Map<String, String> columns,
+            String jsonName,
+            Class<T> typeClass,
+            boolean prepareIfNot) {
+
+        if(!XDatabase.isReady(db)) {
+            error(tableName, db, TAG_initDatabase, ERROR_READY);
+            return false;
+        }
+
+        try {
+            db.readLock();
+            boolean hasCheck = !db.hasTable(tableName) || db.tableIsEmpty(tableName);
+            db.readUnlock();
+            if(hasCheck) {
+                if(prepareIfNot) return prepareTableIfMissingOrInvalidCount(context, db, tableName, columns, jsonName, true, typeClass, DB_FORCE_CHECK);
+                return false;
+            }
+
+            List<T> dbCompareItems = new ArrayList<>(getOrInitTable(context, db, tableName, columns, jsonName, true, typeClass, DB_FORCE_CHECK));
+            List<Boolean> statuses = new ArrayList<>();
+            statuses.add(true);
+            for(T item : JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), jsonName, true, typeClass)) {
+               boolean found = false;
+                for(T s : dbCompareItems) {
+                   if(s.equalsPartner(item)) {
+                       found = true;
+                       if(!s.equalsPartnerContents(item)) {
+                           statuses.add(insertItem(db, tableName, item, true));
+                           break;
+                       }
+                   }
+               }
+
+                if(found) continue;
+                statuses.add(insertItem(db, tableName, item, true));
+            }
+
+            info(tableName, db, TAG_JSON, "Database Json Comparison Check Finished Total Modified=" + (statuses.size() - 1));
+            return CollectionUtil.isAllTrue(statuses);
+        }catch (Exception e) {
+            error(tableName, db, TAG_JSON, e);
+            return false;
+        }finally {
+            info(tableName, db, TAG_JSON, "Database Json Comparison Check Completed");
+        }
+    }
+
     public static <TFrom extends IJsonSerial, TAs extends IJsonSerial> Collection<TAs> initDatabaseLists(
             Context context,
             XDatabase db,
@@ -539,7 +594,6 @@ public class DatabaseHelp {
             db.endTransaction(true, false);
             db.readUnlock();
         }
-
     }
 
     public static  <T extends IJsonSerial> Collection<T> getOrInitTable(

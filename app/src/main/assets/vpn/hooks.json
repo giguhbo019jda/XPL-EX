@@ -1,6 +1,46 @@
 [
   {
-    "builtin": false,
+    "builtin": true,
+    "collection": "PrivacyEx",
+    "group": "Spoof.VPN.State",
+    "name": "NetworkInterface.isConnected",
+    "author": "OBC",
+    "className": "android.net.NetworkInfo",
+    "methodName": "isConnected",
+    "parameterTypes": [ ],
+    "returnType": "boolean",
+    "minSdk": 28,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "",
+    "enabled":true,
+    "optional":true,
+    "usage":true,
+    "notify":false,
+    "luaScript": "@spoof_networkinfo"
+  },
+  {
+    "builtin": true,
+    "collection": "PrivacyEx",
+    "group": "Spoof.VPN.State",
+    "name": "NetworkInterface.isConnectedOrConnecting",
+    "author": "OBC",
+    "className": "android.net.NetworkInfo",
+    "methodName": "isConnectedOrConnecting",
+    "parameterTypes": [ ],
+    "returnType": "boolean",
+    "minSdk": 28,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "",
+    "enabled":true,
+    "optional":true,
+    "usage":true,
+    "notify":false,
+    "luaScript": "@spoof_networkinfo"
+  },
+  {
+    "builtin": true,
     "collection": "PrivacyEx",
     "group": "Spoof.VPN.State",
     "name": "NetworkInterface.getName",
@@ -21,7 +61,7 @@
   },
 
   {
-    "builtin": false,
+    "builtin": true,
     "collection": "PrivacyEx",
     "group": "Spoof.VPN.State",
     "name": "NetworkCapabilities.getCapabilities",
@@ -42,7 +82,7 @@
   },
 
   {
-    "builtin": false,
+    "builtin": true,
     "collection": "PrivacyEx",
     "group": "Spoof.VPN.State",
     "name": "NetworkCapabilities.hasCapability",

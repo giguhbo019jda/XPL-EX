@@ -31,6 +31,10 @@ import eu.faircode.xlua.random.randomizers.RandomGameID;
 import eu.faircode.xlua.random.randomizers.RandomHostName;
 import eu.faircode.xlua.random.randomizers.RandomICCID;
 import eu.faircode.xlua.random.randomizers.RandomIMEI;
+import eu.faircode.xlua.random.randomizers.RandomKernelNodeName;
+import eu.faircode.xlua.random.randomizers.RandomKernelSysName;
+import eu.faircode.xlua.random.randomizers.RandomKernelRelease;
+import eu.faircode.xlua.random.randomizers.RandomKernelVersion;
 import eu.faircode.xlua.random.randomizers.RandomMAC;
 import eu.faircode.xlua.random.randomizers.RandomMEID;
 import eu.faircode.xlua.random.randomizers.RandomMSIN;
@@ -62,8 +66,8 @@ public class GlobalRandoms {
 
     public static void putRandomizer(IRandomizer randomizer) { synchronized (lock) { randomizers.put(randomizer.getSettingName(), randomizer); } }
     public static List<IRandomizer> getRandomizers() {
-        if(randomizers.isEmpty()) initRandomizers();
         synchronized (lock) {
+            if(randomizers.isEmpty()) initRandomizers();
             List<IRandomizer> localCopy = new ArrayList<>(randomizers.values());
             localCopy.add(new RandomUserAgentManager());
             return localCopy;
@@ -120,6 +124,10 @@ public class GlobalRandoms {
         putRandomizer(new RandomBuildUser());
         putRandomizer(new RandomAndroidVersion());
         putRandomizer(new RandomSDKInit());
+        putRandomizer(new RandomKernelRelease());
+        putRandomizer(new RandomKernelNodeName());
+        putRandomizer(new RandomKernelSysName());
+        putRandomizer(new RandomKernelVersion());
         //Collection Sort these ??????
 
 

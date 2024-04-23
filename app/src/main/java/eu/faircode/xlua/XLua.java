@@ -52,7 +52,9 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import eu.faircode.xlua.api.properties.MockPropConversions;
+import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.api.xmock.XMockQuery;
+import eu.faircode.xlua.api.xstandard.UserIdentityPacket;
 import eu.faircode.xlua.hooks.XHookUtil;
 
 //package eu.faircode.xlua;
@@ -246,7 +248,7 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         //final String password
         //i hope ?
 
-        String pName = lpparam.packageName;
+        final String pName = lpparam.packageName;
 
         //Since we are calling let us just check caller hash
         //For functions like this just check caller hash
@@ -267,6 +269,8 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
 
         Collection<XLuaHook> hooks =
                 XLuaQuery.getAssignments(context, pName, uid, true);
+
+        final boolean useDefault = XLuaCall.getSettingBoolean(context, UserIdentityPacket.GLOBAL_USER, pName, "useDefault");
 
         Log.i(TAG, "pkg=" + pName + " uid=" + uid + " hooks=" + hooks.size());
 
@@ -331,7 +335,9 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                                     propMaps,
                                     compiledScript,
                                     field,
-                                    key);
+                                    key,
+                                    useDefault,
+                                    pName);
 
                             if(!luaField.isValid()) {
                                 Log.w(TAG, "Skipping over Field: " + field.getName() + " because its not a AFTER function...");
@@ -385,7 +391,9 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                                                     settings,
                                                     propSettings,
                                                     propMaps,
-                                                    key));
+                                                    key,
+                                                    useDefault,
+                                                    pName));
 
                                         Globals globals = threadGlobals.get(thread);
 
@@ -401,7 +409,9 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                                                         function,
                                                         param,
                                                         globals,
-                                                        key);
+                                                        key,
+                                                        useDefault,
+                                                        pName);
 
                                         if(!luaMember.isValid())
                                             return;

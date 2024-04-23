@@ -14,7 +14,6 @@ import eu.faircode.xlua.api.xstandard.database.DatabaseHelp;
 import eu.faircode.xlua.api.xstandard.database.SqlQuerySnake;
 
 public class MockPropManager {
-    private static final String TAG = "XLua.MockPropDatabase";
     private static final String JSON = "propmaps.json";
 
     public static XResult putPropertySetting(XDatabase db, MockPropPacket packet) { return putPropertySetting(db, packet.createSetting(), packet.isDeleteSetting()); }
@@ -24,13 +23,13 @@ public class MockPropManager {
                 .setExtra(setting.toString())
                 .setResult(delete ?
                         DatabaseHelp.deleteItem(setting.createQuery(db)) :
-                        DatabaseHelp.insertItem(db, MockPropSetting.Table.name, setting,
-                                DatabaseHelp.prepareDatabase(db, MockPropSetting.Table.name, MockPropSetting.Table.columns)));
+                        DatabaseHelp.insertItem(db, MockPropSetting.Table.NAME, setting,
+                                DatabaseHelp.prepareDatabase(db, MockPropSetting.Table.NAME, MockPropSetting.Table.COLUMNS)));
     }
 
     public static int getPropertySettingCode(XDatabase db, MockPropSetting setting) { return getPropertySettingCode(db, setting.getName(), setting.getUser(), setting.getCategory()); }
     public static int getPropertySettingCode(XDatabase db, String propertyName, int userId, String packageName) {
-        return SqlQuerySnake.create(db, MockPropSetting.Table.name)
+        return SqlQuerySnake.create(db, MockPropSetting.Table.NAME)
                 .ensureDatabaseIsReady()
                 .whereColumn("user", userId)
                 .whereColumn("category", packageName)
@@ -40,7 +39,7 @@ public class MockPropManager {
 
     public static Collection<MockPropSetting> getPropertySettingsForUser(XDatabase db, MockPropSetting setting) { return getPropertySettingsForUser(db, setting.getUser(), setting.getCategory()); }
     public static Collection<MockPropSetting> getPropertySettingsForUser(XDatabase db, int userId, String packageName) {
-        return SqlQuerySnake.create(db, MockPropSetting.Table.name)
+        return SqlQuerySnake.create(db, MockPropSetting.Table.NAME)
                 .ensureDatabaseIsReady()
                 .whereColumn("user", userId)
                 .whereColumn("category", packageName)
@@ -79,14 +78,16 @@ public class MockPropManager {
                 .queryGetFirstAs(MockPropMap.class, true);
     }
 
+
     public static boolean ensurePropSettingsDatabase(Context context, XDatabase db) {
         return DatabaseHelp.prepareTableIfMissingOrInvalidCount(
                 context,
                 db,
-                MockPropSetting.Table.name,
-                MockPropSetting.Table.columns,
+                MockPropSetting.Table.NAME,
+                MockPropSetting.Table.COLUMNS,
                 MockPropSetting.class);
     }
+
 
     public static Collection<MockPropMap> forceCheckMapsDatabase(Context context, XDatabase db) {
         return DatabaseHelp.initDatabaseLists(

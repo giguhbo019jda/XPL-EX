@@ -68,7 +68,8 @@ public class AdapterPropertiesGroup extends RecyclerView.Adapter<AdapterProperti
     private PropertyQue propertyQue;
 
     public class ViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener,
+            implements
+            View.OnClickListener,
             View.OnLongClickListener,
             TextWatcher,
             View.OnTouchListener,

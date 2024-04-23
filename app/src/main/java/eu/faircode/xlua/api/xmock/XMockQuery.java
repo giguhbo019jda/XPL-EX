@@ -134,4 +134,22 @@ public class XMockQuery {
 
     public static Collection<MockConfig> getConfigs(Context context) { return getConfigs(context, true); }
     public static Collection<MockConfig> getConfigs(Context context, boolean marshall) { return CursorUtil.readCursorAs(GetMockConfigsCommand.invoke(context, marshall), marshall, MockConfig.class); }
+
+    public static Collection<MockConfig> getConfigsEx(Context context) { return getConfigsEx(context, true); }
+    public static Collection<MockConfig> getConfigsEx(Context context, boolean marshall) {
+        Collection<MockConfig> configs = getConfigs(context, marshall);
+        Collection<LuaSettingExtended> settings = getAllSettings(context);
+        for(MockConfig config : configs) {
+            for(LuaSettingExtended configSetting : config.getSettings()) {
+                for (LuaSettingExtended setting : settings) {
+                    if(configSetting.getName().equalsIgnoreCase(setting.getName())) {
+                        configSetting.setDescription(setting.getDescription());
+                        break;
+                    }
+                }
+            }
+        }
+
+        return configs;
+    }
 }

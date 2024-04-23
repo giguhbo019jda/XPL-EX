@@ -1,6 +1,6 @@
 [
   {
-    "builtin": false,
+    "builtin": true,
     "collection": "PrivacyEx",
     "group": "Spoof.SOC.EX",
     "name": "Build.SOC_MODEL",

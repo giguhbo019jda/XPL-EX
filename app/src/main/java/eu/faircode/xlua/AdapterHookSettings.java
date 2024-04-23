@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -59,8 +60,8 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
             implements
             CompoundButton.OnCheckedChangeListener,
             View.OnClickListener,
-            TextWatcher,
             View.OnLongClickListener,
+            TextWatcher,
             AdapterView.OnItemSelectedListener,
             ISettingUpdateEx {
 
@@ -95,12 +96,16 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
 
         @SuppressLint("ClickableViewAccessibility")
         private void unWire() {
-            this.view.setOnClickListener(null);
+            //this.view.setOnClickListener(null);
             this.tvSettingName.setOnClickListener(null);
             this.btSave.setOnClickListener(null);
+            this.btSave.setOnLongClickListener(null);
             this.btReset.setOnClickListener(null);
+            this.btReset.setOnLongClickListener(null);
             this.btRandomize.setOnClickListener(null);
+            this.btRandomize.setOnLongClickListener(null);
             this.btDelete.setOnClickListener(null);
+            this.btDelete.setOnLongClickListener(null);
             this.ivExpander.setOnClickListener(null);
             this.tvSettingName.setOnLongClickListener(null);
             this.tiSettingValue.removeTextChangedListener(this);
@@ -109,12 +114,16 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
 
         @SuppressLint("ClickableViewAccessibility")
         private void wire() {
-            this.view.setOnClickListener(this);
+            //this.view.setOnClickListener(this);
             this.tvSettingName.setOnClickListener(this);
             this.btSave.setOnClickListener(this);
+            this.btSave.setOnLongClickListener(this);
             this.btReset.setOnClickListener(this);
+            this.btReset.setOnLongClickListener(this);
             this.btRandomize.setOnClickListener(this);
+            this.btRandomize.setOnLongClickListener(this);
             this.btDelete.setOnClickListener(this);
+            this.btDelete.setOnLongClickListener(this);
             this.ivExpander.setOnClickListener(this);
             this.tvSettingName.setOnLongClickListener(this);
             this.tiSettingValue.addTextChangedListener(this);
@@ -184,16 +193,22 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
             int code = view.getId();
             XLog.i("onLongClick id=" + code);
             try {
-                final LuaSettingExtended setting = settings.get(getAdapterPosition());
                 switch (code) {
-                    case R.id.tvHookSettingName:
-                        String desc = SettingUtil.generateDescription(setting);
-                        if(!desc.equalsIgnoreCase("N/A")) Toast.makeText(view.getContext(), desc, Toast.LENGTH_SHORT).show();
-                        else Toast.makeText(view.getContext(), R.string.error_no_description_setting, Toast.LENGTH_SHORT).show();
-                        return true;
+                    case R.id.ivBtHookSettingDelete:
+                        Toast.makeText(v.getContext(), R.string.menu_setting_delete_hint, Toast.LENGTH_LONG).show();
+                        break;
+                    case R.id.ivBtHookSettingSave:
+                        Toast.makeText(v.getContext(), R.string.menu_setting_save_hint, Toast.LENGTH_LONG).show();
+                        break;
+                    case R.id.ivBtHookSettingReset:
+                        Toast.makeText(v.getContext(), R.string.menu_setting_reset_hint, Toast.LENGTH_LONG).show();
+                        break;
+                    case R.id.ivBtHookSettingRandomize:
+                        Toast.makeText(v.getContext(), R.string.menu_setting_random_hint, Toast.LENGTH_LONG).show();
+                        break;
                 }
             }catch (Exception e) { XLog.e("onLongClick Failed: code=" + code, e); }
-            return false;
+            return true;
         }
 
         @Override
@@ -203,23 +218,6 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
         public void onNothingSelected(AdapterView<?> parent) { updateSelection(); }
 
         private void updateSelection() { UiUtil.handleSpinnerSelection(spRandomSelector, settings, getAdapterPosition()); }
-
-        /*@SuppressLint("NotifyDataSetChanged")
-        @Override
-        public void onSettingUpdatedSuccessfully(Context context, LuaSettingExtended setting, XResult result) {
-            setting.updateValue();
-            Toast.makeText(context, "Setting updated successfully!", Toast.LENGTH_SHORT).show();
-            notifyDataSetChanged();
-        }*/
-
-        //@Override
-        //public void onSettingUpdateFailed(Context context, LuaSettingExtended setting, XResult result) { AlertMessage.displayMessageFailed(context, setting, result); }
-
-        //@Override
-        //public void onBatchFinished(Context context, List<LuaSettingExtended> successful, List<LuaSettingExtended> failed) { }
-
-        //@Override
-        //public void onException(Context context, Exception e, LuaSettingExtended setting) { AlertMessage.displayMessageException(context, setting, e); }
 
         @Override
         public void afterTextChanged(Editable editable) {
@@ -237,23 +235,6 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
-        /*@SuppressLint("NotifyDataSetChanged")
-        @Override
-        public void onSettingFinished(LuaSettingExtended setting, int position, XResult result) {
-            XLog.i("Finished Transaction: pos=" + position + " res = " + result.getResultMessage() + " setting=" + setting);
-            try {
-                setting.updateValue();
-                setting.setIsBusy(false);
-                Log.i(TAG, "Successfully updated setting=" + setting.getName());
-                notifyDataSetChanged();
-                //if(position <= 0) throw new Exception("Invalid Position: " + position);
-                //notifyItemChanged(position);
-            }catch (Exception e) {
-                XLog.e("Failed to Init Update for Hooks: position=" + position, e, true);
-                //notifyDataSetChanged();
-            }
-        }*/
-
         @Override
         public void onSettingUpdate(SettingTransactionResult result) {
             try {
@@ -269,6 +250,7 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
 
                     if(packet.isDeleteSetting()) setting.setModifiedValueToNull().setValueToNull();
                     setting.updateValue(true);
+                    fragmentLoader.loadData();//we should force load either way since other elemens can have the same setting ??
                 }
             }catch (Exception e) { XLog.e("Failed to provide setting Update", e, true); }
         }
@@ -301,21 +283,17 @@ public class AdapterHookSettings extends RecyclerView.Adapter<AdapterHookSetting
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        if(!settings.isEmpty()) {
-            holder.unWire();
-            final LuaSettingExtended setting = settings.get(position);
-            setting.bindInputTextBox(holder.tiSettingValue);
-            holder.tvSettingName.setText(SettingUtil.cleanSettingName(setting.getName()));
-            holder.tvSettingNameFull.setText(setting.getName());
-            holder.tvSettingDescription.setText(SettingUtil.generateDescription(setting));
-
-            boolean enable = UiUtil.initRandomizer(holder.adapterRandomizer, holder.spRandomSelector, setting, randomizers);
-            holder.spRandomSelector.setEnabled(enable);
-            holder.btRandomize.setEnabled(enable);
-            setting.setInputText();
-
-            holder.updateExpanded();
-            holder.wire();
-        }
+        holder.unWire();
+        final LuaSettingExtended setting = settings.get(position);
+        setting.bindInputTextBox(holder.tiSettingValue);
+        holder.tvSettingName.setText(SettingUtil.cleanSettingName(setting.getName()));
+        holder.tvSettingNameFull.setText(setting.getName());
+        holder.tvSettingDescription.setText(SettingUtil.generateDescription(setting));
+        boolean enable = UiUtil.initRandomizer(holder.adapterRandomizer, holder.spRandomSelector, setting, randomizers);
+        holder.spRandomSelector.setEnabled(enable);
+        holder.btRandomize.setEnabled(enable);
+        setting.setInputText();
+        holder.updateExpanded();
+        holder.wire();
     }
 }
