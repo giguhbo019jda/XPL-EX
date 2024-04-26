@@ -270,18 +270,15 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
         LuaSettingExtended setting = settings.get(position);
         setting.bindInputTextBox(holder.tiSettingsValue, holder);
         String settingName = setting.getName();
-
         holder.tvSettingName.setText(SettingUtil.cleanSettingName(settingName));
         holder.tvSettingNameFull.setText(setting.getName());
         holder.tiSettingsValue.setText(setting.getValue());
         holder.tvDescription.setText(SettingUtil.generateDescription(setting));
         holder.cbEnable.setChecked(setting.isEnabled());
-
         boolean enable = UiUtil.initRandomizer(holder.spRandomizer, holder.spRandomSelector, setting, randomizers);
         holder.spRandomSelector.setEnabled(enable);
         holder.ivBtRandom.setEnabled(enable);
         setting.setInputText();
-
         holder.updateExpanded();
         holder.wire();
     }

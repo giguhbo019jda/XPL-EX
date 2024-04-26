@@ -3,7 +3,7 @@
     "builtin": true,
     "collection": "PrivacyEx",
     "group": "Spoof.GPU",
-    "name": "GLImpl.glGetString",
+    "name": "GPU/GLImpl.glGetString",
     "author": "OBC",
     "className": "com.google.android.gles_jni.GLImpl",
     "methodName": "glGetString",
@@ -11,12 +11,12 @@
     "returnType": "java.lang.String",
     "minSdk": 4,
     "maxSdk": 999,
+    "notify":false,
     "version": 1,
     "description": "",
     "enabled":true,
     "optional":true,
     "usage":true,
-    "notify":false,
     "luaScript": "@gliimpl_getstring",
     "settings":["gpu.gl.vendor", "gpu.gl.renderer", "gpu.gl.version"]
   }

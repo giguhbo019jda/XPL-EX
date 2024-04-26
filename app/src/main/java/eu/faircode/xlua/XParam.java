@@ -19,6 +19,7 @@
 
 package eu.faircode.xlua;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -28,6 +29,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcel;
 import android.util.Log;
 import android.view.InputDevice;
@@ -156,6 +158,14 @@ public class XParam {
                 return null;//return MockUtils.HIDE_PROPERTY;
             if(code == MockPropSetting.PROP_SKIP)
                 return MockUtils.NOT_BLACKLISTED;
+            else {
+                if(code != MockPropSetting.PROP_FORCE) {
+                    try {
+                        Object res = getResult();
+                        if(res == null) return MockUtils.NOT_BLACKLISTED;
+                    }catch (Throwable e) {  }
+                }
+            }
         }
 
         //add force options now
@@ -168,6 +178,53 @@ public class XParam {
         }
 
         return MockUtils.NOT_BLACKLISTED;
+    }
+
+    @SuppressWarnings("unused")
+    public String filterBinder(String filterKind) {
+        try {
+            switch (filterKind) {
+                case "adid":
+                    IBinder binder = (IBinder)getThis();
+                    String iDesc = binder.getInterfaceDescriptor();
+                    if("com.google.android.gms.ads.identifier.internal.IAdvertisingIdService".equalsIgnoreCase(iDesc)) {
+                        XLog.i("Is GOOGLE GMS (adid)");
+                        int code = (int)getArgument(0);
+                        XLog.i("Is Code (adid) =" + code);
+                        if(code == 1) {
+                            XLog.i("Creating the Parcel: (adid)");
+                            @SuppressLint("SoonBlockedPrivateApi")
+                            Method methodObtain = Parcel.class.getDeclaredMethod("obtain", int.class);
+                            methodObtain.setAccessible(true);
+                            Parcel reply = (Parcel) methodObtain.invoke(null, param.args[2]);
+                            //Parcel.obtain(int at index 2) (we do this becuz that function cannot be accessed)
+                            // static protected final Parcel obtain(int obj)
+                            //2 = reply position but on this OS Code it does not represent it as an INTEGER but a long ????
+                            XLog.i("Created the Parcel:  (adid)");
+
+                            reply.setDataPosition(0);
+                            reply.writeNoException();
+
+                            XLog.i("Set Position in Parcel:  (adid)");
+
+                            String adid = getSetting("unique.google.advertising.id","a7bf815a-c37b-40db-be9d-3b395abbe888");
+                            if(adid == null)
+                                return null;
+
+                            XLog.i("Ad id is not null " + adid + "    (adid)");
+
+                            reply.writeString(adid);
+
+                            XLog.i("Wrote the data:  (adid)");
+                            //param.setResult(true);
+                            return adid;
+                            //param.setResult(true);
+                        }
+                    }
+                    break;
+            }
+        }catch (Exception e) { XLog.e("Failed to Filter", e); }
+        return null;
     }
 
     @SuppressWarnings("unused")

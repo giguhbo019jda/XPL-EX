@@ -45,7 +45,7 @@
     <string name="menu_whats_new_button" translatable="false">Whats New!</string>
 
     <string name="whats_new" translatable="false">
-        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v3) v3
+        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v3) v22
         <![CDATA[<br><br>]]> !!!Warning this is BETA it WILL have Bugs but over time code will be cleaned and things will be fixed!!!
         <![CDATA[<br><br>]]> Privacy will never be lost I wont stop til each app is FULLY black boxed.
         <![CDATA[<br>]]>This is my Art, Quality over Quantity so be patience pls and thanks to all who are patient!.
@@ -159,9 +159,15 @@
     <string name="title_delete_property" translatable="false">Property Delete</string>
     <string name="title_delete_setting" translatable="false">Setting Delete</string>
     <string name="title_add_property" translatable="false">Property Add</string>
+    <string name="title_delete_config" translatable="false">Config Delete</string>
+
+    <string name="menu_clean_privacy_ex_hooks" translatable="false">Clean PEX Hooks</string>
+
 
     <string name="title_select_file" translatable="false">Select File</string>
 
+
+    <string name="msg_delete_config" translatable="false">Are you sure you really want to Delete this Config ? (whole config) </string>
 
     <string name="result_delete_setting_success" translatable="false">Setting Deleted Successfully</string>
     <string name="result_delete_setting_failed" translatable="false">Failed to Delete Setting</string>

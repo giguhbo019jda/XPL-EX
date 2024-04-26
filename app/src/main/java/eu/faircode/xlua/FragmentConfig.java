@@ -46,6 +46,7 @@ import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.ui.ConfigQue;
 import eu.faircode.xlua.ui.ViewFloatingAction;
+import eu.faircode.xlua.ui.dialogs.ConfigDeleteDialog;
 import eu.faircode.xlua.ui.interfaces.IConfigUpdate;
 import eu.faircode.xlua.ui.transactions.ConfigTransactionResult;
 import eu.faircode.xlua.utilities.FileDialogUtil;
@@ -147,13 +148,12 @@ public class  FragmentConfig extends ViewFloatingAction implements
             switch (id) {
                 case R.id.ivDeleteConfig:
                     if(!unSaved.contains(config))
-                        configsQue.sendConfig(
-                                getContext(),
-                                -1,
-                                config,
-                                true,
-                                false,
-                                this);
+                        new ConfigDeleteDialog()
+                                .setAdapterPosition(-1)
+                                .setConfig(config)
+                                .setQue(configsQue)
+                                .setCallback(this)
+                                .show(Objects.requireNonNull(getFragmentManager()), getResources().getString(R.string.title_delete_config));
                     else {
                         unSaved.remove(config);
                         loadData();

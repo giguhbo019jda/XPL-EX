@@ -27,6 +27,7 @@ public class LuaSettingsManager {
     private static final String JSON = "settingdefaults.json";
     private static final int COUNT = 118;
 
+    public static final String USE_DEFAULT = "Usedefault";
     public static final String DEFAULT_THEME = "dark";
     public static final String DEFAULT_COLLECTIONS = "Privacy,PrivacyEx";
 
@@ -144,6 +145,7 @@ public class LuaSettingsManager {
         Log.i(TAG, "Settings query for (user=" + user + " pkg=" + category + ") size=" + userSettings.size());
         for(LuaSettingDefault s : mappedSettings) {
             if(!StringUtil.isValidAndNotWhitespaces(s.getName())) continue;
+            if(s.getName().equalsIgnoreCase(USE_DEFAULT)) continue;
             LuaSettingExtended ss = new LuaSettingExtended(s);
             ss.setValueForce(null);
             allSettings.put(s.getName(), ss);
@@ -155,11 +157,8 @@ public class LuaSettingsManager {
                 String sName = s.getName();
                 if(!StringUtil.isValidAndNotWhitespaces(sName)) continue;
                 LuaSettingDefault set = allSettings.get(sName);
-                if(set != null) {
-                    set.setValue(s.getValue());
-                }else {
-                    allSettings.put(sName, new LuaSettingExtended(s));
-                }
+                if(set != null) { set.setValue(s.getValue());
+                }else { allSettings.put(sName, new LuaSettingExtended(s)); }
             }
         }
 

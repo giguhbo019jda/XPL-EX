@@ -26,7 +26,7 @@ public class MockConfigManager {
                                 db,
                                 MockConfig.Table.name,
                                 packet,
-                                prepareDatabaseTable(context, db)) :
+                                true) :
                         DatabaseHelp.deleteItem(SqlQuerySnake
                                 .create(db, MockConfig.Table.name)
                                 .whereColumn(MockConfig.Table.FIELD_NAME, packet.getName()));
@@ -64,6 +64,7 @@ public class MockConfigManager {
     }
 
     public static boolean forceDatabaseCheck(Context context, XDatabase db) {
+        prepareDatabaseTable(context, db);
         return DatabaseHelp.prepareTableIfMissingOrInvalidCount(
                 context,
                 db,

@@ -58,6 +58,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import eu.faircode.xlua.api.XResult;
+import eu.faircode.xlua.api.xlua.call.CleanHooksCommand;
 import eu.faircode.xlua.api.xstandard.UserIdentityPacket;
 import eu.faircode.xlua.api.xlua.provider.XLuaHookProvider;
 import eu.faircode.xlua.api.xlua.XLuaCall;
@@ -158,6 +160,16 @@ public class ActivityMain extends ActivityBase {
         final ArrayAdapterDrawer drawerArray = new ArrayAdapterDrawer(ActivityMain.this, R.layout.draweritem);
 
         if (!XposedUtil.isVirtualXposed())
+            drawerArray.add(new DrawerItem(this, R.string.menu_clean_privacy_ex_hooks, new DrawerItem.IListener() {
+                @Override
+                public void onClick(DrawerItem item) {
+                    XResult res = CleanHooksCommand.invokeEx(ActivityMain.this);
+                    Toast.makeText(ActivityMain.this, res.getFullMessage(), Toast.LENGTH_LONG).show();
+                    drawerArray.notifyDataSetChanged();
+                }
+            }));
+
+        if (!XposedUtil.isVirtualXposed())
             drawerArray.add(new DrawerItem(this, R.string.menu_notify_new, notifyNew, new DrawerItem.IListener() {
                 @Override
                 public void onClick(DrawerItem item) {
@@ -176,6 +188,7 @@ public class ActivityMain extends ActivityBase {
                     drawerArray.notifyDataSetChanged();
                 }
             }));
+
 
         drawerArray.add(new DrawerItem(this, R.string.menu_companion, new DrawerItem.IListener() {
             @Override

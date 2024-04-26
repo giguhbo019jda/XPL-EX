@@ -83,11 +83,10 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         final CardView cvSetting;
         final ConstraintLayout clLayout;
 
-        final ImageView ivSettingDrop;
         final TextView tvSettingName, tvSettingDescription, tvSettingNameFull;
 
         final TextInputEditText tiSettingValue;
-        final ImageView ivBtSave, ivBtDelete, ivBtRandomize, ivReset;
+        final ImageView ivBtSave, ivBtDelete, ivBtRandomize, ivReset, ivSettingDrop;
         final CheckBox cbSelected;
 
         final Spinner spRandomSelector;
@@ -115,9 +114,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             adapterRandomizer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             ivBtRandomize = itemView.findViewById(R.id.ivBtRandomSettingValue);
             spRandomSelector = itemView.findViewById(R.id.spSettingRandomizerSpinner);
-            if(DebugUtil.isDebug())
-                Log.i(TAG, "Created the Empty Array for Configs Fragment Config");
-
+            if(DebugUtil.isDebug()) Log.i(TAG, "Created the Empty Array for Configs Fragment Config");
             spRandomSelector.setTag(null);
             spRandomSelector.setAdapter(adapterRandomizer);
         }

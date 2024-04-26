@@ -1,5 +1,50 @@
 [
   //
+
+  {
+    "builtin": false,
+    "collection": "PrivacyEx",
+    "group": "ID.ADDEXX",
+    "name": "IBinder.adshit(int, int, int, int)",
+    "author": "OBC",
+    "className": "android.os.Binder",
+    "methodName": "execTransact",
+    "parameterTypes": ["int", "int", "int", "int"],
+    "returnType": "boolean",
+    "minSdk": 1,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "This is for test",
+    "enabled": true,
+    "optional": true,
+    "usage": true,
+    "notify": false,
+    "luaScript": "@id_advertising_two",
+    "settings": ["unique.google.advertising.id"]
+  },
+
+  {
+    "builtin": false,
+    "collection": "PrivacyEx",
+    "group": "ID.ADDEXX",
+    "name": "IBinder.adshit(int, long, long, int)",
+    "author": "OBC",
+    "className": "android.os.Binder",
+    "methodName": "execTransact",
+    "parameterTypes": ["int", "long", "long", "int"],
+    "returnType": "boolean",
+    "minSdk": 1,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "This is for test",
+    "enabled": true,
+    "optional": true,
+    "usage": true,
+    "notify": false,
+    "luaScript": "@id_advertising_two",
+    "settings": ["unique.google.advertising.id"]
+  },
+
   {
     "builtin": true,
     "collection": "PrivacyEx",

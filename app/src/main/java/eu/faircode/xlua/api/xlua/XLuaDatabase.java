@@ -9,22 +9,35 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import org.json.JSONObject;
+import org.luaj.vm2.Globals;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import eu.faircode.xlua.AppGeneric;
 import eu.faircode.xlua.DebugUtil;
 import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobals;
 import eu.faircode.xlua.XUtil;
 import eu.faircode.xlua.api.hook.LuaHookUpdate;
 import eu.faircode.xlua.api.hook.XLuaHook;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignment;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignmentEx;
+import eu.faircode.xlua.api.hook.assignment.LuaAssignmentPacket;
+import eu.faircode.xlua.api.xlua.database.LuaHookManager;
 import eu.faircode.xlua.api.xmock.database.LuaSettingsManager;
 import eu.faircode.xlua.api.xstandard.JsonHelper;
 import eu.faircode.xlua.api.xstandard.database.DatabaseHelp;
+import eu.faircode.xlua.api.xstandard.database.DatabaseUtil;
 import eu.faircode.xlua.api.xstandard.database.SqlQuerySnake;
 import eu.faircode.xlua.api.xstandard.interfaces.IInitDatabase;
+import eu.faircode.xlua.api.xstandard.interfaces.IJCompare;
+import eu.faircode.xlua.hooks.LuaHook;
+import eu.faircode.xlua.ui.HookGroup;
+import eu.faircode.xlua.ui.interfaces.IConfigUpdate;
 import eu.faircode.xlua.utilities.DatabasePathUtil;
 import eu.faircode.xlua.utilities.StringUtil;
 
@@ -224,53 +237,89 @@ public class XLuaDatabase implements IInitDatabase {
                 db.writeUnlock();// first lock is the bug
             }
 
-            try {
-                //Make sure I fiinsihed
-                XGlobals.loadHooks(context, db);
-                Map<String, XLuaHook> hooks = XGlobals.getAllHooks(context, db);
-                for (Map.Entry<String, XLuaHook> hSet : hooks.entrySet()) {
-                    XLuaHook h = hSet.getValue();
-                    String id = hSet.getKey();
-                    String a = h.getAuthor().toLowerCase();
-                    if(a.contains("obc") || a.contains("obbed")) {
-                        XLuaHook hookDb = SqlQuerySnake
-                                .create(db, "hook")
-                                .whereColumn("id", id)
-                                .queryGetFirstAs(XLuaHook.class, true);
-                        if(hookDb != null) {
-                            if(!hookDb.toJSON().equals(h.toJSON())) {
-                                SqlQuerySnake snake = SqlQuerySnake
-                                        .create(db, "hook")
-                                        .whereColumn("id", id);
-                                DatabaseHelp.updateItem(snake, h);
-                            }
-                        }
-                    }
-                }
-
-                /*Collection<LuaHookUpdate> updates = JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), "updates.json", true, LuaHookUpdate.class);
-                for(LuaHookUpdate lUpdate : updates) {
-                    if(StringUtil.isValidAndNotWhitespaces(lUpdate.getOldId())) {
-                        if(StringUtil.isValidAndNotWhitespaces(lUpdate.getNewId())) {
-                            //first check for old exists
-                            //if so then replace with new
-                        }else {
-
-                        }
-                    }
-
-
-                    //if new is null BUT old is not NULL then
-                    //that means the actual script stuff
-                }*/
-
-                //for(Map.Entry<String, XLuaHook> hook)
-            }catch (Throwable ex) {
-                DatabasePathUtil.log("Failed to load in hooks: " + ex, true);
-            }
+            initHooks(db, context);
         }
 
         return init;
+    }
+
+    public void initHooks(XDatabase db, Context context) {
+
+        try {
+            if(db.hasTable(XLuaHook.Table.name)) {
+                //Honestly none if this is needed ssince it stores it in memory , only worry about assignemnts for now ignore assignments
+                /*DatabasePathUtil.log("First XLua Database Check starting...", false);
+                List<XLuaHook> databaseHooks = new ArrayList<>(DatabaseHelp.getFromDatabase(db, XLuaHook.Table.name, XLuaHook.class));
+                List<XLuaHook> assetHooks = XLuaHook.readHooks(context, XUtil.getApk(context));
+                for(XLuaHook hookDb : databaseHooks) {
+                    for (XLuaHook assetHook : assetHooks) {
+                        if(hookDb.getId().equalsIgnoreCase(assetHook.getId())) {
+                            String jOne = hookDb.toJSON();
+                            String jTwo = assetHook.toJSON();
+                            if(!jOne.equalsIgnoreCase(jTwo)) {
+                                DatabaseHelp.insertItem(db, XLuaHook.Table.name, assetHook, true);
+                            }
+                        }
+                    }
+                }*/
+
+                //This check is in case the Hook changed ID aka renamed
+                /*DatabasePathUtil.log("Second XLua Database Check starting (first finished)...", false);
+                List<LuaHookUpdate> updates = new ArrayList<>(JsonHelper.findJsonElementsFromAssets(XUtil.getApk(context), "updates.json", true, LuaHookUpdate.class));
+                for(LuaHookUpdate up : updates) {
+                    try {
+                        List<LuaAssignmentEx> assignments = new ArrayList<>(SqlQuerySnake.create(db, "assignment")
+                                .whereColumn("hook", up.getOldId())
+                                .queryAll(LuaAssignmentEx.class, true));
+
+                        if(!assignments.isEmpty()) {
+                            for(LuaAssignmentEx ass : assignments) {
+                                ass.setHookId(up.getNewId());
+                                SqlQuerySnake snakeQuery = SqlQuerySnake
+                                        .create(db, "assignment")
+                                        .whereColumn("hook", up.getOldId());
+
+                                DatabaseHelp.updateItem(snakeQuery, ass);
+                            }
+                        }
+                    }catch (Exception e) { DatabasePathUtil.log("Failed to Query Assignments", true); }
+
+                    try {
+                        XLuaHook oldHook = SqlQuerySnake.create(db, XLuaHook.Table.name)
+                                .whereColumn("id", up.getOldId())
+                                .queryGetFirstAs(XLuaHook.class, true);
+
+                        if(oldHook != null) {
+                            String[] data = up.getNewId().split(".");
+                            oldHook.setCollection(data[0]);
+                            oldHook.setName(up.getNewId().substring(data[0].length()));
+                            SqlQuerySnake snakeQuery = SqlQuerySnake
+                                    .create(db, XLuaHook.Table.name)
+                                    .whereColumn("id", up.getOldId());
+
+                            DatabaseHelp.updateItem(snakeQuery, oldHook);
+                        }
+                    }catch (Exception e) { DatabasePathUtil.log("Failed to Query Hooks", true); }
+                }
+                DatabasePathUtil.log("Finished Checking XLua Database for Updates....", false);*/
+            }
+
+            XGlobals.loadHooks(context, db);
+
+            //Pre-Check ? or can happen after
+            //Go through each Hook in the Database of 'hook' and Get the object (we will need the json form)
+            //then for each hook in assets compare if same ID then check if the "toJson" contents are the same
+            //If not remove the old 'hook' from the Table of 'hooks' then insert the new one
+            //Try all this without the "loadHooks" function ?
+
+
+            //First check if the Hook Exists in the DATABASE (OLD) ID
+            //IF Exists in the Database under 'hooks' or 'assignments' under the 'old' name
+            //Get the 'assignment' or 'hook' from the 'old' name, then Delete the 'old' from 'assignment' and or 'hook' tables
+            //Then the object pulled update the 'id' or whatever info insert it back into the Tables
+        }catch (Throwable ex) {
+            DatabasePathUtil.log("Failed to load in hooks: " + ex, true);
+        }
     }
 
     private static void renameHookId(SQLiteDatabase _db, String oldId, String newId) {

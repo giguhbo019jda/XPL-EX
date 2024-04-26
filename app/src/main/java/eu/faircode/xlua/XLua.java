@@ -40,6 +40,7 @@ import org.luaj.vm2.Varargs;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.security.Key;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -305,6 +306,8 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         Map<LuaScriptHolder, Prototype> scriptPrototype = new HashMap<>();
         PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 
+
+
         for(final XLuaHook hook : hooks) {
             try {
                 //SDK Check min & max
@@ -325,6 +328,7 @@ public class XLua implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                         try {
                             if (target.paramTypes.length > 0)  throw new NoSuchFieldException("Field with parameters");
                             long run = SystemClock.elapsedRealtime();
+
 
                             //Init lua runtime / Hook
                             LuaHookWrapper luaField = LuaHookWrapper.createField(
