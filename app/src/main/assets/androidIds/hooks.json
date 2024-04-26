@@ -1,7 +1,7 @@
 [
   //
 
-  {
+  /*{
     "builtin": false,
     "collection": "PrivacyEx",
     "group": "ID.ADDEXX",
@@ -43,7 +43,7 @@
     "notify": false,
     "luaScript": "@id_advertising_two",
     "settings": ["unique.google.advertising.id"]
-  },
+  },*/
 
   {
     "builtin": true,

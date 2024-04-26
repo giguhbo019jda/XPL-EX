@@ -45,19 +45,20 @@
     <string name="menu_whats_new_button" translatable="false">Whats New!</string>
 
     <string name="whats_new" translatable="false">
-        Whats new in 1.4.2 Update XPL-EX (ObbedCode) Beta (v3) v22
+        Whats new in 1.4.2.3 Update XPL-EX (ObbedCode)
         <![CDATA[<br><br>]]> !!!Warning this is BETA it WILL have Bugs but over time code will be cleaned and things will be fixed!!!
         <![CDATA[<br><br>]]> Privacy will never be lost I wont stop til each app is FULLY black boxed.
         <![CDATA[<br>]]>This is my Art, Quality over Quantity so be patience pls and thanks to all who are patient!.
         <![CDATA[<br>]]>Free, Open Source, No Analytics, No Servers, offline ...
         <![CDATA[<br><br>]]> Shout out to Hubert (always keeps me informed updated!) (want to hide root ? this is your man!)
         <![CDATA[<br>]]>Telegram: <![CDATA[<a href="https://t.me/HubertHub">HubertHub</a>]]>
+        <![CDATA[<br><br>]]> Shout out to AppListo (Gives me Apis to Hooks when I am lost!)
+        <![CDATA[<br>]]>Website: <![CDATA[<a href="https://appcloner.app/">AppCloner</a>]]>
 
         <![CDATA[<br><br>]]><![CDATA[<a href="https://t.me/xplexex">XPL-EX Announcements</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://t.me/XPLEXCHAT">XPL-EX Chat</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://github.com/0bbedCode/XPL-EX">GitHub</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://xdaforums.com/t/xpl-ex-xprivacylua-ex-android-privacy-manager-hooking-manager-extended.4652573/">XDA</a>]]>
-        <![CDATA[<br>]]><![CDATA[<a href="https://discord.gg">Discord (ObbedCode)</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://www.instagram.com/obbedcode">Instagram (ObbedCode)</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://www.nulled.to/user/1216641-obbedcode">Nulled</a>]]>
 
@@ -74,6 +75,7 @@
         <![CDATA[<br><br>]]>        [Main UI]
         <![CDATA[<br>]]>    -> Added Navigation buttons under each App to the new UIs
         <![CDATA[<br>]]>    -> Fixed the Scroll Up Bug (Was most likely caused by poor Theme Handling)
+        <![CDATA[<br>]]>    -> Added a Button to Remove Copies of PrivacyEx Hooks from the Hook DB
         <![CDATA[<br><br>]]>        [Hook UI]
         <![CDATA[<br>]]>    -> Added a NEW UI To Help Manage Hooks and Settings for Hooks!!
         <![CDATA[<br><br>]]>        [Config UI]
