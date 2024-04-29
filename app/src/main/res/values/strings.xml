@@ -45,7 +45,7 @@
     <string name="menu_whats_new_button" translatable="false">Whats New!</string>
 
     <string name="whats_new" translatable="false">
-        Whats new in 1.4.2.3 Update XPL-EX (ObbedCode)
+        Whats new in 1.4.2.4 Update XPL-EX (ObbedCode) v88
         <![CDATA[<br><br>]]> !!!Warning this is BETA it WILL have Bugs but over time code will be cleaned and things will be fixed!!!
         <![CDATA[<br><br>]]> Privacy will never be lost I wont stop til each app is FULLY black boxed.
         <![CDATA[<br>]]>This is my Art, Quality over Quantity so be patience pls and thanks to all who are patient!.
@@ -65,6 +65,31 @@
         <![CDATA[<br><br>]]> VDInfos. Grabbing your own Device info cool dev
         <![CDATA[<br>]]><![CDATA[<a href="https://xdaforums.com/t/app-vdinfos.4097379/">XDA</a>]]>
         <![CDATA[<br>]]><![CDATA[<a href="https://github.com/VD171/VD-Infos">GitHub</a>]]>
+
+        <![CDATA[<br><br>]]> 1.4.2.4 Changes v66
+        <![CDATA[<br><br>]]>        [All]
+        <![CDATA[<br>]]>    -> Improved Text View Lines using (maxLines) remove (Lines)
+        <![CDATA[<br>]]>    -> Improved Reporter Code
+        <![CDATA[<br>]]>    -> Configs for Hooks ability to select Hooks for a Config and Apply
+        <![CDATA[<br>]]>    -> Added Dialog for No Randomizer and added No Randomizer selection
+        <![CDATA[<br>]]>    -> Added Dialog for Empty Groups how to Fix it
+        <![CDATA[<br>]]>    -> Added new way to handle (Bundle, Parcel, Json, ContentValues, Cursor) Data Types
+        <![CDATA[<br>]]>    -> Improved Type Conversions
+        <![CDATA[<br>]]>    -> Added (Messages) Hooks
+        <![CDATA[<br>]]>    -> Added (Location) Hooks
+        <![CDATA[<br>]]>    -> Added (Sync) Hooks
+        <![CDATA[<br>]]>    -> Added (Record Audio) Hooks
+        <![CDATA[<br>]]>    -> Added (Camera) Hooks
+        <![CDATA[<br>]]>    -> Added (Contacts) Hooks
+        <![CDATA[<br>]]>    -> Added (Notification) Hooks
+        <![CDATA[<br>]]>    -> Added (Calender) Hooks
+        <![CDATA[<br>]]>    -> Added More Telephony Hooks
+        <![CDATA[<br>]]>    -> Added (BSSID and SSID) Hooks
+        <![CDATA[<br>]]>    -> Deprecated Command (GetAppCommand)
+        <![CDATA[<br>]]>    -> Added Clean up for some Streams (memory stuff)
+        <![CDATA[<br>]]>    -> Improved on the (0) Groups "issue"
+        <![CDATA[<br>]]>    -> Improved UI updating for Hooks UI
+
 
         <![CDATA[<br><br>]]> 1.4.2.3 Changes
         <![CDATA[<br><br>]]>        [Coming Soon possibly next update...]
@@ -162,14 +187,22 @@
     <string name="title_delete_setting" translatable="false">Setting Delete</string>
     <string name="title_add_property" translatable="false">Property Add</string>
     <string name="title_delete_config" translatable="false">Config Delete</string>
+    <string name="title_no_groups" translatable="false">Groups Error</string>
+
+
 
     <string name="menu_clean_privacy_ex_hooks" translatable="false">Clean PEX Hooks</string>
 
 
     <string name="title_select_file" translatable="false">Select File</string>
+    <string name="title_no_random" translatable="false">Setting Missing Random</string>
 
 
     <string name="msg_delete_config" translatable="false">Are you sure you really want to Delete this Config ? (whole config) </string>
+    <string name="msg_na_randomizer" translatable="false">This setting does not have a Randomizer and or you set the Randomizer to N/A. Reason most likely is due to the Fact that there are SOO many settings to make Randomizers for all is asking North Korea to free its people. That being said as each Update comes more Randomizers will come, in the mean Time Use Google to find out what you think best fits this setting and use Description for help and maybe a Possible Format. Thank you! </string>
+    <string name="msg_delete_property" translatable="false">Are you sure you want to delete the property? This will Delete the MAP (object that links the Property Name to a Setting) and the Actual Property Setting Value (not the linked setting but the setting that specifies control on the property)</string>
+    <string name="msg_no_groups" translatable="false">Error it appears that 0 Groups have been returned. Make sure you have Restarted your phone when and if you first installed the APK, and Either you have no (collections) selected / enabled and or You have interfering (Collections) Enabled. Having the (old) (Privacy) collection and the (new) (PrivacyEx) collection enabled can cause this. Disable one of them (Recommend to disable Privacy) then try again. You can control this within the Pro Application that is provided in the Pins in the XPL-EX Channel. Opening the Pro Companion app on the first screen will show you the Collections, having (Privacy) and (PrivacyEx) Collections both enabled can cause issues. </string>
+
 
     <string name="result_delete_setting_success" translatable="false">Setting Deleted Successfully</string>
     <string name="result_delete_setting_failed" translatable="false">Failed to Delete Setting</string>
@@ -306,6 +339,8 @@
     <string name="menu_cpumaps" translatable="false">CPU Maps</string>
 
     <string name="option_thanks" translatable="false">OK THANKS</string>
+    <string name="option_ok" translatable="false">Ok</string>
+
 
     <string name="msg_no_service">Module not running or updated</string>
     <string name="msg_review_settings">Review privacy settings</string>

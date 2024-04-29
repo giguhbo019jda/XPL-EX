@@ -40,6 +40,8 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xstandard.interfaces.IDividerKind;
 import eu.faircode.xlua.api.xstandard.interfaces.ISettingUpdate;
 import eu.faircode.xlua.logger.XLog;
+import eu.faircode.xlua.random.randomizers.NARandomizer;
+import eu.faircode.xlua.ui.dialogs.NoRandomDialog;
 import eu.faircode.xlua.ui.dialogs.SettingDeleteDialog;
 import eu.faircode.xlua.random.GlobalRandoms;
 import eu.faircode.xlua.random.IRandomizer;
@@ -205,8 +207,14 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
                     updateExpanded();
                     break;
                 case R.id.ivBtRandomSettingValue:
-                    setting.randomizeValue(view.getContext());
-                    SettingUtil.initCardViewColor(view.getContext(), tvSettingName, cvSetting, setting);
+                    if(NARandomizer.isNA(setting.getRandomizer())) {
+                        new NoRandomDialog()
+                                .show(fragmentManager,
+                                        view.getResources().getString(R.string.title_no_random));
+                    }else {
+                        setting.randomizeValue(view.getContext());
+                        SettingUtil.initCardViewColor(view.getContext(), tvSettingName, cvSetting, setting);
+                    }
                     break;
                 case R.id.ivBtSaveSettingSetting:
                     settingsQue.sendSetting(view.getContext(), setting, false, false, this);
@@ -341,6 +349,9 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         int randomized = 0;
         for(LuaSettingExtended e : filtered) {
             if(e.getRandomizer() != null && e.isEnabled()) {
+                if(NARandomizer.isNA(e.getRandomizer()))
+                    continue;
+
                 e.randomizeValue(context);
                 randomized++;
             }

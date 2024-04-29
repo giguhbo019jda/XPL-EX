@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import eu.faircode.xlua.random.randomizers.NARandomizer;
 import eu.faircode.xlua.random.randomizers.Random3DigitNumber;
 import eu.faircode.xlua.random.randomizers.RandomAdID;
 import eu.faircode.xlua.random.randomizers.RandomAlphaNumeric;
@@ -75,6 +76,7 @@ public class GlobalRandoms {
     }
 
     public static void initRandomizers() {
+        putRandomizer(new NARandomizer());
         putRandomizer(new RandomAndroidID());
         putRandomizer(new RandomDRM());
         putRandomizer(new RandomGSF());
@@ -130,7 +132,22 @@ public class GlobalRandoms {
         putRandomizer(new RandomKernelVersion());
         //Collection Sort these ??????
 
-
         putRandomizer(new RandomStringOne());
+    }
+
+    public static void bindRandomToSettings(Map<String, String> settings) {
+        List<IRandomizer> randomizers = getRandomizers();
+        for(Map.Entry<String, String> s : settings.entrySet()) {
+            if(s.getValue().equalsIgnoreCase("%random%") ||
+                    s.getValue().equalsIgnoreCase("%randomize%")) {
+                for(IRandomizer r : randomizers) {
+                    if(r.isSetting(s.getKey())) {
+                        String nv = r.generateString();
+                        settings.put(s.getKey(), nv);
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

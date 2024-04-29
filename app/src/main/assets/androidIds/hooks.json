@@ -1,5 +1,4 @@
 [
-  //
 
   /*{
     "builtin": false,
@@ -44,6 +43,71 @@
     "luaScript": "@id_advertising_two",
     "settings": ["unique.google.advertising.id"]
   },*/
+
+
+  {
+    "builtin": false,
+    "collection": "PrivacyEx",
+    "group": "ID.AD.EX",
+    "name": "IBinder.execTransact(int, long, long, int)",
+    "author": "OBC",
+    "className": "android.os.Binder",
+    "methodName": "!execTransact",
+    "parameterTypes": ["int", "long", "long", "int"],
+    "returnType": "boolean",
+    "minSdk": 1,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "This is for test",
+    "enabled": true,
+    "optional": true,
+    "usage": true,
+    "notify": false,
+    "luaScript": "@id_advertising_two",
+    "settings": ["unique.google.advertising.id"]
+  },
+
+  //unique.network.ssid
+  {
+    "builtin": true,
+    "collection": "PrivacyEx",
+    "group": "ID.Unique",
+    "name": "WifiInfo.getBSSID",
+    "author": "M66B x OBC",
+    "className": "android.net.wifi.WifiInfo",
+    "methodName": "getBSSID",
+    "parameterTypes": [ ],
+    "returnType": "java.lang.String",
+    "minSdk": 1,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "",
+    "optional": true,
+    "usage": true,
+    "notify": false,
+    "luaScript": "@id_wifiinfo_getbssid",
+    "settings": ["unique.network.bssid"]
+  },
+  {
+    "builtin": true,
+    "collection": "PrivacyEx",
+    "group": "ID.Unique",
+    "name": "WifiInfo.getSSID",
+    "author": "M66B x OBC",
+    "className": "android.net.wifi.WifiInfo",
+    "methodName": "getSSID",
+    "parameterTypes": [ ],
+    "returnType": "java.lang.String",
+    "minSdk": 1,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "",
+    "optional": true,
+    "usage": true,
+    "notify": false,
+    "luaScript": "@id_wifiinfo_getssid",
+    "settings": ["unique.network.ssid"]
+  },
 
   {
     "builtin": true,

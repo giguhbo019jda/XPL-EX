@@ -183,16 +183,64 @@ public class XParam {
     @SuppressWarnings("unused")
     public String filterBinder(String filterKind) {
         try {
+            XLog.i("Filtering Binder Transaction! ADID");
             switch (filterKind) {
                 case "adid":
                     IBinder binder = (IBinder)getThis();
                     String iDesc = binder.getInterfaceDescriptor();
+                    XLog.i("(ADID) IDESC=" + iDesc);
                     if("com.google.android.gms.ads.identifier.internal.IAdvertisingIdService".equalsIgnoreCase(iDesc)) {
-                        XLog.i("Is GOOGLE GMS (adid)");
+                        String setting = getSetting("unique.google.advertising.id");
                         int code = (int)getArgument(0);
-                        XLog.i("Is Code (adid) =" + code);
+                        XLog.i("Is GOOGLE GMS (ADID) code=" + code);
                         if(code == 1) {
-                            XLog.i("Creating the Parcel: (adid)");
+                            Parcel reply = null;
+                            try {
+                                XLog.i("Obtaining Parcel  ADID");
+                                Method methodObtain = Parcel.class.getDeclaredMethod("obtain", Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ? int.class : long.class);
+                                methodObtain.setAccessible(true);
+                                XLog.i("Invoking Reflected Method to obtain Parcel  ADID");
+                                reply = (Parcel) methodObtain.invoke(null,
+                                        param.args[2]);
+                                XLog.i("Reply has Finished from obtain Parcel for ADID");
+                            } catch (NoSuchMethodException ex) {
+                                XLog.e("No Such method ADID: ", ex, true);
+                                //XposedBridge.log("Fake Google Ads NoSuchMethodException ERROR: " + ex.getMessage());
+                            }catch (NullPointerException e) {
+                                XLog.e("Null ptr ADID: ", e, true);
+                                //XposedBridge.log("Fake Google Ads NullPointerException ERROR: " + e.getMessage());
+                            }
+                            if (reply == null) {
+                                XLog.e("Reply from obtained parcel is null!! ADID ");
+                                return null;
+                            } else {
+                                XLog.i("Writing to Reply Parcel ADID");
+                                if (setting == null) {
+                                    XLog.e("Setting is NULL for ADID Reply Parcel");
+                                    return null;
+                                }
+
+                                XLog.i("Writing: " + setting + " to ADID Reply Parcel");
+                                reply.setDataPosition(0);
+                                reply.writeNoException();
+                                reply.writeString(setting);
+                                XLog.i("Wrote to the Reply Parcel: ADID");
+                            }
+
+                            XLog.i("Returning from the Parcel: reply shit ADID");
+                            //param.setResult(Boolean.valueOf(true));
+                            return setting;
+
+
+
+
+
+                            /*XLog.i("Creating the Parcel: (adid)");
+                            Method methodObtain = Parcel.class.getDeclaredMethod("obtain", Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ? int.class : long.class);
+                            methodObtain.setAccessible(true);
+                            reply = (Parcel) methodObtain.invoke(null,
+                                    param.args[2]);
+
                             @SuppressLint("SoonBlockedPrivateApi")
                             Method methodObtain = Parcel.class.getDeclaredMethod("obtain", int.class);
                             methodObtain.setAccessible(true);
@@ -218,7 +266,7 @@ public class XParam {
                             XLog.i("Wrote the data:  (adid)");
                             //param.setResult(true);
                             return adid;
-                            //param.setResult(true);
+                            //param.setResult(true);*/
                         }
                     }
                     break;
@@ -674,9 +722,7 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public void setArgument(int index, Object value) {
-        if (index < 0 || index >= this.paramTypes.length)
-            throw new ArrayIndexOutOfBoundsException("Argument #" + index);
-
+        if (index < 0 || index >= this.paramTypes.length) throw new ArrayIndexOutOfBoundsException("Argument #" + index);
         if (value != null) {
             value = coerceValue(this.paramTypes[index], value);
             if (!boxType(this.paramTypes[index]).isInstance(value))
@@ -686,6 +732,7 @@ public class XParam {
 
         this.param.args[index] = value;
     }
+
 
     @SuppressWarnings("unused")
     public Throwable getException() {
@@ -739,7 +786,10 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public void setResult(Object result) throws Throwable {
-        if (DebugUtil.isDebug()) Log.i(TAG, "Set " + this.getPackageName() + ":" + this.getUid() + " result=" + result + " return=" + this.returnType);
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, "Set " + this.getPackageName() + ":" + this.getUid() +
+                    " result=" + result + " return=" + this.returnType);
+
         if (result != null && !(result instanceof Throwable) && this.returnType != null) {
             result = coerceValue(this.returnType, result);
             if (!boxType(this.returnType).isInstance(result))
@@ -846,24 +896,59 @@ public class XParam {
 
     private static Object coerceValue(Class<?> type, Object value) {
         // TODO: check for null primitives
+        Class<?> vType = value.getClass();
+        if(vType == Double.class || vType == Float.class || vType == Long.class || vType == Integer.class || vType == String.class) {
+            Class<?> bType = boxType(type);
+            if(bType == Double.class || bType == Float.class || bType == Long.class || bType == Integer.class || bType == String.class) {
+                switch (bType.getName()) {
+                    case "java.lang.Integer":
+                        return
+                                vType == Double.class ? ((Double) value).intValue() :
+                                vType == Float.class ? ((Float) value).intValue() :
+                                vType == Long.class ? ((Long) value).intValue() :
+                                vType == String.class ? Str.tryParseInt(String.valueOf(value)) : value;
+                    case "java.lang.Double":
+                        return
+                                vType == Integer.class ? Double.valueOf((Integer) value) :
+                                vType == Float.class ? Double.valueOf((Float) value) :
+                                vType == Long.class ? Double.valueOf((Long) value) :
+                                vType == String.class ? Str.tryParseDouble(String.valueOf(value)) : value;
+                    case "java.lang.Float":
+                         return
+                                vType == Integer.class ? Float.valueOf((Integer) value) :
+                                vType == Double.class ? ((Double) value).floatValue() :
+                                vType == Long.class ? ((Long) value).floatValue() :
+                                vType == String.class ? Str.tryParseFloat(String.valueOf(value)) : value;
+                    case "java.lang.Long":
+                        return
+                                vType == Integer.class ? Long.valueOf((Integer) value) :
+                                vType == Double.class ? ((Double) value).longValue() :
+                                vType == Float.class ? ((Float) value).longValue() :
+                                vType == String.class ? Str.tryParseLong(String.valueOf(value)) : value;
+                    case "java.lang.String":
+                        return
+                                vType == Integer.class ? Integer.toString((int) value) :
+                                vType == Double.class ? Double.toString((double) value) :
+                                vType == Float.class ? Float.toString((float) value) :
+                                vType == Long.class ? Long.toString((long) value) : value;
+                }
+            }
+        }
+
 
         // Lua 5.2 auto converts numbers into floating or integer values
-        if (Integer.class.equals(value.getClass())) {
-            if (long.class.equals(type))
-                return (long) (int) value;
-            else if (float.class.equals(type))
-            return (float) (int) value;
+    if (Integer.class.equals(value.getClass())) {
+            if (long.class.equals(type)) return (long) (int) value;
+            else if (float.class.equals(type)) return (float) (int) value;
         else if (double.class.equals(type))
             return (double) (int) value;
     } else if (Double.class.equals(value.getClass())) {
         if (float.class.equals(type))
             return (float) (double) value;
     } else if (value instanceof String && int.class.equals(type)) {
-            Log.i(TAG, "IS String or Int class");
             return Integer.parseInt((String) value);
         }
         else if (value instanceof String && long.class.equals(type)) {
-            Log.i(TAG, "IS String or Long class");
             return Long.parseLong((String) value);
         }
         else if (value instanceof String && float.class.equals(type))
