@@ -1,7 +1,6 @@
 package eu.faircode.xlua.hooks;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -12,21 +11,26 @@ import java.lang.reflect.Method;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.utilities.ReflectUtil;
 
-public class XResolved {
-    //private static final String TAG = "XLua.XResolved";
+public class LuaHookResolver {
     public final Class<?> clazz;
     public final String methodName;
     public final Class<?>[] paramTypes;
     public final Class<?> returnType;
+    public boolean preInit;
 
-    public void throwIfMismatchReturn(Member member) throws Throwable {
-        if(isConstructor()) return;
-        throwIfMismatchReturn(((Method)member).getReturnType());
+    public boolean isConstructor() {
+        return methodName == null || TextUtils.isEmpty(methodName);
+    }
+    public boolean isField() {
+        return XHookUtil.isField(methodName);
     }
 
-    public void throwIfMismatchReturn(Class<?> compareType) throws Throwable {
-        if(!isConstructor() && !returnTypeIsValid(compareType))
-            throw new Throwable("Invalid return type " + compareType + " got needed: " + returnType);
+    public LuaHookResolver(Class<?> clazz, String methodName, Class<?>[] paramTypes, Class<?> returnType, boolean preInit) {
+        this.clazz = clazz;
+        this.methodName = methodName;
+        this.paramTypes = paramTypes;
+        this.returnType = returnType;
+        this.preInit = preInit;
     }
 
     public boolean hasMismatchReturn(Member member) throws Throwable {
@@ -39,63 +43,31 @@ public class XResolved {
         }
     }
 
-    public boolean hasMismatchReturn(Class<?> compareType) throws Throwable {
-        if(!isConstructor() && !returnTypeIsValid(compareType)) {
+    public boolean hasMismatchReturn(Class<?> compareType) {
+        if(!isConstructor() && !ReflectUtil.returnTypeIsValid(compareType, returnType)) {
             XLog.e("Invalid return type " + compareType + " got needed: " + returnType);
             return true;
         } return false;
     }
 
-    public boolean returnTypeIsValid(Class<?> compareType) {
-        if(ReflectUtil.isReturnTypeNullOrVoid(compareType) && ReflectUtil.isReturnTypeNullOrVoid(returnType))
-            return true;
-
-        if(ReflectUtil.isReturnTypeNullOrVoid(compareType) || ReflectUtil.isReturnTypeNullOrVoid(returnType))
-            return false;
-
-        return compareType.isAssignableFrom(returnType);
-    }
-
-    public boolean isConstructor() {
-        return methodName == null || TextUtils.isEmpty(methodName);
-    }
-    public boolean isField() {
-        return XHookUtil.isField(methodName);
-    }
-
-    public Member tryGetMember() {
+    public Member tryGetAsMember() {
         try {
-            return getMember();
+            return ReflectUtil.resolveMember(clazz, methodName, paramTypes);
         }catch (NoSuchMethodException e) {
             XLog.e("Failed to resolve Member: " + this , e, true);
             return null;
         }
     }
 
-    public Member getMember() throws NoSuchMethodException {
-        return ReflectUtil.resolveMember(clazz, methodName, paramTypes);
-    }
-
-    public Field tryGetField(boolean setAccessible) {
+    public Field tryGetAsField(boolean setAccessible) {
         try {
-            return getField(setAccessible);
-        }catch (NoSuchFieldException e) {
-            XLog.e("Failed to Resolve Filed: " + this, e, true);
+            Field field = ReflectUtil.resolveField(clazz, methodName.substring(1), returnType);
+            if(setAccessible) field.setAccessible(true);
+            return field;
+        }catch (Exception e) {
+            XLog.e("Failed to Resolve Field: " + this, e, true);
             return null;
         }
-    }
-
-    public Field getField(boolean setAccessible) throws NoSuchFieldException {
-        Field field = ReflectUtil.resolveField(clazz, methodName.substring(1), returnType);
-        if(setAccessible) field.setAccessible(true);
-        return field;
-    }
-
-    public XResolved(Class<?> clazz, String methodName, Class<?>[] paramTypes, Class<?> returnType) {
-        this.clazz = clazz;
-        this.methodName = methodName;
-        this.paramTypes = paramTypes;
-        this.returnType = returnType;
     }
 
     @NonNull

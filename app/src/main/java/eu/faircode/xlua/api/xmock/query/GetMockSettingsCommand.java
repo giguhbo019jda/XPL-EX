@@ -24,21 +24,19 @@ public class GetMockSettingsCommand extends QueryCommandHandler {
     @Override
     public Cursor handle(QueryPacket commandData) throws Throwable {
         LuaSettingPacket packet = commandData.readFullPacketFrom(LuaSettingPacket.class, UserIdentityPacket.USER_QUERY_PACKET_ONE);
-        if(packet == null)
-            return null;
-
+        if(packet == null) return null;
         packet.resolveUserID();
         packet.ensureCode(LuaSettingPacket.CODE_GET_MODIFIED);
         switch (packet.getCode()) {
             case LuaSettingPacket.CODE_GET_ALL:
                 return CursorUtil.toMatrixCursor(LuaSettingsManager.getAllSettings(
-                        commandData.getContext(), commandData.getDatabase(), packet), marshall, 0);
+                        commandData.getContext(),
+                        commandData.getDatabase(), packet), marshall, 0);
             case LuaSettingPacket.CODE_GET_MODIFIED:
                 return CursorUtil.toMatrixCursor(LuaSettingsManager.getSettings(
-                        commandData.getDatabase(), packet), marshall, 0);
-        }
-
-        return null;
+                        commandData.getDatabase(),
+                        packet), marshall, 0);
+        } return null;
     }
 
     public static Cursor invoke(Context context, boolean marshall, LuaSettingPacket packet) {

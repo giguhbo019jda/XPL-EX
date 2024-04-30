@@ -1158,8 +1158,7 @@
     "author": "M66B",
     "className": "android.net.NetworkInfo",
     "methodName": "getExtraInfo",
-    "parameterTypes": [
-    ],
+    "parameterTypes": [ ],
     "returnType": "java.lang.String",
     "minSdk": 1,
     "luaScript": "@generic_null_value"
@@ -2798,6 +2797,7 @@
     "minSdk": 1,
     "luaScript": "@generic_unknown_value"
   },
+
   {
     "collection": "Privacy",
     "group": "Use.Tracking",

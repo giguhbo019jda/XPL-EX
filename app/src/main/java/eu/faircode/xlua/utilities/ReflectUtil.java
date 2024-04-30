@@ -21,22 +21,30 @@ import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
 public class ReflectUtil {
+
+
+
     private static final String TAG = "XLua.ReflectUtil";
     private static final String GL_PATTEN = ".*\\.GL\\d{2}$";
     private static final String GLES_PATTERN = ".*\\.GLES\\d{2}$";
 
-
-    public static String logStack() {
-        StringBuilder sb = new StringBuilder();
-        for(StackTraceElement e : new Exception().getStackTrace()) {
-            sb.append(e.getClassName());
-            sb.append("::");
-            sb.append(e.getMethodName());
-            sb.append("\n");
-        }
-
-        return sb.toString();
+    public static boolean isReflectError(Throwable fe) {
+        return  fe instanceof NoSuchFieldException ||
+                fe instanceof NoSuchMethodException ||
+                fe instanceof ClassNotFoundException ||
+                fe instanceof NoClassDefFoundError;
     }
+
+    public static boolean returnTypeIsValid(Class<?> compareType, Class<?> returnType) {
+        if(ReflectUtil.isReturnTypeNullOrVoid(compareType) && ReflectUtil.isReturnTypeNullOrVoid(returnType))
+            return true;
+
+        if(ReflectUtil.isReturnTypeNullOrVoid(compareType) || ReflectUtil.isReturnTypeNullOrVoid(returnType))
+            return false;
+
+        return compareType.isAssignableFrom(returnType);
+    }
+
 
     public static boolean extendsGpuClass(Class<?> clazz) {
         Class<?> superClass = clazz.getSuperclass();

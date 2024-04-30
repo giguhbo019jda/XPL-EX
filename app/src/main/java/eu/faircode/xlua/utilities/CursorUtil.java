@@ -73,10 +73,7 @@ public class CursorUtil {
         return c.getLong(ix);
     }
 
-    public static Integer getInteger(Cursor c, String columnName) {
-        return getInteger(c, columnName, null);
-    }
-
+    public static Integer getInteger(Cursor c, String columnName) { return getInteger(c, columnName, null); }
     public static Integer getInteger(Cursor c, String columnName, Integer defaultValue) {
         int ix = c.getColumnIndex(columnName);
         if(ix == -1) return defaultValue;

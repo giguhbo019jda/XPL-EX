@@ -51,6 +51,7 @@ public class XLuaHook extends XLuaHookBase implements IJsonSerial, Parcelable {
         if(this.settings != null) {
             managed_settings.clear();
             for (String s : this.settings) {
+                if(!StringUtil.isValidAndNotWhitespaces(s)) continue;
                 if(settings.containsKey(s)) {
                     LuaSettingExtended luaSetting = settings.get(s);
                     if(luaSetting == null) continue;

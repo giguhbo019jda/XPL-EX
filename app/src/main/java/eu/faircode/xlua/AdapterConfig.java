@@ -39,21 +39,24 @@ import eu.faircode.xlua.api.xlua.XLuaCall;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.random.IRandomizer;
 import eu.faircode.xlua.random.GlobalRandoms;
+import eu.faircode.xlua.random.randomizers.NARandomizer;
+import eu.faircode.xlua.ui.dialogs.NoRandomDialog;
+import eu.faircode.xlua.ui.interfaces.ILoader;
 import eu.faircode.xlua.utilities.SettingUtil;
 import eu.faircode.xlua.utilities.UiUtil;
 import eu.faircode.xlua.utilities.ViewUtil;
 
 public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder> {
-    private static final String TAG = "XLua.AdapterConfig";
-
-    private MockConfig config = null;
-
+    private final List<IRandomizer> randomizers = GlobalRandoms.getRandomizers();
     private final List<LuaSettingExtended> settings = new ArrayList<>();
     private final HashMap<String, Boolean> expanded = new HashMap<>();
-    private AppGeneric application;
-    private final List<IRandomizer> randomizers = GlobalRandoms.getRandomizers();
 
-    public class ViewHolder extends RecyclerView.ViewHolder
+    private ILoader fragmentLoader;
+    private MockConfig config = null;
+
+    public class ViewHolder
+            extends
+            RecyclerView.ViewHolder
             implements
             AdapterView.OnItemSelectedListener,
             CompoundButton.OnCheckedChangeListener,
@@ -62,7 +65,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             TextWatcher {
 
         final View itemView;
-        final TextView tvSettingName, tvDescription;
+        final TextView tvSettingName, tvDescription, tvSettingNameFull;
         final TextInputEditText tiSettingsValue;
         final CheckBox cbEnable;
         final ImageView ivBtRandom, ivBtReset, ivExpanderSettings;
@@ -75,6 +78,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             this.itemView = itemView;
 
             tvSettingName = itemView.findViewById(R.id.tvSettingConfigName);
+            tvSettingNameFull = itemView.findViewById(R.id.tvConfigSettingFullName);
             tvDescription = itemView.findViewById(R.id.tvConfigSettingDescription);
             tiSettingsValue = itemView.findViewById(R.id.tiConfigSettingsValue);
             cbEnable = itemView.findViewById(R.id.cbEnableConfigSetting);
@@ -104,6 +108,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             spRandomSelector.setOnItemSelectedListener(null);
             ivBtReset.setOnLongClickListener(null);
             ivBtRandom.setOnLongClickListener(null);
+            tiSettingsValue.removeTextChangedListener(this);
         }
 
         private void wire() {
@@ -114,6 +119,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             spRandomSelector.setOnItemSelectedListener(this);
             ivBtReset.setOnLongClickListener(this);
             ivBtRandom.setOnLongClickListener(this);
+            tiSettingsValue.addTextChangedListener(this);
         }
 
         @SuppressLint("NonConstantResourceId")
@@ -123,14 +129,20 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
             XLog.i("onClick id=" + id);
             final LuaSettingExtended setting = settings.get(getAdapterPosition());
             String name = setting.getName();
-
             switch (id) {
                 case R.id.itemViewConfig:
                     ViewUtil.internalUpdateExpanded(expanded, name);
                     updateExpanded();
                     break;
                 case R.id.ivBtRandomConfigSettingValue:
-                    setting.randomizeValue(view.getContext());
+                    if(NARandomizer.isNA(setting.getRandomizer()))
+                        new NoRandomDialog()
+                                .show(fragmentLoader.getManager(),
+                                        view.getResources().getString(R.string.title_no_random));
+                    else setting.randomizeValue(view.getContext());
+                    break;
+                case R.id.ivBtResetConfigSettingValue:
+                    if(setting.isModified()) setting.resetModified(true);
                     break;
             }
         }
@@ -201,23 +213,25 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
     }
 
     AdapterConfig() { setHasStableIds(true); }
-    AdapterConfig(AppGeneric application) { this(); this.application = application; }
+    AdapterConfig(ILoader fragmentLoader) { this(); this.fragmentLoader = fragmentLoader; }
 
     void applyConfig(Context context) {
+        config.saveValuesFromInput();
         XLog.i("Applying config setting size=" + settings.size());
         int failed = 0;
         int succeeded = 0;
 
         for(LuaSettingExtended setting : settings) {
             if(setting.isEnabled()) {
-                LuaSettingPacket packet = LuaSettingPacket.create(setting, LuaSettingPacket.CODE_INSERT_UPDATE_SETTING, false)
-                        .copyIdentification(application);
-
+                setting.updateValue(true);
+                LuaSettingPacket packet = LuaSettingPacket
+                        .create(setting, LuaSettingPacket.CODE_INSERT_UPDATE_SETTING, false)
+                        .copyIdentification(fragmentLoader.getApplication());
                 XResult res = XLuaCall.sendMockSetting(context, packet);
                 if(res.succeeded())
                     succeeded++;
                 else {
-                    Log.e(TAG, "Failed to send setting over bridge: " + packet + " msg=" + res.getFullMessage());
+                    XLog.i("Failed to send setting over bridge: " + packet + " msg=" + res.getFullMessage());
                     failed++;
                 }
             }
@@ -240,7 +254,7 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
         notifyDataSetChanged();
     }
 
-    public MockConfig getConfig() { return config; }
+    public MockConfig getConfig() {  config.setSettings(this.settings); return config; }
     public String getConfigName() { return config.getName(); }
     public List<LuaSettingExtended> getSettings() { return this.settings; }
     public List<LuaSettingExtended> getEnabledSettings() {
@@ -263,20 +277,17 @@ public class AdapterConfig extends RecyclerView.Adapter<AdapterConfig.ViewHolder
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         holder.unWire();
         LuaSettingExtended setting = settings.get(position);
-        //cSetting.setIsEnabled(true);
         setting.bindInputTextBox(holder.tiSettingsValue, holder);
         String settingName = setting.getName();
-
         holder.tvSettingName.setText(SettingUtil.cleanSettingName(settingName));
+        holder.tvSettingNameFull.setText(setting.getName());
         holder.tiSettingsValue.setText(setting.getValue());
-        holder.tvDescription.setText(setting.getDescription());
+        holder.tvDescription.setText(SettingUtil.generateDescription(setting));
         holder.cbEnable.setChecked(setting.isEnabled());
-
         boolean enable = UiUtil.initRandomizer(holder.spRandomizer, holder.spRandomSelector, setting, randomizers);
         holder.spRandomSelector.setEnabled(enable);
         holder.ivBtRandom.setEnabled(enable);
         setting.setInputText();
-
         holder.updateExpanded();
         holder.wire();
     }

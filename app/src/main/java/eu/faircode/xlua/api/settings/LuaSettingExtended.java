@@ -179,7 +179,11 @@ public class LuaSettingExtended extends LuaSettingDefault implements IJsonSerial
                 if(isBuiltIntSetting())
                     return;
 
-                this.randomizer = randomizers.get(0);
+                for(IRandomizer r : randomizers)
+                    if(r.getID().equalsIgnoreCase("%n_a%"))
+                        this.randomizer = r;
+
+                //this.randomizer = randomizers.get(0);
             }
         }
     }

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 import de.robv.android.xposed.XC_MethodHook;
+import eu.faircode.xlua.api.xlua.call.CleanHooksCommand;
 import eu.faircode.xlua.api.xstandard.CommanderService;
 import eu.faircode.xlua.api.xstandard.command.CallPacket;
 import eu.faircode.xlua.api.xstandard.command.QueryPacket;
@@ -72,7 +73,8 @@ public class XCommandBridgeStatic {
                 //Mock Settings that link to XLUA DB
                 .registerQuery(GetMockSettingsCommand.class, true)
                 .registerCall(PutMockSettingCommand.class)
-                .registerCall(GetAppCommand.class);
+                .registerCall(GetAppCommand.class)
+                .registerCall(CleanHooksCommand.class);
 
         mockCommandService
                 .registerCall(GetMockCpuCommand.class)

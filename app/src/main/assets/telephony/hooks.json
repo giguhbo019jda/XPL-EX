@@ -1,5 +1,25 @@
 [
-  //Start of Subscription Info
+
+  {
+    "builtin": true,
+    "collection": "PrivacyEx",
+    "group": "ID.Telephony",
+    "name": "TelephonyManager.listen",
+    "author": "M66B",
+    "className": "android.telephony.TelephonyManager",
+    "methodName": "listen",
+    "parameterTypes": ["android.telephony.PhoneStateListener", "int"],
+    "returnType": "void",
+    "minSdk": 1,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "",
+    "enabled":true,
+    "optional":true,
+    "usage":true,
+    "notify":false,
+    "luaScript": "@id_telephonymanager_listen"
+  },
   {
     "builtin": true,
     "collection": "PrivacyEx",

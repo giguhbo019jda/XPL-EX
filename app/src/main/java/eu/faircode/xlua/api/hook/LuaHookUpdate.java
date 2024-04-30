@@ -11,15 +11,18 @@ import org.json.JSONObject;
 import java.util.List;
 
 import eu.faircode.xlua.api.xstandard.interfaces.IJsonSerial;
+import eu.faircode.xlua.utilities.JSONUtil;
 
 public class LuaHookUpdate implements IJsonSerial {
     protected String newName;
     protected String oldName;
     protected String description;
+    protected String extra;
 
     public String getNewId() { return this.newName; }
     public String getOldId() { return this.oldName; }
     public String getDescription() { return this.description; }
+    public String getExtra() { return this.extra; }
     public LuaHookUpdate() {  }
 
     @Override
@@ -55,18 +58,20 @@ public class LuaHookUpdate implements IJsonSerial {
     @Override
     public JSONObject toJSONObject() throws JSONException {
         JSONObject jRoot = new JSONObject();
-        jRoot.put("old", this.oldName);
-        jRoot.put("new", this.newName);
-        jRoot.put("description", this.description);
+        if(this.oldName != null) jRoot.put("old", this.oldName);
+        if(this.newName != null) jRoot.put("new", this.newName);
+        if(this.description != null) jRoot.put("description", this.description);
+        if(this.extra != null) jRoot.put("extra", this.extra);
         return jRoot;
     }
 
     @Override
     public void fromJSONObject(JSONObject obj) throws JSONException {
         if(obj != null) {
-            this.oldName = obj.getString("old");
-            this.newName = obj.getString("new");
-            this.description = obj.getString("description");
+            this.oldName = JSONUtil.getString(obj, "old");
+            this.newName = JSONUtil.getString(obj, "new");
+            this.description = JSONUtil.getString(obj, "description");
+            this.extra = JSONUtil.getString(obj, "extra");
         }
     }
 }

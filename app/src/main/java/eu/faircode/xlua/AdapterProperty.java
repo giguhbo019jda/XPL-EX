@@ -43,7 +43,8 @@ public class AdapterProperty  extends RecyclerView.Adapter<AdapterProperty.ViewH
     private PropertyQue propertiesQue;
 
     public class ViewHolder extends RecyclerView.ViewHolder
-            implements CompoundButton.OnCheckedChangeListener,
+            implements
+            CompoundButton.OnCheckedChangeListener,
             View.OnLongClickListener,
             View.OnClickListener,
             IPropertyUpdate {

@@ -18,7 +18,7 @@ import eu.faircode.xlua.hooks.XHookUtil;
 
 public class XLuaHookBase {
     public static ArrayList<XLuaHook> readHooks(Context context, String apk) throws IOException, JSONException {
-        return XHookUtil.readHooksEx(apk);
+        return XHookUtil.readHooks(apk);
     }
     private final static String TAG = "XLua.XHook";
     //we can just do a key exchange system
@@ -55,11 +55,15 @@ public class XLuaHookBase {
     public final static int FLAG_WITH_LUA = 2; // =PARCELABLE_ELIDE_DUPLICATES
     public String getId() { return this.collection + "." + this.name; }
 
+    public XLuaHookBase setCollection(String collection) { this.collection = collection; return this; }
+    public XLuaHookBase setName(String name) { this.name = name; return this; }
+
     public boolean isBuiltin() {
         return this.builtin;
     }
 
     public String getCollection() { return collection; }
+
     public String getGroup() { return group; }
     public String getName() { return name; }
     public String getAuthor() { return author; }

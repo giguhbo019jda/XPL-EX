@@ -155,11 +155,6 @@ public class SettingsQue {
         }catch (Exception e) {
             XLog.e("Failed to wait for setting to apply, setting=" + setting + " pos=" + adapterPosition, e, true);
         }
-        //LuaSettingPacket packet = setting.createPacket(LuaSettingPacket.getCodeForDeletion(deleteSetting, deleteDefault), forceKill);
-        //packet.identificationFromApplication(application);
-        //Log.i(TAG, "Delete packet=" + packet);
-        //if(iCallback == null) listener.pushSettingPacket(packet);
-        //else listener.pushSettingPacket(packet, setting, position, iCallback);
     }
 
     public void sendSetting(
@@ -249,11 +244,6 @@ public class SettingsQue {
             boolean deleteSetting,
             boolean deleteDefaultMap,
             boolean forceKill) {
-        //getCodeForInsertOrUpdate(boolean setting, boolean defaultSetting) {  return setting && defaultSetting ? CODE_INSERT_UPDATE_DEFAULT_AND_SETTING : defaultSetting ? CODE_INSERT_UPDATE_DEFAULT_SETTING : CODE_INSERT_UPDATE_SETTING; }
-        //getCodeForDeletion(boolean deleteSetting, boolean deleteDefault) { return deleteSetting && deleteDefault ? CODE_DELETE_DEFAULT_AND_SETTING : deleteDefault ? CODE_DELETE_DEFAULT_SETTING : CODE_DELETE_SETTING; }
-        //LuaSettingPacket packet = setting.createPacket(LuaSettingPacket.getCodeForDeletion(deleteSetting, deleteDefault), forceKill);
-        //packet.identificationFromApplication(application);
-        //we will now invoke (PutMockSettingCommand)
 
         int code = (deleteSetting || deleteDefaultMap) ?
                 LuaSettingPacket.getCodeForDeletion(deleteSetting, deleteDefaultMap) :

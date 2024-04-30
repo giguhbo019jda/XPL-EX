@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
@@ -46,7 +48,9 @@ import eu.faircode.xlua.api.xmock.XMockQuery;
 import eu.faircode.xlua.logger.XLog;
 import eu.faircode.xlua.ui.ConfigQue;
 import eu.faircode.xlua.ui.ViewFloatingAction;
+import eu.faircode.xlua.ui.dialogs.ConfigDeleteDialog;
 import eu.faircode.xlua.ui.interfaces.IConfigUpdate;
+import eu.faircode.xlua.ui.interfaces.ILoader;
 import eu.faircode.xlua.ui.transactions.ConfigTransactionResult;
 import eu.faircode.xlua.utilities.FileDialogUtil;
 import eu.faircode.xlua.utilities.UiUtil;
@@ -55,8 +59,8 @@ public class  FragmentConfig extends ViewFloatingAction implements
         View.OnClickListener,
         View.OnLongClickListener,
         AdapterView.OnItemSelectedListener,
-        IConfigUpdate {
-    private final static String TAG = "XLua.FragmentConfig";
+        IConfigUpdate,
+        ILoader {
     private static final int PICK_FILE_REQUEST_CODE = 1; // This is a request code you define to identify your request
     private static final int PICK_FOLDER_RESULT_CODE = 2;
 
@@ -72,7 +76,7 @@ public class  FragmentConfig extends ViewFloatingAction implements
     public View onCreateView(final @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view =  inflater.inflate(R.layout.configeditor, container, false);
         this.application = AppGeneric.from(getArguments(), getContext());
-        this.TAG_ViewFloatingAction = TAG;
+        this.TAG_ViewFloatingAction = "XLua.FragmentConfig";
         super.initActions();
         super.bindTextViewsToAppId(view, R.id.ivConfigsAppIcon, R.id.tvConfigsPackageName, R.id.tvConfigsPackageFull, R.id.tvConfigsPackageUid);
         super.setFloatingActionBars(this, this, view, R.id.flActionConfigOptions, R.id.flActionConfigSave, R.id.flActionConfigDelete, R.id.flActionConfigImport, R.id.flActionConfigApply, R.id.flActionConfigExport);
@@ -100,7 +104,7 @@ public class  FragmentConfig extends ViewFloatingAction implements
 
         llm.setAutoMeasureEnabled(true);
         rvList.setLayoutManager(llm);
-        rvConfigAdapter = new AdapterConfig(application);
+        rvConfigAdapter = new AdapterConfig(this);
         rvList.setAdapter(rvConfigAdapter);
         configsQue = new ConfigQue(application);
         initDropDown(view);
@@ -141,19 +145,18 @@ public class  FragmentConfig extends ViewFloatingAction implements
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        XLog.i(TAG, "onClick id=" + id);
+        XLog.i("onClick id=" + id);
         try {
             MockConfig config = rvConfigAdapter.getConfig();
             switch (id) {
                 case R.id.ivDeleteConfig:
                     if(!unSaved.contains(config))
-                        configsQue.sendConfig(
-                                getContext(),
-                                -1,
-                                config,
-                                true,
-                                false,
-                                this);
+                        new ConfigDeleteDialog()
+                                .setAdapterPosition(-1)
+                                .setConfig(config)
+                                .setQue(configsQue)
+                                .setCallback(this)
+                                .show(Objects.requireNonNull(getFragmentManager()), getResources().getString(R.string.title_delete_config));
                     else {
                         unSaved.remove(config);
                         loadData();
@@ -213,7 +216,7 @@ public class  FragmentConfig extends ViewFloatingAction implements
     @Override
     public boolean onLongClick(View v) {
         int code = v.getId();
-        Log.i(TAG, "onLongClick=" + code);
+        XLog.i("onLongClick id=" + code);
         switch (code) {
             case R.id.ivDeleteConfig:
                 Snackbar.make(view, R.string.menu_config_delete_hint, Snackbar.LENGTH_LONG).show();
@@ -307,11 +310,24 @@ public class  FragmentConfig extends ViewFloatingAction implements
         spConfigSelection.setOnItemSelectedListener(this);
     }
 
-    private void loadData() {
+    @Override
+    public void loadData() {
         XLog.i("Starting Data Loader");
         LoaderManager manager = Objects.requireNonNull(getActivity()).getSupportLoaderManager();
         manager.restartLoader(ActivityMain.LOADER_DATA, new Bundle(), dataLoaderCallbacks).forceLoad();
     }
+
+    @Override
+    public void filter(String query) { }
+
+    @Override
+    public FragmentManager getManager() { return getFragmentManager(); }
+
+    @Override
+    public Fragment getFragment() { return this; }
+
+    @Override
+    public AppGeneric getApplication() { return application; }
 
     LoaderManager.LoaderCallbacks<PropsDataHolder> dataLoaderCallbacks = new LoaderManager.LoaderCallbacks<PropsDataHolder>() {
         @NonNull
@@ -328,7 +344,7 @@ public class  FragmentConfig extends ViewFloatingAction implements
                 swipeRefresh.setRefreshing(false);
                 progressBar.setVisibility(View.GONE);
             }else {
-                Log.e(TAG, Log.getStackTraceString(data.exception));
+                XLog.e("Data Loader Exception", data.exception, true);
                 Snackbar.make(Objects.requireNonNull(getView()), data.exception.toString(), Snackbar.LENGTH_LONG).show();
             }
         }
@@ -377,12 +393,12 @@ public class  FragmentConfig extends ViewFloatingAction implements
             PropsDataHolder data = new PropsDataHolder();
             try {
                 data.theme = XLuaCall.getTheme(getContext());
-                data.configs = new ArrayList<>(XMockQuery.getConfigs(getContext()));
+                data.configs = new ArrayList<>(XMockQuery.getConfigsEx(getContext()));
                 XLog.i("Configs Count=" + data.configs.size());
             }catch (Throwable ex) {
                 data.configs.clear();
                 data.exception = ex;
-                Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
+                XLog.e("Data Loader Background Exception", ex, true);
             }
 
             XLog.i("Data Loader Returning. Configs Count=" + data.configs.size());

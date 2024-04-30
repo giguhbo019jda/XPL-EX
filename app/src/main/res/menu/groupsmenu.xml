@@ -6,6 +6,8 @@
         android:id="@+id/menu_show"
         android:icon="@drawable/ic_filter_list_white_24dp"
         android:title="@string/menu_filter"
+        android:visible="false"
+        android:enabled="false"
         app:showAsAction="always">
         <menu>
             <group

@@ -40,6 +40,8 @@ import eu.faircode.xlua.api.settings.LuaSettingExtended;
 import eu.faircode.xlua.api.xstandard.interfaces.IDividerKind;
 import eu.faircode.xlua.api.xstandard.interfaces.ISettingUpdate;
 import eu.faircode.xlua.logger.XLog;
+import eu.faircode.xlua.random.randomizers.NARandomizer;
+import eu.faircode.xlua.ui.dialogs.NoRandomDialog;
 import eu.faircode.xlua.ui.dialogs.SettingDeleteDialog;
 import eu.faircode.xlua.random.GlobalRandoms;
 import eu.faircode.xlua.random.IRandomizer;
@@ -83,11 +85,10 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         final CardView cvSetting;
         final ConstraintLayout clLayout;
 
-        final ImageView ivSettingDrop;
         final TextView tvSettingName, tvSettingDescription, tvSettingNameFull;
 
         final TextInputEditText tiSettingValue;
-        final ImageView ivBtSave, ivBtDelete, ivBtRandomize, ivReset;
+        final ImageView ivBtSave, ivBtDelete, ivBtRandomize, ivReset, ivSettingDrop;
         final CheckBox cbSelected;
 
         final Spinner spRandomSelector;
@@ -115,9 +116,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             adapterRandomizer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             ivBtRandomize = itemView.findViewById(R.id.ivBtRandomSettingValue);
             spRandomSelector = itemView.findViewById(R.id.spSettingRandomizerSpinner);
-            if(DebugUtil.isDebug())
-                Log.i(TAG, "Created the Empty Array for Configs Fragment Config");
-
+            if(DebugUtil.isDebug()) Log.i(TAG, "Created the Empty Array for Configs Fragment Config");
             spRandomSelector.setTag(null);
             spRandomSelector.setAdapter(adapterRandomizer);
         }
@@ -134,7 +133,6 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             ivReset.setOnClickListener(null);
             cbSelected.setOnCheckedChangeListener(null);
             spRandomSelector.setOnItemSelectedListener(null);
-
             cbSelected.setOnLongClickListener(null);
             ivBtRandomize.setOnLongClickListener(null);
             ivBtSave.setOnLongClickListener(null);
@@ -152,7 +150,6 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             ivReset.setOnClickListener(this);
             cbSelected.setOnCheckedChangeListener(this);
             spRandomSelector.setOnItemSelectedListener(this);
-
             cbSelected.setOnLongClickListener(this);
             ivBtRandomize.setOnLongClickListener(this);
             ivBtSave.setOnLongClickListener(this);
@@ -164,9 +161,8 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         @Override
         public boolean onLongClick(View v) {
             int code = v.getId();
-            Log.i(TAG, "onLongClick=" + code);
+            XLog.i("onLongClick id=" + code);
             final LuaSettingExtended setting = filtered.get(getAdapterPosition());
-
             switch (code) {
                 case R.id.ivBtRandomSettingValue:
                     Snackbar.make(v, R.string.menu_setting_random_hint, Snackbar.LENGTH_LONG).show();
@@ -203,9 +199,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
             int id = view.getId();
             final LuaSettingExtended setting = filtered.get(getAdapterPosition());
             String name = setting.getName();
-
-            Log.i(TAG, " onClick id=" + id + " selected=" + setting);
-
+            XLog.i("onClick id=" + id + " selected=" + setting);
             switch (id) {
                 case R.id.ivExpanderSettingsSetting:
                 case R.id.itemViewSetting:
@@ -213,8 +207,14 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
                     updateExpanded();
                     break;
                 case R.id.ivBtRandomSettingValue:
-                    setting.randomizeValue(view.getContext());
-                    SettingUtil.initCardViewColor(view.getContext(), tvSettingName, cvSetting, setting);
+                    if(NARandomizer.isNA(setting.getRandomizer())) {
+                        new NoRandomDialog()
+                                .show(fragmentManager,
+                                        view.getResources().getString(R.string.title_no_random));
+                    }else {
+                        setting.randomizeValue(view.getContext());
+                        SettingUtil.initCardViewColor(view.getContext(), tvSettingName, cvSetting, setting);
+                    }
                     break;
                 case R.id.ivBtSaveSettingSetting:
                     settingsQue.sendSetting(view.getContext(), setting, false, false, this);
@@ -349,6 +349,9 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
         int randomized = 0;
         for(LuaSettingExtended e : filtered) {
             if(e.getRandomizer() != null && e.isEnabled()) {
+                if(NARandomizer.isNA(e.getRandomizer()))
+                    continue;
+
                 e.randomizeValue(context);
                 randomized++;
             }
@@ -390,6 +393,11 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
 
     void set(List<LuaSettingExtended> settings, AppGeneric application) {
         for(LuaSettingExtended s : settings) {
+            if(s.getName() == null) {
+                XLog.e("BAD NULL NAME s=" + s.getName() + " d=" + s.getDescription() + " df=" + s.getDefaultValue());
+                continue;
+            }
+
             s.resetModified();
             s.bindRandomizer(randomizers);
         }
@@ -423,8 +431,7 @@ public class AdapterSetting extends RecyclerView.Adapter<AdapterSetting.ViewHold
                 List<LuaSettingExtended> results = new ArrayList<>();
 
                 try {
-                    if (TextUtils.isEmpty(query))
-                        results.addAll(visible);
+                    if (TextUtils.isEmpty(query)) results.addAll(visible);
                     else {
                         String q = query.toString().toLowerCase().trim();
                         for(LuaSettingExtended setting : visible) {

@@ -19,6 +19,7 @@
 
 package eu.faircode.xlua;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -28,6 +29,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcel;
 import android.util.Log;
 import android.view.InputDevice;
@@ -78,6 +80,8 @@ public class XParam {
     private final Map<String, Integer> propSettings;
     private final Map<String, String> propMaps;
     private final String key;
+    private final boolean useDefault;
+    private final String packageName;
 
     private static final Map<Object, Map<String, Object>> nv = new WeakHashMap<>();
     private UserContextMaps getUserMaps() { return new UserContextMaps(this.settings, this.propMaps, this.propSettings); }
@@ -89,7 +93,9 @@ public class XParam {
             Map<String, String> settings,
             Map<String, Integer> propSettings,
             Map<String, String> propMaps,
-            String key) {
+            String key,
+            boolean useDefault,
+            String packageName) {
         this.context = context;
         this.field = field;
         this.param = null;
@@ -99,6 +105,8 @@ public class XParam {
         this.propSettings = propSettings;
         this.propMaps = propMaps;
         this.key = key;
+        this.useDefault = useDefault;
+        this.packageName = packageName;
     }
 
     // Method param
@@ -108,7 +116,9 @@ public class XParam {
             Map<String, String> settings,
             Map<String, Integer> propSettings,
             Map<String, String> propMaps,
-            String key) {
+            String key,
+            boolean useDefault,
+            String packageName) {
         this.context = context;
         this.field = null;
         this.param = param;
@@ -123,6 +133,8 @@ public class XParam {
         this.propSettings = propSettings;
         this.propMaps = propMaps;
         this.key = key;
+        this.useDefault = useDefault;
+        this.packageName = packageName;
     }
 
     //
@@ -146,6 +158,14 @@ public class XParam {
                 return null;//return MockUtils.HIDE_PROPERTY;
             if(code == MockPropSetting.PROP_SKIP)
                 return MockUtils.NOT_BLACKLISTED;
+            else {
+                if(code != MockPropSetting.PROP_FORCE) {
+                    try {
+                        Object res = getResult();
+                        if(res == null) return MockUtils.NOT_BLACKLISTED;
+                    }catch (Throwable e) {  }
+                }
+            }
         }
 
         //add force options now
@@ -158,6 +178,101 @@ public class XParam {
         }
 
         return MockUtils.NOT_BLACKLISTED;
+    }
+
+    @SuppressWarnings("unused")
+    public String filterBinder(String filterKind) {
+        try {
+            XLog.i("Filtering Binder Transaction! ADID");
+            switch (filterKind) {
+                case "adid":
+                    IBinder binder = (IBinder)getThis();
+                    String iDesc = binder.getInterfaceDescriptor();
+                    XLog.i("(ADID) IDESC=" + iDesc);
+                    if("com.google.android.gms.ads.identifier.internal.IAdvertisingIdService".equalsIgnoreCase(iDesc)) {
+                        String setting = getSetting("unique.google.advertising.id");
+                        int code = (int)getArgument(0);
+                        XLog.i("Is GOOGLE GMS (ADID) code=" + code);
+                        if(code == 1) {
+                            Parcel reply = null;
+                            try {
+                                XLog.i("Obtaining Parcel  ADID");
+                                Method methodObtain = Parcel.class.getDeclaredMethod("obtain", Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ? int.class : long.class);
+                                methodObtain.setAccessible(true);
+                                XLog.i("Invoking Reflected Method to obtain Parcel  ADID");
+                                reply = (Parcel) methodObtain.invoke(null,
+                                        param.args[2]);
+                                XLog.i("Reply has Finished from obtain Parcel for ADID");
+                            } catch (NoSuchMethodException ex) {
+                                XLog.e("No Such method ADID: ", ex, true);
+                                //XposedBridge.log("Fake Google Ads NoSuchMethodException ERROR: " + ex.getMessage());
+                            }catch (NullPointerException e) {
+                                XLog.e("Null ptr ADID: ", e, true);
+                                //XposedBridge.log("Fake Google Ads NullPointerException ERROR: " + e.getMessage());
+                            }
+                            if (reply == null) {
+                                XLog.e("Reply from obtained parcel is null!! ADID ");
+                                return null;
+                            } else {
+                                XLog.i("Writing to Reply Parcel ADID");
+                                if (setting == null) {
+                                    XLog.e("Setting is NULL for ADID Reply Parcel");
+                                    return null;
+                                }
+
+                                XLog.i("Writing: " + setting + " to ADID Reply Parcel");
+                                reply.setDataPosition(0);
+                                reply.writeNoException();
+                                reply.writeString(setting);
+                                XLog.i("Wrote to the Reply Parcel: ADID");
+                            }
+
+                            XLog.i("Returning from the Parcel: reply shit ADID");
+                            //param.setResult(Boolean.valueOf(true));
+                            return setting;
+
+
+
+
+
+                            /*XLog.i("Creating the Parcel: (adid)");
+                            Method methodObtain = Parcel.class.getDeclaredMethod("obtain", Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ? int.class : long.class);
+                            methodObtain.setAccessible(true);
+                            reply = (Parcel) methodObtain.invoke(null,
+                                    param.args[2]);
+
+                            @SuppressLint("SoonBlockedPrivateApi")
+                            Method methodObtain = Parcel.class.getDeclaredMethod("obtain", int.class);
+                            methodObtain.setAccessible(true);
+                            Parcel reply = (Parcel) methodObtain.invoke(null, param.args[2]);
+                            //Parcel.obtain(int at index 2) (we do this becuz that function cannot be accessed)
+                            // static protected final Parcel obtain(int obj)
+                            //2 = reply position but on this OS Code it does not represent it as an INTEGER but a long ????
+                            XLog.i("Created the Parcel:  (adid)");
+
+                            reply.setDataPosition(0);
+                            reply.writeNoException();
+
+                            XLog.i("Set Position in Parcel:  (adid)");
+
+                            String adid = getSetting("unique.google.advertising.id","a7bf815a-c37b-40db-be9d-3b395abbe888");
+                            if(adid == null)
+                                return null;
+
+                            XLog.i("Ad id is not null " + adid + "    (adid)");
+
+                            reply.writeString(adid);
+
+                            XLog.i("Wrote the data:  (adid)");
+                            //param.setResult(true);
+                            return adid;
+                            //param.setResult(true);*/
+                        }
+                    }
+                    break;
+            }
+        }catch (Exception e) { XLog.e("Failed to Filter", e); }
+        return null;
     }
 
     @SuppressWarnings("unused")
@@ -213,6 +328,19 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public List<String> filterFileStringList(List<String> files) { return FileUtil.filterList(files); }
+
+    @SuppressWarnings("unused")
+    public boolean listHasString(String setting, String str) {
+        if(str.equalsIgnoreCase(this.packageName) || str.toLowerCase().contains("webview")) return true;
+        if(!StringUtil.isValidAndNotWhitespaces(str)) return false;
+        String allow = getSetting(setting);
+        if(!StringUtil.isValidAndNotWhitespaces(allow)) return false;
+        if(allow.equals("*")) return true;
+        if(!allow.contains(",")) return allow.equalsIgnoreCase(str);
+        String[] splt = allow.split(",");
+        for(String s : splt) if(s.equalsIgnoreCase(str)) return true;
+        return false;
+    }
 
 
     //
@@ -594,9 +722,7 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public void setArgument(int index, Object value) {
-        if (index < 0 || index >= this.paramTypes.length)
-            throw new ArrayIndexOutOfBoundsException("Argument #" + index);
-
+        if (index < 0 || index >= this.paramTypes.length) throw new ArrayIndexOutOfBoundsException("Argument #" + index);
         if (value != null) {
             value = coerceValue(this.paramTypes[index], value);
             if (!boxType(this.paramTypes[index]).isInstance(value))
@@ -607,19 +733,18 @@ public class XParam {
         this.param.args[index] = value;
     }
 
+
     @SuppressWarnings("unused")
     public Throwable getException() {
         Throwable ex = (this.field == null ? this.param.getThrowable() : null);
-        if (BuildConfig.DEBUG)
-            Log.i(TAG, "Get " + this.getPackageName() + ":" + this.getUid() + " result=" + ex.getMessage());
+        if(DebugUtil.isDebug()) Log.i(TAG, "Get " + this.getPackageName() + ":" + this.getUid() + " result=" + ex.getMessage());
         return ex;
     }
 
     @SuppressWarnings("unused")
     public Object getResult() throws Throwable {
         Object result = (this.field == null ? this.param.getResult() : this.field.get(null));
-        if (BuildConfig.DEBUG)
-            Log.i(TAG, "Get " + this.getPackageName() + ":" + this.getUid() + " result=" + result);
+        if (DebugUtil.isDebug()) Log.i(TAG, "Get " + this.getPackageName() + ":" + this.getUid() + " result=" + result);
         return result;
     }
 
@@ -632,6 +757,7 @@ public class XParam {
     @SuppressWarnings("unused")
     public void setResultByteArray(Byte[] result) throws Throwable { setResult(result); }
 
+    @SuppressWarnings("unused")
     public void setResultBytes(byte[] result) throws Throwable {
         if(result == null) {
             Log.e(TAG, "Set Bytes is NULL ??? fix");
@@ -660,8 +786,6 @@ public class XParam {
 
     @SuppressWarnings("unused")
     public void setResult(Object result) throws Throwable {
-        //Do Note they have support if you pass a LONG String
-        //
         if (BuildConfig.DEBUG)
             Log.i(TAG, "Set " + this.getPackageName() + ":" + this.getUid() +
                     " result=" + result + " return=" + this.returnType);
@@ -674,51 +798,44 @@ public class XParam {
         }
 
         if (this.field == null)
-            if (result instanceof Throwable)
-                this.param.setThrowable((Throwable) result);
-            else
-                this.param.setResult(result);
-        else
-            this.field.set(null, result);
+            if (result instanceof Throwable) this.param.setThrowable((Throwable) result);
+            else this.param.setResult(result);
+        else this.field.set(null, result);
     }
 
     @SuppressWarnings("unused")
-    public int getSettingInt(String name, int defaultValue) {
+    public Integer getSettingInt(String name, int defaultValue) {
         String setting = getSetting(name);
-        if(!StringUtil.isValidString(setting))
-            return defaultValue;
-
+        if(setting == null) return useDefault ? defaultValue : null;
         try {
             return Integer.parseInt(setting);
         }catch (Exception e) {
             Log.e(TAG, "Invalid Numeric Input::\n", e);
-            return defaultValue;
+            return useDefault ? defaultValue : null;
         }
     }
 
     @SuppressWarnings("unused")
-    public String getSettingReMap(String name, String oldName) {
-        return getSettingReMap(name, oldName, null);
-    }
+    public String getSettingReMap(String name, String oldName) { return getSettingReMap(name, oldName, null); }
 
     @SuppressWarnings("unused")
     public String getSettingReMap(String name, String oldName, String defaultValue) {
+        if(name == null && oldName == null) return useDefault ? defaultValue : null;
         String setting = getSetting(name);
-        if(setting == null && StringUtil.isValidString(oldName)) {
-            Log.w(TAG, "setting[" + name + "] was null trying old setting name [" + oldName + "]");
+        if (setting != null) return setting;
+        if(oldName != null) {
             setting = getSetting(oldName);
+            if (setting != null) return setting;
+            return useDefault ? defaultValue : null;
         }
 
-        if(setting == null)
-            return defaultValue;
-        else
-            return setting;
+        return useDefault ? defaultValue : null;
     }
 
     @SuppressWarnings("unused")
     public String getSetting(String name, String defaultValue) {
         String setting = getSetting(name);
-        return setting == null ? defaultValue : setting;
+        return setting == null && useDefault ? defaultValue : setting;
     }
 
     @SuppressWarnings("unused")
@@ -779,24 +896,59 @@ public class XParam {
 
     private static Object coerceValue(Class<?> type, Object value) {
         // TODO: check for null primitives
+        Class<?> vType = value.getClass();
+        if(vType == Double.class || vType == Float.class || vType == Long.class || vType == Integer.class || vType == String.class) {
+            Class<?> bType = boxType(type);
+            if(bType == Double.class || bType == Float.class || bType == Long.class || bType == Integer.class || bType == String.class) {
+                switch (bType.getName()) {
+                    case "java.lang.Integer":
+                        return
+                                vType == Double.class ? ((Double) value).intValue() :
+                                vType == Float.class ? ((Float) value).intValue() :
+                                vType == Long.class ? ((Long) value).intValue() :
+                                vType == String.class ? Str.tryParseInt(String.valueOf(value)) : value;
+                    case "java.lang.Double":
+                        return
+                                vType == Integer.class ? Double.valueOf((Integer) value) :
+                                vType == Float.class ? Double.valueOf((Float) value) :
+                                vType == Long.class ? Double.valueOf((Long) value) :
+                                vType == String.class ? Str.tryParseDouble(String.valueOf(value)) : value;
+                    case "java.lang.Float":
+                         return
+                                vType == Integer.class ? Float.valueOf((Integer) value) :
+                                vType == Double.class ? ((Double) value).floatValue() :
+                                vType == Long.class ? ((Long) value).floatValue() :
+                                vType == String.class ? Str.tryParseFloat(String.valueOf(value)) : value;
+                    case "java.lang.Long":
+                        return
+                                vType == Integer.class ? Long.valueOf((Integer) value) :
+                                vType == Double.class ? ((Double) value).longValue() :
+                                vType == Float.class ? ((Float) value).longValue() :
+                                vType == String.class ? Str.tryParseLong(String.valueOf(value)) : value;
+                    case "java.lang.String":
+                        return
+                                vType == Integer.class ? Integer.toString((int) value) :
+                                vType == Double.class ? Double.toString((double) value) :
+                                vType == Float.class ? Float.toString((float) value) :
+                                vType == Long.class ? Long.toString((long) value) : value;
+                }
+            }
+        }
+
 
         // Lua 5.2 auto converts numbers into floating or integer values
-        if (Integer.class.equals(value.getClass())) {
-            if (long.class.equals(type))
-                return (long) (int) value;
-            else if (float.class.equals(type))
-            return (float) (int) value;
+    if (Integer.class.equals(value.getClass())) {
+            if (long.class.equals(type)) return (long) (int) value;
+            else if (float.class.equals(type)) return (float) (int) value;
         else if (double.class.equals(type))
             return (double) (int) value;
     } else if (Double.class.equals(value.getClass())) {
         if (float.class.equals(type))
             return (float) (double) value;
     } else if (value instanceof String && int.class.equals(type)) {
-            Log.i(TAG, "IS String or Int class");
             return Integer.parseInt((String) value);
         }
         else if (value instanceof String && long.class.equals(type)) {
-            Log.i(TAG, "IS String or Long class");
             return Long.parseLong((String) value);
         }
         else if (value instanceof String && float.class.equals(type))

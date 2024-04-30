@@ -5,9 +5,9 @@ function after(hook, param)
 	end
 
     local fake = param:getSetting("unique.network.mac.address", "00:1A:2B:3C:4D:5E")
-    --if fake:length() > 17 or fake:length() < 12 then
-    --	fake = def
-    --end
+    if fake == nil then
+        return false
+    end
 
     param:setResult(fake)
     return true, ret, fake

@@ -1,4 +1,25 @@
 [
+
+  {
+    "builtin": true,
+    "collection": "PrivacyEx",
+    "group": "ID.Network",
+    "name": "NetworkInfo.getExtraInfo",
+    "author": "M66B",
+    "className": "android.net.NetworkInfo",
+    "methodName": "getExtraInfo",
+    "parameterTypes": [ ],
+    "returnType": "java.lang.String",
+    "minSdk": 1,
+    "maxSdk": 999,
+    "version": 1,
+    "description": "",
+    "enabled":true,
+    "optional":true,
+    "usage":true,
+    "notify":false,
+    "luaScript": "@generic_null_value"
+  },
   {
     "builtin": true,
     "collection": "PrivacyEx",
@@ -63,9 +84,6 @@
     "notify":false,
     "luaScript": "@id_wifimanager_getdhcpinfo"
   },
-
-
-
   {
     "builtin": true,
     "collection": "PrivacyEx",
@@ -86,7 +104,6 @@
     "notify":false,
     "luaScript": "@generic_empty_list"
   },
-
   {
     "builtin": true,
     "collection": "PrivacyEx",
@@ -105,10 +122,9 @@
     "optional":true,
     "usage":true,
     "notify":false,
-    "luaScript": "@id_linkproperties_getdomains"
+    "luaScript": "@id_linkproperties_getdomains",
+    "settings": ["network.dns"]
   },
-
-
   {
     "builtin": true,
     "collection": "PrivacyEx",

@@ -10,6 +10,7 @@ import eu.faircode.xlua.XDatabase;
 import eu.faircode.xlua.XGlobals;
 import eu.faircode.xlua.api.XResult;
 import eu.faircode.xlua.api.hook.XLuaHook;
+import eu.faircode.xlua.api.properties.MockPropSetting;
 import eu.faircode.xlua.api.settings.LuaSetting;
 import eu.faircode.xlua.api.settings.LuaSettingDefault;
 import eu.faircode.xlua.api.settings.LuaSettingExtended;
@@ -19,12 +20,14 @@ import eu.faircode.xlua.api.xstandard.database.DatabaseHelp;
 import eu.faircode.xlua.api.xstandard.database.SqlQuerySnake;
 import eu.faircode.xlua.api.xlua.provider.XLuaAppProvider;
 import eu.faircode.xlua.utilities.CollectionUtil;
+import eu.faircode.xlua.utilities.StringUtil;
 
 public class LuaSettingsManager {
     private static final String TAG = "XLua.LuaSettingsDatabase";
     private static final String JSON = "settingdefaults.json";
     private static final int COUNT = 118;
 
+    public static final String USE_DEFAULT = "Usedefault";
     public static final String DEFAULT_THEME = "dark";
     public static final String DEFAULT_COLLECTIONS = "Privacy,PrivacyEx";
 
@@ -34,7 +37,6 @@ public class LuaSettingsManager {
     public static XResult putSetting(Context context, XDatabase db, Integer user, String category, String settingName, String value) { return putSetting(context, db, user, category, settingName, value, false); }
     public static XResult putSetting(Context context, XDatabase db, Integer user, String category, String settingName, String value, Boolean kill) { return putSetting(context, db, LuaSettingPacket.create(user, category, settingName, value, null, LuaSettingPacket.getCodeFromValue(value), kill)); }
     public static XResult putSetting(Context context, XDatabase db, LuaSettingPacket setting) {
-        Log.i(TAG, " putSetting packet=" + setting);
         XResult res = XResult.create().setMethodName("putSetting").setExtra(setting.toString());
         setting.ensureIdentification();
         boolean result =
@@ -142,6 +144,8 @@ public class LuaSettingsManager {
 
         Log.i(TAG, "Settings query for (user=" + user + " pkg=" + category + ") size=" + userSettings.size());
         for(LuaSettingDefault s : mappedSettings) {
+            if(!StringUtil.isValidAndNotWhitespaces(s.getName())) continue;
+            if(s.getName().equalsIgnoreCase(USE_DEFAULT)) continue;
             LuaSettingExtended ss = new LuaSettingExtended(s);
             ss.setValueForce(null);
             allSettings.put(s.getName(), ss);
@@ -151,12 +155,10 @@ public class LuaSettingsManager {
         if(CollectionUtil.isValid(userSettings)) {
             for(LuaSetting s : userSettings) {
                 String sName = s.getName();
+                if(!StringUtil.isValidAndNotWhitespaces(sName)) continue;
                 LuaSettingDefault set = allSettings.get(sName);
-                if(set != null) {
-                    set.setValue(s.getValue());
-                }else {
-                    allSettings.put(s.getName(), new LuaSettingExtended(s));
-                }
+                if(set != null) { set.setValue(s.getValue());
+                }else { allSettings.put(sName, new LuaSettingExtended(s)); }
             }
         }
 
@@ -168,6 +170,7 @@ public class LuaSettingsManager {
                 continue;
 
             for(String s : settings) {
+                if(!StringUtil.isValidAndNotWhitespaces(s)) continue;
                 if(!allSettings.containsKey(s)) {
                     LuaSettingExtended obj = new LuaSettingExtended();
                     obj.setUser(user);
@@ -199,35 +202,34 @@ public class LuaSettingsManager {
                 !setting.isDeleteDefault() ?
                         DatabaseHelp.insertItem(
                                 db,
-                                LuaSettingDefault.Table.name,
+                                LuaSettingDefault.Table.NAME,
                                 setting.createDefault()) :
                         DatabaseHelp.deleteItem(
                                 SqlQuerySnake
-                                        .create(db, LuaSettingDefault.Table.name)
-                                        .whereColumn("name", setting.getName()));
+                                        .create(db, LuaSettingDefault.Table.NAME)
+                                        .whereColumn(LuaSettingDefault.Table.FIELD_NAME, setting.getName()));
 
         if(setting.isDeleteDefault() && !result)
-            result = SqlQuerySnake.create(db, LuaSettingDefault.Table.name)
-                    .whereColumn("name", setting.getName())
+            result = SqlQuerySnake.create(db, LuaSettingDefault.Table.NAME)
+                    .whereColumn(LuaSettingDefault.Table.FIELD_NAME, setting.getName())
                     .exists();
 
-        Log.i(TAG, "Default packet insert return=" + result);
         return res.setResult(result);
     }
 
     public static String getDefaultMappedSettingValue(XDatabase db, String settingName) {
         return SqlQuerySnake
-                .create(db, LuaSettingDefault.Table.name)
+                .create(db, LuaSettingDefault.Table.NAME)
                 .ensureDatabaseIsReady()
-                .whereColumn("name", settingName)
-                .queryGetFirstString("value", true);
+                .whereColumn(LuaSettingDefault.Table.FIELD_NAME, settingName)
+                .queryGetFirstString(LuaSettingDefault.Table.FIELD_DEFAULT_VALUE, true);
     }
 
     public static LuaSettingDefault getMappedSetting(Context context, XDatabase db, String settingName) {
         return SqlQuerySnake
-                .create(db, LuaSettingDefault.Table.name)
+                .create(db, LuaSettingDefault.Table.NAME)
                 .ensureDatabaseIsReady()
-                .whereColumn("name", settingName)
+                .whereColumn(LuaSettingDefault.Table.FIELD_NAME, settingName)
                 .queryGetFirstAs(LuaSettingDefault.class, true);
     }
 
@@ -235,12 +237,23 @@ public class LuaSettingsManager {
         return DatabaseHelp.getOrInitTable(
                 context,
                 db,
-                LuaSettingDefault.Table.name,
-                LuaSettingDefault.Table.columns,
+                LuaSettingDefault.Table.NAME,
+                LuaSettingDefault.Table.COLUMNS,
                 JSON,
                 true,
                 LuaSettingDefault.class,
                 COUNT);
+    }
+
+    public static boolean compareJsonToDatabase(Context context, XDatabase db) {
+        return DatabaseHelp.compareJsonWithDatabase(
+                context,
+                db,
+                LuaSettingDefault.Table.NAME,
+                LuaSettingDefault.Table.COLUMNS,
+                JSON,
+                LuaSettingDefault.class,
+                true);
     }
 
     public static boolean prepareDatabaseTable(XDatabase db) { return DatabaseHelp.prepareDatabase(db, LuaSetting.Table.name, LuaSetting.Table.columns); }
@@ -248,8 +261,8 @@ public class LuaSettingsManager {
         return DatabaseHelp.prepareTableIfMissingOrInvalidCount(
                 context,
                 db,
-                LuaSettingDefault.Table.name,
-                LuaSettingDefault.Table.columns,
+                LuaSettingDefault.Table.NAME,
+                LuaSettingDefault.Table.COLUMNS,
                 JSON,
                 true,
                 LuaSettingDefault.class,
